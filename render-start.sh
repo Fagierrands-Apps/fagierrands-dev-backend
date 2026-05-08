@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
-set -e
+
+echo "Testing database connection..."
+python -c "
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrandsbackup.settings')
+import django
+django.setup()
+from django.db import connection
+try:
+    connection.ensure_connection()
+    print('✓ Database connection successful')
+except Exception as e:
+    print(f'✗ Database connection failed: {e}')
+    exit(1)
+"
 
 echo "Running migrations..."
 python manage.py migrate --noinput
