@@ -128,22 +128,20 @@ WSGI_APPLICATION = 'fagierrandsbackup.wsgi.application'
     #}
 
 # Database configuration
-db_url = os.environ.get('DATABASE_URL', '')
-if 'sqlite' in db_url:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'newdb_qjg7',
+        'USER': 'newdb_qjg7_user',
+        'PASSWORD': 'mF6Td74ZwUF5cBVWqwTDhv83Jv0Ic5L8',
+        'HOST': 'dpg-d7v29clckfvc739s1i90-a.virginia-postgres.render.com',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
+        'CONN_MAX_AGE': 600,
     }
-else:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=db_url,
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
+}
 
 
 # Custom user model
