@@ -562,62 +562,79 @@ class RegisterView(generics.CreateAPIView):
 @permission_classes([permissions.AllowAny])
 def verify_phone(request):
     """Verify phone number with OTP"""
-    # Disable authentication for this endpoint
-    request._authenticator = None
-    from .services.sms_service import SMSService
-    
-    phone_number = request.data.get('phone_number')
-    otp = request.data.get('otp')
-    
-    if not phone_number or not otp:
-        return Response({
-            'error': 'Phone number and OTP are required'
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Normalize phone number
-    normalized_phone = normalize_phone_number(phone_number)
-    
     try:
-        user = User.objects.get(phone_number=normalized_phone)
-    except User.DoesNotExist:
+        # Disable authentication for this endpoint
+        request._authenticator = None
+        from .services.sms_service import SMSService
+        
+        phone_number = request.data.get('phone_number')
+        otp = request.data.get('otp')
+        
+        logger.info(f"Verify phone attempt: {phone_number}, OTP: {otp}")
+        
+        if not phone_number or not otp:
+            return Response({
+                'error': 'Phone number and OTP are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Normalize phone number
+        normalized_phone = normalize_phone_number(phone_number)
+        logger.info(f"Normalized phone: {normalized_phone}")
+        
+        try:
+            user = User.objects.get(phone_number=normalized_phone)
+            logger.info(f"User found: {user.id}, stored OTP: {user.phone_otp}")
+        except User.DoesNotExist:
+            logger.error(f"User not found for phone: {normalized_phone}")
+            return Response({
+                'error': 'User not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if OTP matches
+        if user.phone_otp != otp:
+            logger.error(f"OTP mismatch. Expected: {user.phone_otp}, Got: {otp}")
+            return Response({
+                'error': 'Invalid OTP'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if OTP expired
+        if not SMSService.is_otp_valid(user.phone_otp_created_at):
+            logger.error(f"OTP expired for user: {user.id}")
+            return Response({
+                'error': 'OTP has expired. Please request a new one.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verify phone and activate user
+        user.phone_verified = True
+        user.is_active = True
+        user.is_verified = True
+        user.phone_otp = None
+        user.phone_otp_created_at = None
+        user.save()
+        
+        logger.info(f"Phone verified successfully for user: {user.id}")
+        
+        # Generate auth tokens
+        refresh = RefreshToken.for_user(user)
+        
         return Response({
-            'error': 'User not found'
-        }, status=status.HTTP_404_NOT_FOUND)
+            'message': 'Phone verified successfully',
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'phone_number': user.phone_number,
+                'user_type': user.user_type
+            }
+        }, status=status.HTTP_200_OK)
     
-    # Check if OTP matches
-    if user.phone_otp != otp:
+    except Exception as e:
+        logger.error(f"Error in verify_phone: {str(e)}", exc_info=True)
         return Response({
-            'error': 'Invalid OTP'
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Check if OTP expired
-    if not SMSService.is_otp_valid(user.phone_otp_created_at):
-        return Response({
-            'error': 'OTP has expired. Please request a new one.'
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Verify phone and activate user
-    user.phone_verified = True
-    user.is_active = True
-    user.is_verified = True
-    user.phone_otp = None
-    user.phone_otp_created_at = None
-    user.save()
-    
-    # Generate auth tokens
-    refresh = RefreshToken.for_user(user)
-    
-    return Response({
-        'message': 'Phone verified successfully',
-        'access': str(refresh.access_token),
-        'refresh': str(refresh),
-        'user': {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'phone_number': user.phone_number,
-            'user_type': user.user_type
-        }
+            'error': f'Server error: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     }, status=status.HTTP_200_OK)
 
 
