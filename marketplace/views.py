@@ -145,6 +145,8 @@ class ProductReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return ProductReview.objects.none()
         return ProductReview.objects.filter(reviewer=self.request.user)
     
     def perform_create(self, serializer):
@@ -156,6 +158,8 @@ class VendorReviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return VendorReview.objects.none()
         return VendorReview.objects.filter(reviewer=self.request.user)
     
     def perform_create(self, serializer):

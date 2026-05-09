@@ -175,6 +175,8 @@ class UserPushSubscriptionViewSet(viewsets.ModelViewSet):
         """
         Return push subscriptions for the currently authenticated user.
         """
+        if getattr(self, 'swagger_fake_view', False):
+            return UserPushSubscription.objects.none()
         return UserPushSubscription.objects.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
