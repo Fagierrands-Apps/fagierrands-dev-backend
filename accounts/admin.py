@@ -42,6 +42,15 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('user_type', 'is_verified', 'is_staff', 'is_superuser', 'is_active', 'account_manager')
     search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number')
     actions = [export_users_to_excel]
+    
+    def delete_queryset(self, request, queryset):
+        """Override to handle cascading deletes properly"""
+        for obj in queryset:
+            obj.delete()
+    
+    def delete_model(self, request, obj):
+        """Override to handle cascading deletes properly"""
+        obj.delete()
 
 class EmailVerificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'token', 'created_at', 'expires_at', 'is_used', 'is_expired')
