@@ -29,7 +29,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get(
     'ALLOWED_HOSTS',
-    'fagierrands-backend-xwqi.onrender.com,fagierrands-backend.onrender.com,fagierrands-server.onrender.com,fagierrands-server.vercel.app,fagiserver.fagitone.com,fagierrands-x9ow.vercel.app,localhost,127.0.0.1,fagierrands.onrender.com,fagierrands.vercel.app,testserver,0.0.0.0,192.168.88.160'
+    'fagierrands-dev-backend.onrender.com,fagierrands-backend-xwqi.onrender.com,fagierrands-backend.onrender.com,fagierrands-server.onrender.com,fagierrands-server.vercel.app,fagiserver.fagitone.com,fagierrands-x9ow.vercel.app,localhost,127.0.0.1,fagierrands.onrender.com,fagierrands.vercel.app,testserver,0.0.0.0,192.168.88.160'
 ).split(',')]
 # Ensure local development IP is always included
 if '192.168.88.160' not in ALLOWED_HOSTS:
@@ -37,6 +37,7 @@ if '192.168.88.160' not in ALLOWED_HOSTS:
 
 # CSRF
 CSRF_TRUSTED_ORIGINS = [
+    'https://fagierrands-dev-backend.onrender.com',
     'https://fagierrands-backend-xwqi.onrender.com',
     'https://fagierrands-backend.onrender.com',
     'https://fagierrands-server.onrender.com',
