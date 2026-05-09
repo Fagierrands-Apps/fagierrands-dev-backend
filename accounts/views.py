@@ -222,14 +222,22 @@ class LoginView(APIView):
                         "requires_verification": True
                     }, status=status.HTTP_403_FORBIDDEN)
                 
-                refresh = RefreshToken.for_user(user)
+                try:
+                    refresh = RefreshToken.for_user(user)
+                    access_token = str(refresh.access_token)
+                    refresh_token = str(refresh)
+                except Exception as token_error:
+                    logger.error(f"Token generation error in login: {str(token_error)}")
+                    return Response({"error": "Token generation failed. Please contact support."}, 
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
                 user.last_login = timezone.now()
                 user.save()
                 
                 return Response({
                     'message': 'Login successful',
-                    'token': str(refresh.access_token),
-                    'refresh': str(refresh),
+                    'token': access_token,
+                    'refresh': refresh_token,
                     'user_id': user.id,
                     'email': user.email,
                     'user_type': getattr(user, 'user_type', 'user'),

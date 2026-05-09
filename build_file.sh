@@ -25,9 +25,9 @@ if not User.objects.filter(username='admin').exists():
     admin = User.objects.create_superuser(
         username='admin',
         email='admin@fagierrands.com',
-        password='FagiAdmin2026!',
+        password='admin123',
         phone_number='+254700000000',
-        user_type='ADMIN',
+        user_type='admin',
         first_name='Admin',
         last_name='User'
     )
