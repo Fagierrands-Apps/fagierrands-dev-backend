@@ -635,7 +635,6 @@ def verify_phone(request):
         return Response({
             'error': f'Server error: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    }, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(
