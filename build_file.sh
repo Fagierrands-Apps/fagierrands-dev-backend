@@ -13,7 +13,23 @@ python manage.py collectstatic --noinput
 
 # Apply database migrations
 echo "Applying database migrations..."
-python manage.py migrate
+python manage.py migrate --noinput
+
+# Verify token_blacklist tables exist
+echo "Verifying token_blacklist tables..."
+python manage.py shell << 'VERIFY_EOF'
+from django.db import connection
+cursor = connection.cursor()
+cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename LIKE '%token_blacklist%'")
+tables = cursor.fetchall()
+print(f"Token blacklist tables found: {tables}")
+if not tables:
+    print("WARNING: token_blacklist tables not found! Running migrations again...")
+VERIFY_EOF
+
+# Run token_blacklist migrations specifically
+echo "Ensuring token_blacklist migrations..."
+python manage.py migrate token_blacklist --noinput
 
 # Create superuser if it doesn't exist
 echo "Creating admin user..."
