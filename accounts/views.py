@@ -512,6 +512,17 @@ def verify_phone(request):
                 'error': 'OTP has expired. Please request a new one.'
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        # Generate auth tokens first (before saving user)
+        try:
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+        except Exception as token_error:
+            logger.error(f"Token generation error: {str(token_error)}")
+            # Continue without tokens - user can login later
+            access_token = None
+            refresh_token = None
+        
         # Verify phone and activate user
         user.phone_verified = True
         user.is_active = True
@@ -522,13 +533,8 @@ def verify_phone(request):
         
         logger.info(f"Phone verified successfully for user: {user.id}")
         
-        # Generate auth tokens
-        refresh = RefreshToken.for_user(user)
-        
-        return Response({
+        response_data = {
             'message': 'Phone verified successfully',
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
             'user': {
                 'id': user.id,
                 'username': user.username,
@@ -536,7 +542,15 @@ def verify_phone(request):
                 'phone_number': user.phone_number,
                 'user_type': user.user_type
             }
-        }, status=status.HTTP_200_OK)
+        }
+        
+        if access_token and refresh_token:
+            response_data['access'] = access_token
+            response_data['refresh'] = refresh_token
+        else:
+            response_data['note'] = 'Please login to get access tokens'
+        
+        return Response(response_data, status=status.HTTP_200_OK)
     
     except Exception as e:
         logger.error(f"Error in verify_phone: {str(e)}", exc_info=True)
