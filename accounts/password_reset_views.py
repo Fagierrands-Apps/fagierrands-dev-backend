@@ -20,9 +20,13 @@ def generate_otp():
 
 
 def send_otp_sms(phone_number, otp):
-    logger.info(f"Sending OTP {otp} to {phone_number}")
-    # Implement your SMS sending logic here
-    pass
+    """Send OTP via SMS using the SMS service"""
+    from .services.sms_service import SMSService
+    try:
+        SMSService.send_otp(phone_number, otp, purpose='password_reset')
+        logger.info(f"Password reset OTP sent to {phone_number}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset OTP to {phone_number}: {str(e)}")
 
 
 class RequestPasswordResetView(APIView):
@@ -49,8 +53,8 @@ class RequestPasswordResetView(APIView):
             user = User.objects.get(phone_number=normalized_phone)
             otp_code = generate_otp()
             
-            EmailOTP.objects.filter(user=user, otp_type='password_reset').delete()
-            EmailOTP.objects.create(user=user, otp=otp_code, otp_type='password_reset')
+            EmailOTP.objects.filter(user=user).delete()
+            EmailOTP.objects.create(user=user, otp_code=otp_code)
             
             send_otp_sms(normalized_phone, otp_code)
             
@@ -80,26 +84,18 @@ class VerifyPasswordResetOTPView(APIView):
         if not phone_number or not otp:
             return Response({'error': 'Phone number and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Normalize phone number
         normalized_phone = normalize_phone_number(phone_number)
         
         try:
             user = User.objects.get(phone_number=normalized_phone)
             otp_obj = EmailOTP.objects.filter(
                 user=user, 
-                otp=otp, 
-                otp_type='password_reset',
-                is_verified=False
+                otp_code=otp, 
+                is_used=False
             ).first()
             
             if not otp_obj:
                 return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            if not otp_obj.is_valid():
-                return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            otp_obj.is_verified = True
-            otp_obj.save()
             
             return Response({
                 'message': 'OTP verified successfully',
@@ -132,25 +128,24 @@ class ResetPasswordView(APIView):
         if not all([phone_number, otp, new_password]):
             return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Normalize phone number
         normalized_phone = normalize_phone_number(phone_number)
         
         try:
             user = User.objects.get(phone_number=normalized_phone)
             otp_obj = EmailOTP.objects.filter(
                 user=user,
-                otp=otp,
-                otp_type='password_reset',
-                is_verified=True
+                otp_code=otp,
+                is_used=False
             ).first()
             
             if not otp_obj:
-                return Response({'error': 'Invalid or unverified OTP'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
             
             user.set_password(new_password)
             user.save()
             
-            otp_obj.delete()
+            otp_obj.is_used = True
+            otp_obj.save()
             
             return Response({'message': 'Password reset successful'}, status=status.HTTP_200_OK)
         except User.DoesNotExist:

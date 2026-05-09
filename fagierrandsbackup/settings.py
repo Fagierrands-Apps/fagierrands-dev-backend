@@ -129,20 +129,30 @@ WSGI_APPLICATION = 'fagierrandsbackup.wsgi.application'
     #}
 
 # Database configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'newdb_qjg7'),
-        'USER': os.environ.get('DB_USER', 'newdb_qjg7_user'),
-        'PASSWORD': os.environ.get('DB_PASS', 'mF6Td74ZwUF5cBVWqwTDhv83Jv0Ic5L8'),
-        'HOST': os.environ.get('DB_HOST', 'dpg-d7v29clckfvc739s1i90-a.virginia-postgres.render.com'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-        'OPTIONS': {
-            'sslmode': 'require' if not DEBUG else 'prefer',
-        },
-        'CONN_MAX_AGE': 600,
+# Use SQLite for local development if DB_HOST is not set
+if os.environ.get('DB_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'newdb_qjg7'),
+            'USER': os.environ.get('DB_USER', 'newdb_qjg7_user'),
+            'PASSWORD': os.environ.get('DB_PASS', 'mF6Td74ZwUF5cBVWqwTDhv83Jv0Ic5L8'),
+            'HOST': os.environ.get('DB_HOST', 'dpg-d7v29clckfvc739s1i90-a.virginia-postgres.render.com'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require' if not DEBUG else 'prefer',
+            },
+            'CONN_MAX_AGE': 600,
+        }
     }
-}
+else:
+    # SQLite for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Custom user model

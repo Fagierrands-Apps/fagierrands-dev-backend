@@ -193,152 +193,60 @@ class LoginView(APIView):
     )
     def post(self, request):
         try:
-            print("LoginView: Received login request")
-            
-            # Handle JSON parsing errors gracefully
-            try:
-                phone_number = request.data.get('phone_number')
-                password = request.data.get('password')
-            except ParseError as e:
-                print(f"LoginView: JSON parse error: {str(e)}")
-                return Response({"error": "Invalid JSON format in request body"}, 
-                                status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                print(f"LoginView: Data parsing error: {str(e)}")
-                return Response({"error": "Error parsing request data"}, 
-                                status=status.HTTP_400_BAD_REQUEST)
-            
-            print(f"LoginView: Login attempt for: {phone_number}")
+            phone_number = request.data.get('phone_number')
+            password = request.data.get('password')
             
             if not phone_number or not password:
-                print("LoginView: Missing credentials")
                 return Response({"error": "Please provide both phone number and password"}, 
                                 status=status.HTTP_400_BAD_REQUEST)
             
-            # Normalize phone number to standard format
             normalized_phone = normalize_phone_number(phone_number)
-            print(f"LoginView: Normalized phone: {normalized_phone}")
             
-            # Try to find user by phone number
             try:
-                print(f"LoginView: Looking up user with: {normalized_phone}")
                 user = User.objects.get(phone_number=normalized_phone)
                 username = user.username
-                print(f"LoginView: Found user, username: {username}")
             except User.DoesNotExist:
-                print(f"LoginView: No user found with: {phone_number}")
                 return Response({"error": "No account found with this phone number"}, 
                                 status=status.HTTP_404_NOT_FOUND)
             except User.MultipleObjectsReturned:
-                print(f"LoginView: Multiple users found")
-                # Handle duplicate case - get the most recently created one
-                if email_or_phone.startswith('+') or email_or_phone.replace(' ', '').isdigit():
-                    users = User.objects.filter(phone_number=email_or_phone).order_by('-date_joined')
-                else:
-                    users = User.objects.filter(email=email_or_phone).order_by('-date_joined')
-                user = users.first()
+                user = User.objects.filter(phone_number=normalized_phone).order_by('-date_joined').first()
                 username = user.username
-                print(f"LoginView: Using most recent user with email {email}, username: {username}")
-                print(f"LoginView: Warning: Found {users.count()} users with same email - this should be investigated")
-            except Exception as lookup_error:
-                print(f"LoginView: Error looking up user: {str(lookup_error)}")
-                return Response({"error": "Error looking up user account"}, 
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
-            # Authenticate with username (which could be the Supabase UID or a regular username)
-            print(f"LoginView: Attempting to authenticate user: {username}")
-            try:
-                user = authenticate(username=username, password=password)
-            except Exception as auth_error:
-                print(f"LoginView: Authentication error: {str(auth_error)}")
-                return Response({"error": f"Authentication error: {str(auth_error)}"}, 
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            user = authenticate(username=username, password=password)
             
             if user is not None:
-                print(f"LoginView: Authentication successful for user: {username}")
-                
-                # Check if phone is verified
                 if not user.phone_verified:
-                    print(f"LoginView: Phone not verified for user: {username}")
                     return Response({
                         "error": "Phone number not verified",
                         "phone_number": user.phone_number,
                         "requires_verification": True
                     }, status=status.HTTP_403_FORBIDDEN)
                 
-                # Generate tokens
-                try:
-                    print("LoginView: Generating JWT token")
-                    refresh = RefreshToken.for_user(user)
-                    print("LoginView: JWT token generated successfully")
-                except Exception as token_error:
-                    print(f"LoginView: Error generating token: {str(token_error)}")
-                    return Response({"error": f"Error generating authentication token: {str(token_error)}"}, 
-                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                refresh = RefreshToken.for_user(user)
+                user.last_login = timezone.now()
+                user.save()
                 
-                # Update last login time
-                try:
-                    print("LoginView: Updating last login time")
-                    user.last_login = timezone.now()
-                    user.save()
-                    print("LoginView: Last login time updated")
-                except Exception as save_error:
-                    print(f"LoginView: Error updating last login time: {str(save_error)}")
-                    # Continue anyway since we have the token
-                
-                # Prepare response data with error handling for missing fields
-                try:
-                    print("LoginView: Preparing response data")
-                    response_data = {
-                        'message': 'Login successful',
-                        'token': str(refresh.access_token),
-                        'refresh': str(refresh),
-                        'user_id': user.id,
-                        'email': user.email,
-                    }
-                    
-                    # Safely add optional fields
-                    if hasattr(user, 'user_type'):
-                        response_data['user_type'] = user.user_type
-                    else:
-                        print("LoginView: Warning: user_type field not found on User model")
-                        response_data['user_type'] = 'user'  # Default value
-                        
-                    if hasattr(user, 'is_verified'):
-                        response_data['is_verified'] = user.is_verified
-                    else:
-                        print("LoginView: Warning: is_verified field not found on User model")
-                        response_data['is_verified'] = False  # Default value
-                        
-                    if hasattr(user, 'email_verified'):
-                        response_data['email_verified'] = user.email_verified
-                    else:
-                        print("LoginView: Warning: email_verified field not found on User model")
-                        response_data['email_verified'] = False  # Default value
-                    
-                    print(f"LoginView: Login successful, returning response")
-                    return Response(response_data, status=status.HTTP_200_OK)
-                except Exception as response_error:
-                    print(f"LoginView: Error creating response: {str(response_error)}")
-                    return Response({"error": f"Error creating login response: {str(response_error)}"}, 
-                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({
+                    'message': 'Login successful',
+                    'token': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user_id': user.id,
+                    'email': user.email,
+                    'user_type': getattr(user, 'user_type', 'user'),
+                    'is_verified': getattr(user, 'is_verified', False),
+                    'email_verified': getattr(user, 'email_verified', False)
+                }, status=status.HTTP_200_OK)
             else:
-                print(f"LoginView: Authentication failed for username: {username}")
                 return Response({"error": "Invalid credentials"}, 
                                 status=status.HTTP_401_UNAUTHORIZED)
                                 
-        except ParseError as e:
-            print(f"LoginView: Parse error: {str(e)}")
+        except ParseError:
             return Response({"error": "Invalid request format"}, 
                             status=status.HTTP_400_BAD_REQUEST)
-        except ValidationError as e:
-            print(f"LoginView: Validation error: {str(e)}")
+        except ValidationError:
             return Response({"error": "Invalid request data"}, 
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(f"LoginView: Unexpected error: {str(e)}")
-            import traceback
-            traceback.print_exc()
+        except Exception:
             return Response({"error": "Internal server error occurred"}, 
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
