@@ -132,13 +132,13 @@ WSGI_APPLICATION = 'fagierrandsbackup.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'newdb_qjg7',
-        'USER': 'newdb_qjg7_user',
-        'PASSWORD': 'mF6Td74ZwUF5cBVWqwTDhv83Jv0Ic5L8',
-        'HOST': 'dpg-d7v29clckfvc739s1i90-a.virginia-postgres.render.com',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'newdb_qjg7'),
+        'USER': os.environ.get('DB_USER', 'newdb_qjg7_user'),
+        'PASSWORD': os.environ.get('DB_PASS', 'mF6Td74ZwUF5cBVWqwTDhv83Jv0Ic5L8'),
+        'HOST': os.environ.get('DB_HOST', 'dpg-d7v29clckfvc739s1i90-a.virginia-postgres.render.com'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
         'OPTIONS': {
-            'sslmode': 'require',
+            'sslmode': 'require' if not DEBUG else 'prefer',
         },
         'CONN_MAX_AGE': 600,
     }
