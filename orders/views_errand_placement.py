@@ -331,7 +331,7 @@ def confirm_errand(request, order_id):
             
             # Send SMS notification to client
             try:
-                from accounts.sms_service import SMSService
+                from accounts.services.sms_service import SMSService
                 sms_message = f"Your errand '{order.title}' has been confirmed. Order ID: {order.id}. Pickup: {order.pickup_address}. Delivery: {order.delivery_address}. Total: KES {order.price}. We'll notify you when a rider accepts."
                 SMSService.send_sms(request.user.phone_number, sms_message)
             except Exception as sms_error:
