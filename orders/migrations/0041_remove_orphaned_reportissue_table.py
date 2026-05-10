@@ -4,14 +4,10 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('orders', '0040_remove_bankingorder_recipient_account_and_more'),
+        ('orders', '0039_add_draft_status'),
     ]
 
     operations = [
-        # Delete the ReportIssue model
-        migrations.DeleteModel(
-            name='ReportIssue',
-        ),
         # Drop the orphaned reportissue tables if they exist
         migrations.RunSQL(
             sql="DROP TABLE IF EXISTS orders_reportissue_evidence_photos CASCADE;",

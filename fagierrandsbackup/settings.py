@@ -142,10 +142,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'vivo_y31_d',
-            'USER': 'vivo_y31_d_user',
-            'PASSWORD': '1AX5KuGECgbLqwFslMAzNPSPQsshEYsQ',
-            'HOST': 'dpg-d7voj4v7f7vs73c12a4g-a',
+            'NAME': 'thirddb_yjtl',
+            'USER': 'thirddb_yjtl_user',
+            'PASSWORD': 'PUZzZo5hrPJns0s6GRuTYlBJoqEm18ug',
+            'HOST': 'dpg-d8013167r5hc73b6vrhg-a.virginia-postgres.render.com',
             'PORT': '5432',
             'CONN_MAX_AGE': 600,
         }
