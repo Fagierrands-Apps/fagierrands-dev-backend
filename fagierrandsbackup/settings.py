@@ -145,7 +145,7 @@ else:
             'NAME': 'thirddb_yjtl',
             'USER': 'thirddb_yjtl_user',
             'PASSWORD': 'PUZzZo5hrPJns0s6GRuTYlBJoqEm18ug',
-            'HOST': 'dpg-d8013167r5hc73b6vrhg-a.virginia-postgres.render.com',
+            'HOST': 'dpg-d8013167r5hc73b6vrhg-a',
             'PORT': '5432',
             'CONN_MAX_AGE': 600,
         }
