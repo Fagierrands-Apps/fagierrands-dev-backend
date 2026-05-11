@@ -10,6 +10,7 @@ class GoogleMapsService:
     
     PLACES_AUTOCOMPLETE_URL = "https://places.googleapis.com/v1/places:autocomplete"
     GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json"
+    PLACE_DETAILS_URL = "https://places.googleapis.com/v1/places"
     
     def __init__(self):
         self.api_key = settings.GOOGLE_MAPS_API_KEY
@@ -61,6 +62,34 @@ class GoogleMapsService:
             return response.json()
         except requests.exceptions.RequestException as e:
             logger.error(f"Google Places Autocomplete error: {str(e)}")
+            raise
+    
+    def get_place_details(self, place_id):
+        """
+        Get place details including coordinates
+        
+        Args:
+            place_id: Google Place ID
+            
+        Returns:
+            dict: Place details with location coordinates
+        """
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': self.api_key,
+            'X-Goog-FieldMask': 'location,formattedAddress'
+        }
+        
+        try:
+            response = requests.get(
+                f"{self.PLACE_DETAILS_URL}/{place_id}",
+                headers=headers,
+                timeout=5
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Google Place Details error: {str(e)}")
             raise
     
     def reverse_geocode(self, lat, lng):

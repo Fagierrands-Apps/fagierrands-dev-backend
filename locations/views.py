@@ -11,6 +11,7 @@ import requests
 import os
 import json
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .models import Location, UserLocation, Waypoint, RouteCalculation
 from .serializers import (
@@ -392,11 +393,12 @@ class DistanceCalculationView(APIView):
 
 
 class LocationAutocompleteView(APIView):
-    """Google Places Autocomplete for location search"""
+    """Google Places Autocomplete with coordinates for location search"""
     permission_classes = [permissions.IsAuthenticated]
     
     def get(self, request):
         query = request.query_params.get('q', '').strip()
+        include_coords = request.query_params.get('include_coords', 'true').lower() == 'true'
         
         if not query:
             return Response(
@@ -413,14 +415,46 @@ class LocationAutocompleteView(APIView):
             
             # Transform response to mobile-friendly format
             suggestions = []
-            for item in result.get('suggestions', []):
+            for idx, item in enumerate(result.get('suggestions', [])):
                 prediction = item.get('placePrediction', {})
-                suggestions.append({
-                    'place_id': prediction.get('placeId'),
+                place_id = prediction.get('placeId')
+                
+                suggestion = {
+                    'place_id': place_id,
                     'description': prediction.get('text', {}).get('text', ''),
                     'main_text': prediction.get('structuredFormat', {}).get('mainText', {}).get('text', ''),
-                    'secondary_text': prediction.get('structuredFormat', {}).get('secondaryText', {}).get('text', '')
-                })
+                    'secondary_text': prediction.get('structuredFormat', {}).get('secondaryText', {}).get('text', ''),
+                    'order': idx  # Track original order
+                }
+                suggestions.append(suggestion)
+            
+            # Fetch coordinates in parallel if requested
+            if include_coords and suggestions:
+                def fetch_coords(suggestion):
+                    try:
+                        details = service.get_place_details(suggestion['place_id'])
+                        location = details.get('location', {})
+                        suggestion['lat'] = location.get('latitude')
+                        suggestion['lng'] = location.get('longitude')
+                    except Exception as e:
+                        logger.warning(f"Failed to fetch coords for {suggestion['place_id']}: {str(e)}")
+                        suggestion['lat'] = None
+                        suggestion['lng'] = None
+                    return suggestion
+                
+                # Use ThreadPoolExecutor for parallel requests
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    future_to_suggestion = {executor.submit(fetch_coords, s): s for s in suggestions}
+                    suggestions = []
+                    for future in as_completed(future_to_suggestion):
+                        suggestions.append(future.result())
+                
+                # Restore original order
+                suggestions.sort(key=lambda x: x['order'])
+            
+            # Remove order field before returning
+            for s in suggestions:
+                s.pop('order', None)
             
             return Response({
                 'suggestions': suggestions,
