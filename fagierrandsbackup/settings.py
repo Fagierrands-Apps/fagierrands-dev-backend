@@ -202,6 +202,16 @@ MAP_CONFIG = {
     'MIN_ZOOM': 3,
     'MAX_ZOOM': 18,
 }
+
+# Google Maps API Configuration
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+GOOGLE_MAPS_LOCATION_BIAS = {
+    'circle': {
+        'center': {'latitude': -1.2921, 'longitude': 36.8219},  # Nairobi
+        'radius': 50000.0  # 50km radius
+    }
+}
+GOOGLE_MAPS_REGION_CODE = 'KE'  # Kenya
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files

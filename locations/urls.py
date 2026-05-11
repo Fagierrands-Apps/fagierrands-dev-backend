@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     LocationListCreateView, LocationDetailView, SetDefaultLocationView,
     UpdateCurrentLocationView, GetCurrentLocationView, AllUsersLocationsView,
-    WaypointViewSet, RouteCalculationViewSet, DistanceCalculationView
+    WaypointViewSet, RouteCalculationViewSet, DistanceCalculationView,
+    LocationAutocompleteView, ReverseGeocodeView
 )
 from .api import MapConfigView
 
@@ -21,4 +22,7 @@ urlpatterns = [
     path('all-users/', AllUsersLocationsView.as_view(), name='all-users-locations'),
     path('calculate-distance/', DistanceCalculationView.as_view(), name='calculate-distance'),
     path('map-config/', MapConfigView.as_view(), name='map-config'),
+    # Google Maps endpoints
+    path('autocomplete/', LocationAutocompleteView.as_view(), name='location-autocomplete'),
+    path('reverse-geocode/', ReverseGeocodeView.as_view(), name='reverse-geocode'),
 ]

@@ -17,9 +17,11 @@ from .serializers import (
     LocationSerializer, UserLocationSerializer, 
     WaypointSerializer, RouteCalculationSerializer
 )
+from .google_maps_service import GoogleMapsService
 from accounts.permissions import IsOwnerOrReadOnly, IsHandler, IsAdmin, IsAssistant
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class LocationListCreateView(generics.ListCreateAPIView):
     serializer_class = LocationSerializer
@@ -285,7 +287,7 @@ class DistanceCalculationView(APIView):
             if use_osrm:
                 try:
                     # Log the attempt to use OSRM
-                    print(f"Attempting to use OSRM for distance calculation: {start_lat},{start_lng} to {end_lat},{end_lng}")
+                    logger.info(f"Attempting to use OSRM for distance calculation: {start_lat},{start_lng} to {end_lat},{end_lng}")
                     
                     # Construct the OSRM API URL for route calculation
                     osrm_url = f"http://router.project-osrm.org/route/v1/driving/{start_lng},{start_lat};{end_lng},{end_lat}"
@@ -325,18 +327,18 @@ class DistanceCalculationView(APIView):
                                 }
                             })
                         else:
-                            print(f"OSRM returned zero or negative distance: {distance_km}")
+                            logger.warning(f"OSRM returned zero or negative distance: {distance_km}")
                     else:
-                        print(f"OSRM API error: {data.get('code')} - {data.get('message', 'No message')}")
+                        logger.warning(f"OSRM API error: {data.get('code')} - {data.get('message', 'No message')}")
                 
                 except Exception as e:
                     # Log the error and fall back to Haversine formula
                     import traceback
-                    print(f"Error using OSRM: {str(e)}")
-                    print(traceback.format_exc())
+                    logger.error(f"Error using OSRM: {str(e)}")
+                    logger.debug(traceback.format_exc())
             
             # Fall back to Haversine formula if OSRM is not available or fails
-            print(f"Using Haversine formula for distance calculation: {start_lat},{start_lng} to {end_lat},{end_lng}")
+            logger.info(f"Using Haversine formula for distance calculation: {start_lat},{start_lng} to {end_lat},{end_lng}")
             
             # Calculate distance using Haversine formula
             R = 6371  # Earth radius in kilometers
@@ -375,8 +377,8 @@ class DistanceCalculationView(APIView):
         except Exception as e:
             # Catch all exceptions to ensure the API doesn't crash
             import traceback
-            print(f"Error calculating distance: {str(e)}")
-            print(traceback.format_exc())
+            logger.error(f"Error calculating distance: {str(e)}")
+            logger.debug(traceback.format_exc())
             return Response(
                 {"error": "An error occurred while calculating the distance. Please try again."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -386,4 +388,119 @@ class DistanceCalculationView(APIView):
             return Response(
                 {"error": "Invalid coordinates. Please provide valid numeric values."},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class LocationAutocompleteView(APIView):
+    """Google Places Autocomplete for location search"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        query = request.query_params.get('q', '').strip()
+        
+        if not query:
+            return Response(
+                {"error": "Query parameter 'q' is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if len(query) < 2:
+            return Response({"suggestions": []})
+        
+        try:
+            service = GoogleMapsService()
+            result = service.get_autocomplete(query)
+            
+            # Transform response to mobile-friendly format
+            suggestions = []
+            for item in result.get('suggestions', []):
+                prediction = item.get('placePrediction', {})
+                suggestions.append({
+                    'place_id': prediction.get('placeId'),
+                    'description': prediction.get('text', {}).get('text', ''),
+                    'main_text': prediction.get('structuredFormat', {}).get('mainText', {}).get('text', ''),
+                    'secondary_text': prediction.get('structuredFormat', {}).get('secondaryText', {}).get('text', '')
+                })
+            
+            return Response({
+                'suggestions': suggestions,
+                'count': len(suggestions)
+            })
+            
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except Exception as e:
+            logger.error(f"Autocomplete error: {str(e)}")
+            return Response(
+                {"error": "Failed to fetch autocomplete suggestions"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class ReverseGeocodeView(APIView):
+    """Reverse geocode coordinates to address"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        lat = request.data.get('lat')
+        lng = request.data.get('lng')
+        
+        if lat is None or lng is None:
+            return Response(
+                {"error": "Both 'lat' and 'lng' are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            lat = float(lat)
+            lng = float(lng)
+            
+            if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+                return Response(
+                    {"error": "Invalid coordinates"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            service = GoogleMapsService()
+            result = service.reverse_geocode(lat, lng)
+            
+            if result.get('status') != 'OK':
+                return Response(
+                    {"error": result.get('status', 'Unknown error')},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            results = result.get('results', [])
+            if not results:
+                return Response(
+                    {"error": "No address found for these coordinates"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Return the first (most specific) result
+            address_data = results[0]
+            
+            return Response({
+                'formatted_address': address_data.get('formatted_address'),
+                'place_id': address_data.get('place_id'),
+                'address_components': address_data.get('address_components', []),
+                'location': {
+                    'lat': lat,
+                    'lng': lng
+                }
+            })
+            
+        except ValueError:
+            return Response(
+                {"error": "Invalid coordinate format"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Reverse geocode error: {str(e)}")
+            return Response(
+                {"error": "Failed to reverse geocode coordinates"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
