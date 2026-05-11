@@ -231,7 +231,7 @@ curl -X POST "http://localhost:8000/api/locations/reverse-geocode/" \
 
 **Environment Variables:**
 ```bash
-GOOGLE_MAPS_API_KEY=AIzaSyD9au2Q_hQ1u5LOVy9ffpoBiFS-50jo4hk
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
 
 **Settings (Django):**

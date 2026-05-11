@@ -1,0 +1,431 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Google Maps Location Services",
+		"description": "Test collection for Google Maps integration in the locations app",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autocomplete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains suggestions array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('suggestions');",
+							"    pm.expect(jsonData.suggestions).to.be.an('array');",
+							"});",
+							"",
+							"pm.test(\"Response contains count integer\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('count');",
+							"    pm.expect(jsonData.count).to.be.a('number');",
+							"});",
+							"",
+							"pm.test(\"Suggestions have required fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.suggestions.length > 0) {",
+							"        var suggestion = jsonData.suggestions[0];",
+							"        pm.expect(suggestion).to.have.property('place_id');",
+							"        pm.expect(suggestion).to.have.property('description');",
+							"        pm.expect(suggestion).to.have.property('main_text');",
+							"        pm.expect(suggestion).to.have.property('secondary_text');",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/locations/autocomplete/?q=westlands",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"locations",
+						"autocomplete",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "westlands",
+							"description": "Search query for location autocomplete"
+						}
+					]
+				},
+				"description": "Get autocomplete suggestions for location search. Tests Google Places Autocomplete API integration."
+			},
+			"response": []
+		},
+		{
+			"name": "Reverse Geocode",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response contains formatted_address\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('formatted_address');",
+							"    pm.expect(jsonData.formatted_address).to.be.a('string');",
+							"    pm.expect(jsonData.formatted_address).to.not.be.empty;",
+							"});",
+							"",
+							"pm.test(\"Response contains place_id\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('place_id');",
+							"});",
+							"",
+							"pm.test(\"Response contains location coordinates\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('location');",
+							"    pm.expect(jsonData.location).to.have.property('lat');",
+							"    pm.expect(jsonData.location).to.have.property('lng');",
+							"});",
+							"",
+							"pm.test(\"Response contains address_components\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('address_components');",
+							"    pm.expect(jsonData.address_components).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"lat\": -1.2921,\n    \"lng\": 36.8219\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/locations/reverse-geocode/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"locations",
+						"reverse-geocode",
+						""
+					]
+				},
+				"description": "Convert coordinates to human-readable address. Tests Google Geocoding API integration."
+			},
+			"response": []
+		},
+		{
+			"name": "Autocomplete - Empty Query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 for empty query\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Error message is present\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/locations/autocomplete/?q=",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"locations",
+						"autocomplete",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "",
+							"description": "Empty query parameter"
+						}
+					]
+				},
+				"description": "Test validation for empty query parameter"
+			},
+			"response": []
+		},
+		{
+			"name": "Reverse Geocode - Invalid Coordinates",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 for invalid coordinates\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Error message is present\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('error');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"lat\": 999,\n    \"lng\": 999\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/locations/reverse-geocode/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"locations",
+						"reverse-geocode",
+						""
+					]
+				},
+				"description": "Test validation for out-of-range coordinates"
+			},
+			"response": []
+		},
+		{
+			"name": "Autocomplete - Nairobi CBD",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Suggestions returned\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.suggestions.length).to.be.above(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/locations/autocomplete/?q=Nairobi CBD",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"locations",
+						"autocomplete",
+						""
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Nairobi CBD"
+						}
+					]
+				},
+				"description": "Test autocomplete with Nairobi CBD query"
+			},
+			"response": []
+		},
+		{
+			"name": "Reverse Geocode - KICC Coordinates",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Address contains Nairobi\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.formatted_address.toLowerCase()).to.include('nairobi');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"lat\": -1.2921,\n    \"lng\": 36.8219\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/locations/reverse-geocode/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"locations",
+						"reverse-geocode",
+						""
+					]
+				},
+				"description": "Test reverse geocoding with KICC (Kenyatta International Convention Centre) coordinates"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://fagierrands-dev-backend.onrender.com",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
