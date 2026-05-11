@@ -75,6 +75,7 @@ from .views_three_step_order import (
 # Import 2-step errand placement views
 from .views_errand_placement import (
     calculate_errand_price,
+    calculate_price_with_route,
     create_draft_errand,
     upload_errand_image,
     update_errand_receiver_info,
@@ -86,6 +87,7 @@ from .views_errand_placement import (
 urlpatterns = [
     # 2-Step Errand Placement (Normal Errands - Pickup & Delivery)
     path('errands/calculate-price/', calculate_errand_price, name='calculate-errand-price'),
+    path('errands/calculate-price-with-route/', calculate_price_with_route, name='calculate-price-with-route'),
     path('errands/draft/', create_draft_errand, name='create-draft-errand'),
     path('errands/<int:order_id>/upload-image/', upload_errand_image, name='upload-errand-image'),
     path('errands/<int:order_id>/receiver-info/', update_errand_receiver_info, name='update-errand-receiver-info'),

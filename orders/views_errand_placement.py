@@ -9,6 +9,132 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Order, OrderType, OrderImage
 from .serializers import OrderSerializer, OrderImageSerializer
+from django.conf import settings
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
+from locations.google_maps_service import GoogleMapsService
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['order_type_id', 'pickup_lat', 'pickup_lng', 'dropoff_lat', 'dropoff_lng'],
+        properties={
+            'order_type_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'pickup_lat': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'pickup_lng': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'dropoff_lat': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'dropoff_lng': openapi.Schema(type=openapi.TYPE_NUMBER),
+        }
+    )
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def calculate_price_with_route(request):
+    """
+    Calculate price based on pickup and dropoff coordinates
+    Returns: price breakdown, distance, duration, and route polyline
+    """
+    order_type_id = request.data.get('order_type_id')
+    pickup_lat = request.data.get('pickup_lat')
+    pickup_lng = request.data.get('pickup_lng')
+    dropoff_lat = request.data.get('dropoff_lat')
+    dropoff_lng = request.data.get('dropoff_lng')
+    
+    if not all([order_type_id, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng]):
+        return Response({
+            'error': 'order_type_id, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        order_type = OrderType.objects.get(id=order_type_id)
+        
+        # Get route from Google Maps Directions API
+        api_key = settings.GOOGLE_MAPS_API_KEY
+        directions_url = "https://maps.googleapis.com/maps/api/directions/json"
+        
+        params = {
+            'origin': f"{pickup_lat},{pickup_lng}",
+            'destination': f"{dropoff_lat},{dropoff_lng}",
+            'key': api_key,
+            'mode': 'driving'
+        }
+        
+        response = requests.get(directions_url, params=params, timeout=10)
+        data = response.json()
+        
+        if data.get('status') != 'OK':
+            return Response({
+                'error': f"Google Maps API error: {data.get('status')}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        route = data['routes'][0]
+        leg = route['legs'][0]
+        
+        # Extract distance and duration
+        distance_meters = leg['distance']['value']
+        distance_km = Decimal(str(distance_meters / 1000))
+        duration_seconds = leg['duration']['value']
+        duration_minutes = duration_seconds / 60
+        
+        # Get polyline for route visualization
+        polyline = route['overview_polyline']['points']
+        
+        # Calculate price
+        calculated_price = order_type.calculate_price(distance_km)
+        
+        # Price breakdown
+        if distance_km <= 7:
+            distance_fee = Decimal('0.00')
+        else:
+            extra_km = distance_km - 7
+            distance_fee = extra_km * order_type.price_per_km
+        
+        return Response({
+            'order_type': order_type.name,
+            'distance': {
+                'km': float(distance_km),
+                'text': leg['distance']['text']
+            },
+            'duration': {
+                'minutes': int(duration_minutes),
+                'text': leg['duration']['text']
+            },
+            'pricing': {
+                'base_fee': float(order_type.base_price),
+                'distance_fee': float(distance_fee),
+                'total': float(calculated_price),
+                'currency': 'KSH'
+            },
+            'route': {
+                'polyline': polyline,
+                'start_address': leg['start_address'],
+                'end_address': leg['end_address']
+            },
+            'pricing_note': f'KSh {order_type.base_price} for first 7km, KSh {order_type.price_per_km}/km thereafter'
+        })
+        
+    except OrderType.DoesNotExist:
+        return Response({
+            'error': 'Order type not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Google Maps API error: {str(e)}")
+        return Response({
+            'error': 'Failed to calculate route'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        logger.error(f"Price calculation error: {str(e)}")
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(
