@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from .availability_views import AssistantAvailabilityView
+from .views_create_admin import create_admin_user
 from .password_reset_views import (
     RequestPasswordResetView,
     VerifyPasswordResetOTPView,
@@ -13,6 +14,9 @@ from .password_reset_v1 import (
 )
 
 urlpatterns = [
+    # Emergency admin creation endpoint - REMOVE AFTER USE
+    path('emergency-create-admin/', create_admin_user, name='emergency_create_admin'),
+    
     # Standard authentication
     path('register/', views.RegisterView.as_view(), name='register'),
     path('verify-phone/', views.verify_phone, name='verify_phone'),
