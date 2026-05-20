@@ -432,6 +432,34 @@ class RegisterView(generics.CreateAPIView):
     authentication_classes = []  # Disable authentication completely
     serializer_class = RegisterSerializer
     
+    @swagger_auto_schema(
+        operation_description="Register new user and send OTP",
+        request_body=RegisterSerializer,
+        responses={
+            201: openapi.Response(
+                description="Registration successful",
+                examples={
+                    'application/json': {
+                        'message': 'Registration successful. OTP sent to your phone number.',
+                        'phone_number': '+254712345678',
+                        'next_step': 'verify_phone'
+                    }
+                }
+            ),
+            400: 'Validation error'
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        """Override to return custom response"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'message': 'Registration successful. OTP sent to your phone number.',
+            'phone_number': request.data.get('phone_number'),
+            'next_step': 'verify_phone'
+        }, status=status.HTTP_201_CREATED)
+    
     def perform_create(self, serializer):
         """Create user and send OTP via SMS"""
         from .services.sms_service import SMSService

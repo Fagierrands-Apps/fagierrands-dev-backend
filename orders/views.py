@@ -195,6 +195,31 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
     serializer_class = OrderStatusUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(
+        operation_description="Update order status (rider starts/completes, client confirms/cancels)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['status'],
+            properties={
+                'status': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    enum=['in_progress', 'completed', 'cancelled', 'payment_pending'],
+                    description='New status'
+                ),
+                'pickup_latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='Optional: Rider current location'),
+                'pickup_longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='Optional: Rider current location'),
+                'pickup_address': openapi.Schema(type=openapi.TYPE_STRING, description='Optional: Rider current address'),
+            }
+        ),
+        responses={
+            200: 'Status updated successfully',
+            400: 'Invalid status or permission denied',
+            404: 'Order not found'
+        }
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
     def get_queryset(self):
         user = self.request.user
         
@@ -275,9 +300,45 @@ class AssignOrderView(generics.UpdateAPIView):
     serializer_class = AssignOrderSerializer
     permission_classes = [permissions.IsAuthenticated, IsHandler|IsAdmin]
     
+    @swagger_auto_schema(
+        operation_description="Handler/Admin assigns a rider to a pending order",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['assistant_id'],
+            properties={
+                'assistant_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='Rider user ID'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Rider assigned successfully",
+                examples={
+                    'application/json': {
+                        'message': 'Rider assigned successfully',
+                        'order_id': 13,
+                        'status': 'assigned',
+                        'rider': {
+                            'id': 5,
+                            'name': 'John Doe',
+                            'phone_number': '+254712345678'
+                        }
+                    }
+                }
+            ),
+            400: 'Order not pending or validation error',
+            404: 'Order not found'
+        }
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
     def get_queryset(self):
         return Order.objects.filter(status='pending')
     
+    def perform_update(self, serializer):
+        """Override to return rider details after assignment"""
+        serializer.save()
+        
     def update(self, request, *args, **kwargs):
         """Override to return rider details after assignment"""
         partial = kwargs.pop('partial', False)
@@ -490,6 +551,22 @@ class AcceptOrderView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated, IsAssistant]
     
+    @swagger_auto_schema(
+        operation_description="Rider accepts a pending order",
+        responses={
+            200: openapi.Response(
+                description="Order accepted successfully",
+                examples={
+                    'application/json': {
+                        'success': True,
+                        'message': 'Order accepted successfully',
+                        'order': {'id': 13, 'status': 'assigned'}
+                    }
+                }
+            ),
+            404: 'Order not found or already assigned'
+        }
+    )
     def post(self, request, pk):
         try:
             # Get the order
