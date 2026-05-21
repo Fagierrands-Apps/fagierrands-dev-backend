@@ -32,6 +32,7 @@ from .views import (
     GenerateQRView,
 )
 from .views_rider_status import get_order_rider_status
+from .views_rider_details import get_assigned_rider_details
 # Import attachment views
 from .attachments_views import AttachmentUploadView, AttachmentListView, AttachmentDetailView
 from .views_banking import BankListView, BankingOrderListCreateView, BankingOrderDetailView, BankingOrderCancelView
@@ -118,6 +119,9 @@ urlpatterns = [
     
     # Rider status endpoint (for "Finding your rider" feature)
     path('<int:order_id>/rider-status/', get_order_rider_status, name='order-rider-status'),
+    
+    # Rider details endpoint (get assigned rider info)
+    path('<int:order_id>/rider-details/', get_assigned_rider_details, name='order-rider-details'),
     
     # Attachment endpoints
     path('<int:order_id>/attachments/upload/', AttachmentUploadView.as_view(), name='order-attachment-upload'),
