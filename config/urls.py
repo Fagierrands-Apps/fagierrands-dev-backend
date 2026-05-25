@@ -3,9 +3,22 @@ URL configuration for FagiErrands project.
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+
+def health_check(request):
+    return JsonResponse({
+        'status': 'ok',
+        'service': 'FagiErrands API',
+        'version': '2.0.0',
+        'endpoints': {
+            'api': '/api/',
+            'admin': '/admin/',
+            'docs': '/swagger/',
+        }
+    })
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -18,6 +31,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path('', health_check, name='health-check'),
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     # path('api/orders/', include('orders.urls')),  # Temporarily disabled due to import issues
