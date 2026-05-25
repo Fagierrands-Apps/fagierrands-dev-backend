@@ -3,7 +3,7 @@
 echo "Testing database connection..."
 python -c "
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrandsbackup.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 import django
 django.setup()
 from django.db import connection
@@ -22,4 +22,4 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "Starting gunicorn..."
-exec gunicorn fagierrandsbackup.wsgi --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile -
+exec gunicorn config.wsgi --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile -
