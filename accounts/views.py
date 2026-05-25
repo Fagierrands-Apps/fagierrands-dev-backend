@@ -1,4 +1,4 @@
-from rest_framework import generics, status, permissions, serializers
+from rest_framework import generics, status, permissions, serializers, parsers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
@@ -24,6 +24,7 @@ from .serializers import (
     EmailVerificationSerializer, ResendVerificationSerializer,
     ForgotPasswordSerializer, ResetPasswordSerializer,
     VerifyPhoneSerializer, ResendOTPSerializer, LoginSerializer, LogoutSerializer,
+    RiderRegistrationSerializer,
     normalize_phone_number
 )
 from .email_utils import send_verification_email, verify_email_token, resend_verification_email
@@ -494,6 +495,73 @@ class RegisterView(generics.CreateAPIView):
             'message': 'Registration successful. OTP sent to your phone number.',
             'phone_number': request.data.get('phone_number'),
             'next_step': 'verify_phone'
+        }, status=status.HTTP_201_CREATED)
+
+
+class RiderRegistrationView(generics.CreateAPIView):
+    """Complete rider registration with document upload"""
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    serializer_class = RiderRegistrationSerializer
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+    
+    @swagger_auto_schema(
+        operation_description="Register rider with all documents in one request",
+        manual_parameters=[
+            openapi.Parameter('username', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('email', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('password', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('password2', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('first_name', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('last_name', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('phone_number', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('full_name', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('id_number', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('address', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('area_of_operation', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('driving_license_number', openapi.IN_FORM, type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('profile_picture', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True),
+            openapi.Parameter('id_front_image', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True),
+            openapi.Parameter('id_back_image', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True),
+            openapi.Parameter('driving_license_image', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True),
+            openapi.Parameter('referral_code', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False),
+        ],
+        responses={
+            201: openapi.Response(
+                description="Rider registration successful",
+                examples={
+                    'application/json': {
+                        'message': 'Rider registration successful. OTP sent to your phone.',
+                        'user_id': 102,
+                        'phone_number': '+254723456789',
+                        'verification_status': 'pending',
+                        'next_steps': [
+                            '1. Verify your phone number',
+                            '2. Wait for admin approval',
+                            '3. You will receive SMS when approved'
+                        ]
+                    }
+                }
+            ),
+            400: 'Validation error'
+        }
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        return Response({
+            'message': 'Rider registration successful. OTP sent to your phone.',
+            'user_id': user.id,
+            'phone_number': user.phone_number,
+            'verification_status': 'pending',
+            'next_steps': [
+                '1. Verify your phone number',
+                '2. Wait for admin approval',
+                '3. You will receive SMS when approved'
+            ]
         }, status=status.HTTP_201_CREATED)
 
 

@@ -206,6 +206,10 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
                     enum=['in_progress', 'completed', 'cancelled', 'payment_pending'],
                     description='New status'
                 ),
+                'release_code': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='Required when assistant completes order (6-digit code)'
+                ),
                 'pickup_latitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='Optional: Rider current location'),
                 'pickup_longitude': openapi.Schema(type=openapi.TYPE_NUMBER, description='Optional: Rider current location'),
                 'pickup_address': openapi.Schema(type=openapi.TYPE_STRING, description='Optional: Rider current address'),
@@ -241,6 +245,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
         
         # Check user permissions for status updates
         new_status = serializer.validated_data.get('status')
+        release_code = serializer.validated_data.get('release_code')
         
         if user.user_type == 'user' and new_status not in ['completed', 'cancelled']:
             return Response(
@@ -252,6 +257,19 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
                 {"error": "Assistants can only mark orders as in progress or completed"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Verify release code when assistant completes order
+        if user.user_type == 'assistant' and new_status == 'completed':
+            if not release_code:
+                return Response(
+                    {"error": "Release code is required to complete the order"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if instance.release_code != release_code:
+                return Response(
+                    {"error": "Invalid release code"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         # For assistants changing to in_progress, make sure they're assigned
         if user.user_type == 'assistant' and new_status == 'in_progress' and instance.assistant != user:
@@ -1575,520 +1593,520 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from .models_updated import (
-    OrderTracking, ClientFeedback, RiderFeedback, CargoPhoto, CargoValue,
-    ReportIssue, Referral
-)
-from .serializers_updated import (
-    OrderTrackingSerializer, ClientFeedbackSerializer, RiderFeedbackSerializer,
-    CargoPhotoSerializer, CargoValueSerializer, ReportIssueSerializer, ReferralSerializer
-)
-from accounts.permissions import IsClient, IsAssistant, IsHandler, IsAdmin
-
-class OrderTrackingView(generics.RetrieveUpdateAPIView):
-    serializer_class = OrderTrackingSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.user_type == 'user':
-            return OrderTracking.objects.filter(order__client=user)
-        elif user.user_type == 'assistant':
-            return OrderTracking.objects.filter(order__assistant=user)
-        elif user.user_type in ['handler', 'admin']:
-            return OrderTracking.objects.all()
-        return OrderTracking.objects.none()
-
-class ClientFeedbackCreateView(generics.CreateAPIView):
-    serializer_class = ClientFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated, IsClient]
-
-    def perform_create(self, serializer):
-        order = serializer.validated_data['order']
-        if order.client != self.request.user:
-            raise ValidationError("You can only submit feedback for your own orders.")
-        serializer.save()
-
-class ClientFeedbackDetailView(generics.RetrieveAPIView):
-    serializer_class = ClientFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated, IsClient]
-
-    def get_queryset(self):
-        user = self.request.user
-        return ClientFeedback.objects.filter(order__client=user)
-
-class RiderFeedbackCreateView(generics.CreateAPIView):
-    serializer_class = RiderFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAssistant]
-
-    def perform_create(self, serializer):
-        order = serializer.validated_data['order']
-        if order.assistant != self.request.user:
-            raise ValidationError("You can only submit feedback for your assigned orders.")
-        serializer.save()
-
-class RiderFeedbackDetailView(generics.RetrieveAPIView):
-    serializer_class = RiderFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAssistant]
-
-    def get_queryset(self):
-        user = self.request.user
-        return RiderFeedback.objects.filter(order__assistant=user)
-
-class CargoPhotoUploadView(generics.CreateAPIView):
-    serializer_class = CargoPhotoSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-    
-    
-class PriceCalculationView(APIView):
-    """
-    API endpoint for calculating order prices based on distance and order type.
-    This ensures consistent pricing between frontend and backend.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def post(self, request):
-        try:
-            # Get data from request
-            distance_km = request.data.get('distance_km')
-            order_type_id = request.data.get('order_type_id')
-            items = request.data.get('items', [])
-            
-            # Validate required fields
-            if not order_type_id:
-                return Response({
-                    'error': 'order_type_id is required'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Get order type
-            try:
-                order_type = OrderType.objects.get(id=order_type_id)
-            except OrderType.DoesNotExist:
-                return Response({
-                    'error': 'Invalid order_type_id'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Validate distance
-            if distance_km is not None:
-                try:
-                    distance_km = float(distance_km)
-                    if distance_km < 0:
-                        distance_km = 0
-                except (ValueError, TypeError):
-                    distance_km = 0
-            else:
-                distance_km = 0
-            
-            # Calculate items price
-            from decimal import Decimal
-            items_price = Decimal('0.00')
-            if items:
-                for item in items:
-                    try:
-                        item_price = Decimal(str(item.get('price', 0)))
-                        quantity = int(item.get('quantity', 1))
-                        items_price += item_price * quantity
-                    except (ValueError, TypeError):
-                        continue
-            
-            # Standard service fee calculation: 200 for first 7km + 20 per extra km
-            base_price = Decimal('200.00')
-            price_per_km = Decimal('20.00')
-            distance_decimal = Decimal(str(distance_km))
-            
-            if distance_decimal <= 7:
-                service_fee = base_price
-            else:
-                additional_distance = distance_decimal - 7
-                service_fee = base_price + (additional_distance * price_per_km)
-            
-            # Special handling for Banking orders
-            if order_type.name.lower() in ['banking', 'banking service']:
-                # Banking fee tiers:
-                # 0 - 5,000 => 0
-                # 5,001 - 10,000 => 50
-                # Above 10,000 => 50 per additional 5,000 (or part)
-                amount = items_price
-                fee = Decimal('0.00')
-                if amount > 5000:
-                    import math
-                    extra_blocks = Decimal(str(math.ceil((amount - 5000) / 5000.0)))
-                    fee = extra_blocks * Decimal('50.00')
-                
-                # Cap the banking fee at the distance-based service fee
-                total_price = min(fee, service_fee)
-                distance_price = Decimal('0.00')
-                base_price_display = Decimal('0.00')
-            elif order_type.name.lower() in ['shopping']:
-                # Shopping = items price + service fee
-                total_price = items_price + service_fee
-                distance_price = service_fee
-                base_price_display = base_price
-            else:
-                # Standard distance-based errands (Pickup/Delivery, Cargo)
-                total_price = service_fee
-                distance_price = service_fee
-                base_price_display = base_price
-            
-            # Calculate breakdown
-            free_distance = 7  # First 7km included
-            chargeable_distance = max(0, distance_km - free_distance)
-            additional_distance_price = Decimal(str(chargeable_distance)) * price_per_km
-            
-            return Response({
-                'success': True,
-                'data': {
-                    'base_price': float(base_price_display),
-                    'distance_price': float(distance_price),
-                    'items_price': float(items_price),
-                    'total_price': float(total_price),
-                    'distance': distance_km,
-                    'free_distance': free_distance,
-                    'chargeable_distance': float(chargeable_distance),
-                    'breakdown': {
-                        'base_price': float(base_price_display),
-                        'additional_distance': float(chargeable_distance),
-                        'additional_distance_price': float(additional_distance_price),
-                        'items_price': float(items_price),
-                        'discount_amount': 0.0,
-                        'discount_percent': 0
-                    },
-                    'discount_applied': False,
-                    'discount_amount': 0.0,
-                    'promo': None,
-                    'promo_expires': None,
-                    'order_type': {
-                        'id': order_type.id,
-                        'name': order_type.name,
-                        'base_price': float(order_type.base_price),
-                        'price_per_km': float(order_type.price_per_km),
-                        'min_price': float(order_type.min_price)
-                    }
-                }
-            }, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            print(f"Error in price calculation: {str(e)}")
-            return Response({
-                'error': f'Failed to calculate price: {str(e)}'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class OrderPriceRealtimeUpdateView(APIView):
-    """
-    API endpoint for updating order price based on the distance between pickup and delivery locations.
-    This endpoint should be called periodically during order execution.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def post(self, request, pk):
-        try:
-            # Get the order
-            order = Order.objects.get(pk=pk)
-            
-            # Check permissions - only the assigned assistant or admin/handler can update
-            user = request.user
-            if not ((user.user_type == 'assistant' and order.assistant == user) or 
-                    user.user_type in ['handler', 'admin']):
-                return Response(
-                    {"detail": "You don't have permission to update this order's price."},
-                    status=status.HTTP_403_FORBIDDEN
-                )
-            
-            # Only update for orders that are assigned or in progress
-            if order.status not in ['assigned', 'in_progress']:
-                return Response(
-                    {"detail": "Price can only be updated for assigned or in-progress orders."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
-            # Prevent update if price is finalized
-            if order.price_finalized:
-                return Response(
-                    {"detail": "Price has already been finalized and cannot be updated."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
-            # DISABLED: Update the price based on pickup/delivery distance
-            # updated = order.update_price_with_real_time_locations()
-            updated = False
-            
-            # Compute delay penalty: 1% of base price per minute after 30-minute grace beyond ETA
-            from django.utils import timezone
-            try:
-                base_price_value = float(order.order_type.base_price) if order.order_type else 180.0
-            except Exception:
-                base_price_value = 180.0
-            estimated_minutes = order.estimated_duration or 0
-            # Prefer started_at, then assigned_at, then created_at as a fallback
-            start_time = order.started_at or order.assigned_at or order.created_at
-            penalty_minutes = 0
-            if start_time and estimated_minutes:
-                elapsed_minutes = max(0, (timezone.now() - start_time).total_seconds() / 60)
-                grace = 30
-                threshold = estimated_minutes + grace
-                penalty_minutes = int(max(0, elapsed_minutes - threshold))
-            penalty_amount = round((base_price_value * 0.01) * penalty_minutes, 2)
-            try:
-                current_price_val = float(order.price or 0)
-            except Exception:
-                current_price_val = 0.0
-            total_with_penalty = round(current_price_val + penalty_amount, 2)
-
-            if updated:
-                return Response({
-                    "detail": "Price updated successfully based on pickup/delivery distance.",
-                    "new_price": order.price,
-                    "penalty": {
-                        "penalty_minutes": penalty_minutes,
-                        "penalty_amount": penalty_amount,
-                        "base_price_used": base_price_value,
-                        "grace_minutes": 30,
-                        "estimated_minutes": estimated_minutes,
-                    },
-                    "total_with_penalty": total_with_penalty
-                })
-            else:
-                return Response({
-                    "detail": "Could not update price. Real-time locations may not be available.",
-                    "current_price": order.price,
-                    "penalty": {
-                        "penalty_minutes": penalty_minutes,
-                        "penalty_amount": penalty_amount,
-                        "base_price_used": base_price_value,
-                        "grace_minutes": 30,
-                        "estimated_minutes": estimated_minutes,
-                    },
-                    "total_with_penalty": total_with_penalty
-                }, status=status.HTTP_400_BAD_REQUEST)
-                
-        except Order.DoesNotExist:
-            return Response(
-                {"detail": "Order not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        except Exception as e:
-            return Response(
-                {"detail": f"Error updating price: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-
-    def perform_create(self, serializer):
-        order = serializer.validated_data['order']
-        user = self.request.user
-        if user.user_type == 'user' and order.client == user:
-            serializer.save()
-        elif user.user_type in ['handler', 'admin']:
-            serializer.save()
-        else:
-            raise ValidationError("You do not have permission to upload cargo photos for this order.")
-
-class CargoValueView(generics.RetrieveUpdateAPIView):
-    serializer_class = CargoValueSerializer
-    permission_classes = [permissions.IsAuthenticated, IsHandler|IsAdmin]
-
-    def get_queryset(self):
-        return CargoValue.objects.all()
-
-class ReportIssueCreateView(generics.CreateAPIView):
-    serializer_class = ReportIssueSerializer
-    permission_classes = [permissions.IsAuthenticated, IsClient]
-
-    def perform_create(self, serializer):
-        order = serializer.validated_data['order']
-        if order.client != self.request.user:
-            raise ValidationError("You can only report issues for your own orders.")
-        # Validate 24-hour report window
-        if (timezone.now() - order.created_at).total_seconds() > 86400:
-            raise ValidationError("Reports must be made within 24 hours of the order being placed.")
-        serializer.save()
-
-class ReportIssueListView(generics.ListAPIView):
-    serializer_class = ReportIssueSerializer
-    permission_classes = [permissions.IsAuthenticated, IsHandler|IsAdmin]
-
-    def get_queryset(self):
-        return ReportIssue.objects.all()
-
-class ReferralCreateView(generics.CreateAPIView):
-    serializer_class = ReferralSerializer
-    permission_classes = [permissions.IsAuthenticated, IsClient]
-
-    def perform_create(self, serializer):
-        referrer = self.request.user
-        referred_user = serializer.validated_data['referred_user']
-        if referrer == referred_user:
-            raise ValidationError("You cannot refer yourself.")
-        serializer.save(referrer=referrer)
-
-class ReferralListView(generics.ListAPIView):
-    serializer_class = ReferralSerializer
-    permission_classes = [permissions.IsAuthenticated, IsClient]
-
-    def get_queryset(self):
-        return Referral.objects.filter(referrer=self.request.user)
-        
-    def get(self, request, *args, **kwargs):
-        # Get the referrals for this user
-        referrals = self.get_queryset()
-        
-        # Calculate statistics
-        total_referrals = referrals.count()
-        completed_referrals = referrals.filter(redeemed=True).count()
-        pending_referrals = total_referrals - completed_referrals
-        
-        # Calculate points (2 points per referral)
-        try:
-            # Try to sum the points field from the database
-            total_points = referrals.aggregate(total_points=models.Sum('points'))['total_points'] or 0
-        except:
-            # If the points field doesn't exist, calculate it dynamically
-            total_points = total_referrals * 2
-        
-        # Get the user's referral code (username or custom code if implemented)
-        referral_code = request.user.username
-        
-        # Prepare the response data
-        response_data = {
-            'referral_code': referral_code,
-            'total_referrals': total_referrals,
-            'pending_referrals': pending_referrals,
-            'completed_referrals': completed_referrals,
-            'earned_credits': total_points,
-            'available_credits': total_points,
-            'history': ReferralSerializer(referrals, many=True).data
-        }
-        
-        return Response(response_data)
-
-
-class HandymanServiceQuoteView(generics.UpdateAPIView):
-    """API view for service providers to submit quotes for handyman services"""
-    serializer_class = HandymanOrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def get_queryset(self):
-        # Only allow assistants to update their assigned orders
-        return HandymanOrder.objects.filter(
-            assistant=self.request.user,
-            status='in_progress'
-        )
-    
-    def update(self, request, *args, **kwargs):
-        """Handle the quote submission"""
-        instance = self.get_object()
-        
-        # Get the quote amount from the request
-        service_quote = request.data.get('service_quote')
-        quote_notes = request.data.get('quote_notes', '')
-        
-        if not service_quote:
-            return Response(
-                {'error': 'Service quote amount is required'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        try:
-            # Convert to decimal and validate
-            service_quote = Decimal(service_quote)
-            if service_quote <= 0:
-                raise ValueError("Quote must be greater than zero")
-        except (ValueError, InvalidOperation):
-            return Response(
-                {'error': 'Invalid quote amount'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Update the order with the quote
-        instance.service_quote = service_quote
-        instance.quote_notes = quote_notes
-        instance.status = 'quote_provided'
-        instance.quote_provided_at = timezone.now()
-        instance.save()
-        
-        # Calculate the total value for record-keeping
-        total_value = instance.facilitation_fee + service_quote
-        
-        # Return the updated order with additional information
-        serializer = self.get_serializer(instance)
-        response_data = serializer.data
-        response_data.update({
-            'message': 'Quote submitted successfully. Awaiting admin approval.',
-            'payment_info': {
-                'facilitation_fee_already_paid': instance.facilitation_fee,
-                'service_quote': service_quote,
-                'total_value': total_value,
-                'client_will_pay': service_quote,
-                'note': 'The client will only be charged the service quote amount if approved, as they have already paid the facilitation fee.'
-            }
-        })
-        return Response(response_data)
-
-
-class HandlerAllOrdersView(generics.ListAPIView):
-    """
-    Handler-specific view that returns ALL orders without pagination.
-    Updated to include full order details (locations, shopping items, images, cargo details)
-    so handlers can see everything needed to manage orders.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'order_type']
-    search_fields = ['title', 'description']
-    ordering_fields = ['created_at', 'updated_at', 'price']
-    ordering = ['-created_at']  # Default ordering by newest first
-    pagination_class = None  # Disable pagination for this view
-    
-    def get_serializer_class(self):
-        # Use the full serializer so handlers see all details
-        from .serializers import OrderSerializer
-        return OrderSerializer
-    
-    def get_queryset(self):
-        user = self.request.user
-        
-        # Only allow handlers and admins to access this view
-        if user.user_type not in ['handler', 'admin']:
-            return Order.objects.none()
-        
-        # Return all orders with full related details
-        return (
-            Order.objects.select_related(
-                'client', 'assistant', 'handler', 'order_type',
-                'pickup_location', 'delivery_location'
-            ).prefetch_related(
-                'shopping_items', 'images', 'review', 'cargo_details'
-            ).order_by('-created_at')
-        )
-    
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        
-        # If no orders exist, ensure we return an empty list
-        if not queryset.exists():
-            return Response([])
-            
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-class GenerateQRView(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def post(self, request, *args, **kwargs):
-        amount = request.data.get('amount')
-        narration = request.data.get('narration')
-        
-        from .ncba_service import NCBAService
-        ncba_service = NCBAService()
-        
-        try:
-            response = ncba_service.generate_qr(amount=amount, narration=narration)
-            return Response(response, status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.error(f"QR Generation failed: {str(e)}")
-            return Response({
-                'status': 'error',
-                'message': str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# from .models_updated import (
+#     OrderTracking, ClientFeedback, RiderFeedback, CargoPhoto, CargoValue,
+#     ReportIssue, Referral
+# )
+# from .serializers_updated import (
+#     OrderTrackingSerializer, ClientFeedbackSerializer, RiderFeedbackSerializer,
+#     CargoPhotoSerializer, CargoValueSerializer, ReportIssueSerializer, ReferralSerializer
+# )
+# from accounts.permissions import IsClient, IsAssistant, IsHandler, IsAdmin
+# 
+# class OrderTrackingView(generics.RetrieveUpdateAPIView):
+#     serializer_class = OrderTrackingSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+# 
+#     def get_queryset(self):
+#         user = self.request.user
+#         if user.user_type == 'user':
+#             return OrderTracking.objects.filter(order__client=user)
+#         elif user.user_type == 'assistant':
+#             return OrderTracking.objects.filter(order__assistant=user)
+#         elif user.user_type in ['handler', 'admin']:
+#             return OrderTracking.objects.all()
+#         return OrderTracking.objects.none()
+# 
+# class ClientFeedbackCreateView(generics.CreateAPIView):
+#     serializer_class = ClientFeedbackSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsClient]
+# 
+#     def perform_create(self, serializer):
+#         order = serializer.validated_data['order']
+#         if order.client != self.request.user:
+#             raise ValidationError("You can only submit feedback for your own orders.")
+#         serializer.save()
+# 
+# class ClientFeedbackDetailView(generics.RetrieveAPIView):
+#     serializer_class = ClientFeedbackSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsClient]
+# 
+#     def get_queryset(self):
+#         user = self.request.user
+#         return ClientFeedback.objects.filter(order__client=user)
+# 
+# class RiderFeedbackCreateView(generics.CreateAPIView):
+#     serializer_class = RiderFeedbackSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsAssistant]
+# 
+#     def perform_create(self, serializer):
+#         order = serializer.validated_data['order']
+#         if order.assistant != self.request.user:
+#             raise ValidationError("You can only submit feedback for your assigned orders.")
+#         serializer.save()
+# 
+# class RiderFeedbackDetailView(generics.RetrieveAPIView):
+#     serializer_class = RiderFeedbackSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsAssistant]
+# 
+#     def get_queryset(self):
+#         user = self.request.user
+#         return RiderFeedback.objects.filter(order__assistant=user)
+# 
+# class CargoPhotoUploadView(generics.CreateAPIView):
+#     serializer_class = CargoPhotoSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+#     parser_classes = [MultiPartParser, FormParser]
+#     
+#     
+# class PriceCalculationView(APIView):
+#     """
+#     API endpoint for calculating order prices based on distance and order type.
+#     This ensures consistent pricing between frontend and backend.
+#     """
+#     permission_classes = [permissions.IsAuthenticated]
+#     
+#     def post(self, request):
+#         try:
+#             # Get data from request
+#             distance_km = request.data.get('distance_km')
+#             order_type_id = request.data.get('order_type_id')
+#             items = request.data.get('items', [])
+#             
+#             # Validate required fields
+#             if not order_type_id:
+#                 return Response({
+#                     'error': 'order_type_id is required'
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+#             
+#             # Get order type
+#             try:
+#                 order_type = OrderType.objects.get(id=order_type_id)
+#             except OrderType.DoesNotExist:
+#                 return Response({
+#                     'error': 'Invalid order_type_id'
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+#             
+#             # Validate distance
+#             if distance_km is not None:
+#                 try:
+#                     distance_km = float(distance_km)
+#                     if distance_km < 0:
+#                         distance_km = 0
+#                 except (ValueError, TypeError):
+#                     distance_km = 0
+#             else:
+#                 distance_km = 0
+#             
+#             # Calculate items price
+#             from decimal import Decimal
+#             items_price = Decimal('0.00')
+#             if items:
+#                 for item in items:
+#                     try:
+#                         item_price = Decimal(str(item.get('price', 0)))
+#                         quantity = int(item.get('quantity', 1))
+#                         items_price += item_price * quantity
+#                     except (ValueError, TypeError):
+#                         continue
+#             
+#             # Standard service fee calculation: 200 for first 7km + 20 per extra km
+#             base_price = Decimal('200.00')
+#             price_per_km = Decimal('20.00')
+#             distance_decimal = Decimal(str(distance_km))
+#             
+#             if distance_decimal <= 7:
+#                 service_fee = base_price
+#             else:
+#                 additional_distance = distance_decimal - 7
+#                 service_fee = base_price + (additional_distance * price_per_km)
+#             
+#             # Special handling for Banking orders
+#             if order_type.name.lower() in ['banking', 'banking service']:
+#                 # Banking fee tiers:
+#                 # 0 - 5,000 => 0
+#                 # 5,001 - 10,000 => 50
+#                 # Above 10,000 => 50 per additional 5,000 (or part)
+#                 amount = items_price
+#                 fee = Decimal('0.00')
+#                 if amount > 5000:
+#                     import math
+#                     extra_blocks = Decimal(str(math.ceil((amount - 5000) / 5000.0)))
+#                     fee = extra_blocks * Decimal('50.00')
+#                 
+#                 # Cap the banking fee at the distance-based service fee
+#                 total_price = min(fee, service_fee)
+#                 distance_price = Decimal('0.00')
+#                 base_price_display = Decimal('0.00')
+#             elif order_type.name.lower() in ['shopping']:
+#                 # Shopping = items price + service fee
+#                 total_price = items_price + service_fee
+#                 distance_price = service_fee
+#                 base_price_display = base_price
+#             else:
+#                 # Standard distance-based errands (Pickup/Delivery, Cargo)
+#                 total_price = service_fee
+#                 distance_price = service_fee
+#                 base_price_display = base_price
+#             
+#             # Calculate breakdown
+#             free_distance = 7  # First 7km included
+#             chargeable_distance = max(0, distance_km - free_distance)
+#             additional_distance_price = Decimal(str(chargeable_distance)) * price_per_km
+#             
+#             return Response({
+#                 'success': True,
+#                 'data': {
+#                     'base_price': float(base_price_display),
+#                     'distance_price': float(distance_price),
+#                     'items_price': float(items_price),
+#                     'total_price': float(total_price),
+#                     'distance': distance_km,
+#                     'free_distance': free_distance,
+#                     'chargeable_distance': float(chargeable_distance),
+#                     'breakdown': {
+#                         'base_price': float(base_price_display),
+#                         'additional_distance': float(chargeable_distance),
+#                         'additional_distance_price': float(additional_distance_price),
+#                         'items_price': float(items_price),
+#                         'discount_amount': 0.0,
+#                         'discount_percent': 0
+#                     },
+#                     'discount_applied': False,
+#                     'discount_amount': 0.0,
+#                     'promo': None,
+#                     'promo_expires': None,
+#                     'order_type': {
+#                         'id': order_type.id,
+#                         'name': order_type.name,
+#                         'base_price': float(order_type.base_price),
+#                         'price_per_km': float(order_type.price_per_km),
+#                         'min_price': float(order_type.min_price)
+#                     }
+#                 }
+#             }, status=status.HTTP_200_OK)
+#             
+#         except Exception as e:
+#             print(f"Error in price calculation: {str(e)}")
+#             return Response({
+#                 'error': f'Failed to calculate price: {str(e)}'
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# 
+# 
+# class OrderPriceRealtimeUpdateView(APIView):
+#     """
+#     API endpoint for updating order price based on the distance between pickup and delivery locations.
+#     This endpoint should be called periodically during order execution.
+#     """
+#     permission_classes = [permissions.IsAuthenticated]
+#     
+#     def post(self, request, pk):
+#         try:
+#             # Get the order
+#             order = Order.objects.get(pk=pk)
+#             
+#             # Check permissions - only the assigned assistant or admin/handler can update
+#             user = request.user
+#             if not ((user.user_type == 'assistant' and order.assistant == user) or 
+#                     user.user_type in ['handler', 'admin']):
+#                 return Response(
+#                     {"detail": "You don't have permission to update this order's price."},
+#                     status=status.HTTP_403_FORBIDDEN
+#                 )
+#             
+#             # Only update for orders that are assigned or in progress
+#             if order.status not in ['assigned', 'in_progress']:
+#                 return Response(
+#                     {"detail": "Price can only be updated for assigned or in-progress orders."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+#             
+#             # Prevent update if price is finalized
+#             if order.price_finalized:
+#                 return Response(
+#                     {"detail": "Price has already been finalized and cannot be updated."},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+#             
+#             # DISABLED: Update the price based on pickup/delivery distance
+#             # updated = order.update_price_with_real_time_locations()
+#             updated = False
+#             
+#             # Compute delay penalty: 1% of base price per minute after 30-minute grace beyond ETA
+#             from django.utils import timezone
+#             try:
+#                 base_price_value = float(order.order_type.base_price) if order.order_type else 180.0
+#             except Exception:
+#                 base_price_value = 180.0
+#             estimated_minutes = order.estimated_duration or 0
+#             # Prefer started_at, then assigned_at, then created_at as a fallback
+#             start_time = order.started_at or order.assigned_at or order.created_at
+#             penalty_minutes = 0
+#             if start_time and estimated_minutes:
+#                 elapsed_minutes = max(0, (timezone.now() - start_time).total_seconds() / 60)
+#                 grace = 30
+#                 threshold = estimated_minutes + grace
+#                 penalty_minutes = int(max(0, elapsed_minutes - threshold))
+#             penalty_amount = round((base_price_value * 0.01) * penalty_minutes, 2)
+#             try:
+#                 current_price_val = float(order.price or 0)
+#             except Exception:
+#                 current_price_val = 0.0
+#             total_with_penalty = round(current_price_val + penalty_amount, 2)
+# 
+#             if updated:
+#                 return Response({
+#                     "detail": "Price updated successfully based on pickup/delivery distance.",
+#                     "new_price": order.price,
+#                     "penalty": {
+#                         "penalty_minutes": penalty_minutes,
+#                         "penalty_amount": penalty_amount,
+#                         "base_price_used": base_price_value,
+#                         "grace_minutes": 30,
+#                         "estimated_minutes": estimated_minutes,
+#                     },
+#                     "total_with_penalty": total_with_penalty
+#                 })
+#             else:
+#                 return Response({
+#                     "detail": "Could not update price. Real-time locations may not be available.",
+#                     "current_price": order.price,
+#                     "penalty": {
+#                         "penalty_minutes": penalty_minutes,
+#                         "penalty_amount": penalty_amount,
+#                         "base_price_used": base_price_value,
+#                         "grace_minutes": 30,
+#                         "estimated_minutes": estimated_minutes,
+#                     },
+#                     "total_with_penalty": total_with_penalty
+#                 }, status=status.HTTP_400_BAD_REQUEST)
+#                 
+#         except Order.DoesNotExist:
+#             return Response(
+#                 {"detail": "Order not found."},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+#         except Exception as e:
+#             return Response(
+#                 {"detail": f"Error updating price: {str(e)}"},
+#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#             )
+# 
+# 
+#     def perform_create(self, serializer):
+#         order = serializer.validated_data['order']
+#         user = self.request.user
+#         if user.user_type == 'user' and order.client == user:
+#             serializer.save()
+#         elif user.user_type in ['handler', 'admin']:
+#             serializer.save()
+#         else:
+#             raise ValidationError("You do not have permission to upload cargo photos for this order.")
+# 
+# class CargoValueView(generics.RetrieveUpdateAPIView):
+#     serializer_class = CargoValueSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsHandler|IsAdmin]
+# 
+#     def get_queryset(self):
+#         return CargoValue.objects.all()
+# 
+# class ReportIssueCreateView(generics.CreateAPIView):
+#     serializer_class = ReportIssueSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsClient]
+# 
+#     def perform_create(self, serializer):
+#         order = serializer.validated_data['order']
+#         if order.client != self.request.user:
+#             raise ValidationError("You can only report issues for your own orders.")
+#         # Validate 24-hour report window
+#         if (timezone.now() - order.created_at).total_seconds() > 86400:
+#             raise ValidationError("Reports must be made within 24 hours of the order being placed.")
+#         serializer.save()
+# 
+# class ReportIssueListView(generics.ListAPIView):
+#     serializer_class = ReportIssueSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsHandler|IsAdmin]
+# 
+#     def get_queryset(self):
+#         return ReportIssue.objects.all()
+# 
+# class ReferralCreateView(generics.CreateAPIView):
+#     serializer_class = ReferralSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsClient]
+# 
+#     def perform_create(self, serializer):
+#         referrer = self.request.user
+#         referred_user = serializer.validated_data['referred_user']
+#         if referrer == referred_user:
+#             raise ValidationError("You cannot refer yourself.")
+#         serializer.save(referrer=referrer)
+# 
+# class ReferralListView(generics.ListAPIView):
+#     serializer_class = ReferralSerializer
+#     permission_classes = [permissions.IsAuthenticated, IsClient]
+# 
+#     def get_queryset(self):
+#         return Referral.objects.filter(referrer=self.request.user)
+#         
+#     def get(self, request, *args, **kwargs):
+#         # Get the referrals for this user
+#         referrals = self.get_queryset()
+#         
+#         # Calculate statistics
+#         total_referrals = referrals.count()
+#         completed_referrals = referrals.filter(redeemed=True).count()
+#         pending_referrals = total_referrals - completed_referrals
+#         
+#         # Calculate points (2 points per referral)
+#         try:
+#             # Try to sum the points field from the database
+#             total_points = referrals.aggregate(total_points=models.Sum('points'))['total_points'] or 0
+#         except:
+#             # If the points field doesn't exist, calculate it dynamically
+#             total_points = total_referrals * 2
+#         
+#         # Get the user's referral code (username or custom code if implemented)
+#         referral_code = request.user.username
+#         
+#         # Prepare the response data
+#         response_data = {
+#             'referral_code': referral_code,
+#             'total_referrals': total_referrals,
+#             'pending_referrals': pending_referrals,
+#             'completed_referrals': completed_referrals,
+#             'earned_credits': total_points,
+#             'available_credits': total_points,
+#             'history': ReferralSerializer(referrals, many=True).data
+#         }
+#         
+#         return Response(response_data)
+# 
+# 
+# class HandymanServiceQuoteView(generics.UpdateAPIView):
+#     """API view for service providers to submit quotes for handyman services"""
+#     serializer_class = HandymanOrderSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+#     
+#     def get_queryset(self):
+#         # Only allow assistants to update their assigned orders
+#         return HandymanOrder.objects.filter(
+#             assistant=self.request.user,
+#             status='in_progress'
+#         )
+#     
+#     def update(self, request, *args, **kwargs):
+#         """Handle the quote submission"""
+#         instance = self.get_object()
+#         
+#         # Get the quote amount from the request
+#         service_quote = request.data.get('service_quote')
+#         quote_notes = request.data.get('quote_notes', '')
+#         
+#         if not service_quote:
+#             return Response(
+#                 {'error': 'Service quote amount is required'},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+#         
+#         try:
+#             # Convert to decimal and validate
+#             service_quote = Decimal(service_quote)
+#             if service_quote <= 0:
+#                 raise ValueError("Quote must be greater than zero")
+#         except (ValueError, InvalidOperation):
+#             return Response(
+#                 {'error': 'Invalid quote amount'},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+#         
+#         # Update the order with the quote
+#         instance.service_quote = service_quote
+#         instance.quote_notes = quote_notes
+#         instance.status = 'quote_provided'
+#         instance.quote_provided_at = timezone.now()
+#         instance.save()
+#         
+#         # Calculate the total value for record-keeping
+#         total_value = instance.facilitation_fee + service_quote
+#         
+#         # Return the updated order with additional information
+#         serializer = self.get_serializer(instance)
+#         response_data = serializer.data
+#         response_data.update({
+#             'message': 'Quote submitted successfully. Awaiting admin approval.',
+#             'payment_info': {
+#                 'facilitation_fee_already_paid': instance.facilitation_fee,
+#                 'service_quote': service_quote,
+#                 'total_value': total_value,
+#                 'client_will_pay': service_quote,
+#                 'note': 'The client will only be charged the service quote amount if approved, as they have already paid the facilitation fee.'
+#             }
+#         })
+#         return Response(response_data)
+# 
+# 
+# class HandlerAllOrdersView(generics.ListAPIView):
+#     """
+#     Handler-specific view that returns ALL orders without pagination.
+#     Updated to include full order details (locations, shopping items, images, cargo details)
+#     so handlers can see everything needed to manage orders.
+#     """
+#     permission_classes = [permissions.IsAuthenticated]
+#     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+#     filterset_fields = ['status', 'order_type']
+#     search_fields = ['title', 'description']
+#     ordering_fields = ['created_at', 'updated_at', 'price']
+#     ordering = ['-created_at']  # Default ordering by newest first
+#     pagination_class = None  # Disable pagination for this view
+#     
+#     def get_serializer_class(self):
+#         # Use the full serializer so handlers see all details
+#         from .serializers import OrderSerializer
+#         return OrderSerializer
+#     
+#     def get_queryset(self):
+#         user = self.request.user
+#         
+#         # Only allow handlers and admins to access this view
+#         if user.user_type not in ['handler', 'admin']:
+#             return Order.objects.none()
+#         
+#         # Return all orders with full related details
+#         return (
+#             Order.objects.select_related(
+#                 'client', 'assistant', 'handler', 'order_type',
+#                 'pickup_location', 'delivery_location'
+#             ).prefetch_related(
+#                 'shopping_items', 'images', 'review', 'cargo_details'
+#             ).order_by('-created_at')
+#         )
+#     
+#     def list(self, request, *args, **kwargs):
+#         queryset = self.filter_queryset(self.get_queryset())
+#         
+#         # If no orders exist, ensure we return an empty list
+#         if not queryset.exists():
+#             return Response([])
+#             
+#         serializer = self.get_serializer(queryset, many=True)
+#         return Response(serializer.data)
+# 
+# class GenerateQRView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     
+#     def post(self, request, *args, **kwargs):
+#         amount = request.data.get('amount')
+#         narration = request.data.get('narration')
+#         
+#         from .ncba_service import NCBAService
+#         ncba_service = NCBAService()
+#         
+#         try:
+#             response = ncba_service.generate_qr(amount=amount, narration=narration)
+#             return Response(response, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             logger.error(f"QR Generation failed: {str(e)}")
+#             return Response({
+#                 'status': 'error',
+#                 'message': str(e)
+#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

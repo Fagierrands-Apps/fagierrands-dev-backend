@@ -2,7 +2,9 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from .models import Profile, AssistantVerification, EmailVerification
+from django.utils import timezone
 import re
+import uuid
 
 User = get_user_model()
 
@@ -198,12 +200,161 @@ class RegisterSerializer(serializers.ModelSerializer):
         
         return user
 
+class RiderRegistrationSerializer(serializers.Serializer):
+    """Complete rider registration with document upload"""
+    # User account fields
+    username = serializers.CharField(max_length=150)
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True)
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
+    phone_number = serializers.CharField(max_length=20)
+    referral_code = serializers.CharField(required=False, allow_blank=True)
+    
+    # Verification fields
+    full_name = serializers.CharField(max_length=255)
+    id_number = serializers.CharField(max_length=50)
+    address = serializers.CharField()
+    area_of_operation = serializers.CharField(max_length=255)
+    driving_license_number = serializers.CharField(max_length=50)
+    
+    # Document uploads
+    profile_picture = serializers.ImageField()
+    id_front_image = serializers.ImageField()
+    id_back_image = serializers.ImageField()
+    driving_license_image = serializers.ImageField()
+    
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Username already exists")
+        return value
+    
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Email already registered")
+        return value
+    
+    def validate_phone_number(self, value):
+        normalized = normalize_phone_number(value)
+        if User.objects.filter(phone_number=normalized).exists():
+            raise serializers.ValidationError("Phone number already registered")
+        return normalized
+    
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Passwords don't match"})
+        return attrs
+    
+    def create(self, validated_data):
+        from .supabase_client import admin_supabase, VERIFICATION_BUCKET
+        from .services.sms_service import SMSService
+        
+        # Extract data
+        password2 = validated_data.pop('password2')
+        referral_code = validated_data.pop('referral_code', None)
+        
+        # Extract verification fields
+        full_name = validated_data.pop('full_name')
+        id_number = validated_data.pop('id_number')
+        address = validated_data.pop('address')
+        area_of_operation = validated_data.pop('area_of_operation')
+        driving_license_number = validated_data.pop('driving_license_number')
+        
+        # Extract images
+        profile_picture = validated_data.pop('profile_picture')
+        id_front_image = validated_data.pop('id_front_image')
+        id_back_image = validated_data.pop('id_back_image')
+        driving_license_image = validated_data.pop('driving_license_image')
+        
+        # Create user
+        validated_data['user_type'] = 'assistant'
+        validated_data['is_active'] = False  # Inactive until phone verified
+        user = User.objects.create_user(**validated_data)
+        
+        # Upload images to Supabase
+        timestamp = int(timezone.now().timestamp())
+        user_id = user.id
+        
+        def upload_image(image, doc_type):
+            """Upload single image to Supabase"""
+            try:
+                file_ext = image.name.split('.')[-1]
+                filename = f"rider_docs/{user_id}/{doc_type}_{timestamp}.{file_ext}"
+                
+                response = admin_supabase.storage.from_(VERIFICATION_BUCKET).upload(
+                    filename,
+                    image.read(),
+                    {"content-type": image.content_type}
+                )
+                
+                # Get public URL
+                url = admin_supabase.storage.from_(VERIFICATION_BUCKET).get_public_url(filename)
+                return url
+            except Exception as e:
+                raise serializers.ValidationError(f"Failed to upload {doc_type}: {str(e)}")
+        
+        # Upload all images
+        selfie_url = upload_image(profile_picture, 'selfie')
+        id_front_url = upload_image(id_front_image, 'id_front')
+        id_back_url = upload_image(id_back_image, 'id_back')
+        driving_license_url = upload_image(driving_license_image, 'driving_license')
+        
+        # Create verification record
+        AssistantVerification.objects.create(
+            user=user,
+            user_role='rider',
+            full_name=full_name,
+            id_number=id_number,
+            address=address,
+            phone_number=user.phone_number,
+            area_of_operation=area_of_operation,
+            driving_license_number=driving_license_number,
+            selfie_url=selfie_url,
+            id_front_url=id_front_url,
+            id_back_url=id_back_url,
+            driving_license_url=driving_license_url,
+            status='pending'
+        )
+        
+        # Send OTP
+        try:
+            otp = SMSService.generate_otp()
+            user.phone_otp = otp
+            user.phone_otp_created_at = timezone.now()
+            user.save()
+            SMSService.send_otp(user.phone_number, otp)
+        except Exception:
+            pass  # Don't fail registration if SMS fails
+        
+        # Handle referral
+        if referral_code:
+            try:
+                referrer = User.objects.get(referral_code=referral_code)
+                if referrer.id != user.id:
+                    user.referred_by = referrer
+                    user.save(update_fields=['referred_by'])
+                    from .models import WalletTransaction
+                    user.profile.wallet_points += 50
+                    user.profile.save(update_fields=['wallet_points'])
+                    WalletTransaction.objects.create(
+                        user=user,
+                        points=50,
+                        amount_equivalent=50,
+                        transaction_type='earn',
+                        reference='signup_referral'
+                    )
+            except User.DoesNotExist:
+                pass
+        
+        return user
+
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'profile_picture_url', 'bio', 'address']
+        fields = ['id', 'user', 'profile_picture_url', 'bio', 'address', 'plate_number', 'bike_type', 'bike_color', 'wallet_points', 'wallet_balance']
 
 # AssistantVerification serializers (imports already done above)
 

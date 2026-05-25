@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from orders.models import Order, OrderReview, HandymanOrder
 from accounts.models import AssistantVerification
+from accounts.services.sms_service import SMSService
 
 # Use synchronous version to avoid Redis dependency
 from .services_sync import NotificationServiceSync as NotificationService
@@ -40,6 +41,12 @@ def order_status_changed(sender, instance, **kwargs):
                     message=f'Your order "{instance.title}" has been assigned to an assistant.',
                     content_object=instance
                 )
+                # Send SMS to client
+                rider_name = instance.assistant.get_full_name() if instance.assistant else "a rider"
+                SMSService.send_sms(
+                    phone_number=instance.client.phone_number,
+                    message=f"FagiErrands: {rider_name} has been assigned to your order '{instance.title}'. Track your order in the app."
+                )
                 
             # Notify assistant
             if instance.assistant:
@@ -56,14 +63,23 @@ def order_status_changed(sender, instance, **kwargs):
                 instance.assigned_at = timezone.now()
                 
         elif instance.status == 'in_progress':
+            # Generate release code
+            import random
+            instance.release_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
                     recipient=instance.client,
                     notification_type='order_started',
                     title='Order Started',
-                    message=f'Your order "{instance.title}" is now in progress.',
+                    message=f'Your order "{instance.title}" is now in progress. Release code: {instance.release_code}',
                     content_object=instance
+                )
+                # Send SMS to client with release code
+                SMSService.send_sms(
+                    phone_number=instance.client.phone_number,
+                    message=f"FagiErrands: Your order '{instance.title}' has started. Release code: {instance.release_code}. Share this code with the rider upon delivery."
                 )
                 
             # Update started_at timestamp
@@ -79,6 +95,11 @@ def order_status_changed(sender, instance, **kwargs):
                     title='Order Completed',
                     message=f'Your order "{instance.title}" has been completed. Please leave a review!',
                     content_object=instance
+                )
+                # Send thank you SMS to client
+                SMSService.send_sms(
+                    phone_number=instance.client.phone_number,
+                    message=f"FagiErrands: Your order '{instance.title}' has been completed! Thank you for using FagiErrands. Please rate your experience in the app."
                 )
                 
             # Notify assistant
@@ -142,6 +163,13 @@ def order_created(sender, instance, created, **kwargs):
             message=f'Your order "{instance.title}" has been created successfully.',
             content_object=instance
         )
+        
+        # Send SMS confirmation to client
+        if instance.status == 'pending':
+            SMSService.send_sms(
+                phone_number=instance.client.phone_number,
+                message=f"FagiErrands: Your order '{instance.title}' has been placed successfully. Order ID: #{instance.id}. We'll notify you when a rider is assigned."
+            )
         
         # Handlers are notified via frontend polling (useOrderNotifications hook)
         # This prevents duplicate notifications from backend signals

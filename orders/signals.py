@@ -4,10 +4,11 @@ from django.utils import timezone
 import logging
 
 from .models import Order
-from .models_updated import (
-    OrderTracking, TrackingWaypoint, TrackingEvent, TrackingLocationHistory
-)
+# from .models_updated import (
+#     OrderTracking, TrackingWaypoint, TrackingEvent, TrackingLocationHistory
+# )
 from locations.models import UserLocation
+from accounts.services.sms_service import SMSService
 
 logger = logging.getLogger(__name__)
 
