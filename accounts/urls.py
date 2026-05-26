@@ -19,7 +19,6 @@ urlpatterns = [
     
     # Standard authentication
     path('register/', views.RegisterView.as_view(), name='register'),
-    path('rider/register/', views.RiderRegistrationView.as_view(), name='rider_register'),
     path('verify-phone/', views.verify_phone, name='verify_phone'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('login/', views.LoginView.as_view(), name='login'),
@@ -75,7 +74,7 @@ urlpatterns = [
     # Individual assistant dashboard stats
     path('assistant/dashboard-stats/', views.AssistantDashboardStatsView.as_view(), name='assistant_dashboard_stats'),
     
-    # Assistant verification URLs
+    # Assistant/Rider document upload (after registration)
     path('assistant/verify/', 
          views.AssistantVerificationAPIView.as_view(), 
          name='assistant_verification'),

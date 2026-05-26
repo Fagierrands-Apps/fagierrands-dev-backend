@@ -32,6 +32,78 @@ from accounts.permissions import IsOwnerOrReadOnly, IsHandler, IsAssistant, IsCl
 
 User = get_user_model()
 
+class OrderStatusPollingView(APIView):
+    """
+    Status polling endpoint for app to check order status and get rider details when assigned
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @swagger_auto_schema(
+        operation_description="Poll order status and get rider details when assigned",
+        responses={
+            200: openapi.Response(
+                description="Order status",
+                examples={
+                    'application/json': {
+                        'order_id': 123,
+                        'status': 'assigned',
+                        'rider': {
+                            'id': 45,
+                            'name': 'John Doe',
+                            'phone': '+254712345678',
+                            'profile_picture': 'https://...',
+                            'rating': 4.5
+                        }
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request, order_id):
+        try:
+            order = Order.objects.select_related('assistant', 'assistant__profile').get(id=order_id)
+            
+            # Check permission
+            if order.client != request.user and order.assistant != request.user:
+                if request.user.user_type not in ['handler', 'admin']:
+                    return Response({'error': 'Permission denied'}, 
+                                  status=status.HTTP_403_FORBIDDEN)
+            
+            response_data = {
+                'order_id': order.id,
+                'status': order.status,
+                'created_at': order.created_at.isoformat(),
+                'updated_at': order.updated_at.isoformat(),
+            }
+            
+            # Include rider details if assigned
+            if order.status in ['assigned', 'in_progress', 'completed'] and order.assistant:
+                rider = order.assistant
+                profile = getattr(rider, 'profile', None)
+                
+                response_data['rider'] = {
+                    'id': rider.id,
+                    'name': f"{rider.first_name} {rider.last_name}".strip() or rider.username,
+                    'phone': rider.phone_number,
+                    'profile_picture': profile.profile_picture_url if profile else None,
+                    'rating': 4.5,  # TODO: Calculate from reviews
+                }
+                
+                if order.assigned_at:
+                    response_data['assigned_at'] = order.assigned_at.isoformat()
+                if order.started_at:
+                    response_data['started_at'] = order.started_at.isoformat()
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+            
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, 
+                          status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error in status polling: {str(e)}")
+            return Response({'error': 'Internal server error'}, 
+                          status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 def get_client_user(request):
     """
     Helper function to get the client user for order creation.

@@ -16,6 +16,7 @@ from .views import (
     # deployment_check_view,
     PickupDeliveryOrderCreateView,
     CargoDeliveryOrderView,
+    OrderStatusPollingView,  # NEW
     # HandlerAllOrdersView,  # New handler-specific view
     # New views from views_updated.py
     # ClientFeedbackCreateView,
@@ -109,6 +110,7 @@ urlpatterns = [
     path('types/', OrderTypeListView.as_view(), name='order-type-list'),
     path('', OrderListCreateView.as_view(), name='order-list-create'),
     path('<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
+    path('<int:order_id>/status/', OrderStatusPollingView.as_view(), name='order-status-polling'),  # NEW
     path('shopping/', ShoppingOrderView.as_view(), name='shopping-order'),
     path('<int:pk>/status/', OrderStatusUpdateView.as_view(), name='order-status-update'),
     path('<int:pk>/assign/', AssignOrderView.as_view(), name='assign-order'),
