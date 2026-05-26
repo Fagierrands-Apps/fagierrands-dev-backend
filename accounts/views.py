@@ -24,7 +24,6 @@ from .serializers import (
     EmailVerificationSerializer, ResendVerificationSerializer,
     ForgotPasswordSerializer, ResetPasswordSerializer,
     VerifyPhoneSerializer, ResendOTPSerializer, LoginSerializer, LogoutSerializer,
-    RiderRegistrationSerializer,
     normalize_phone_number
 )
 from .email_utils import send_verification_email, verify_email_token, resend_verification_email
