@@ -104,6 +104,151 @@ class OrderStatusPollingView(APIView):
             return Response({'error': 'Internal server error'}, 
                           status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class CalculatePriceView(APIView):
+    """
+    Calculate errand price based on distance and errand type
+    """
+    permission_classes = [permissions.AllowAny]
+    
+    @swagger_auto_schema(
+        operation_description="Calculate price for errand based on pickup/dropoff locations",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['pickup_latitude', 'pickup_longitude', 'dropoff_latitude', 'dropoff_longitude', 'errand_type'],
+            properties={
+                'pickup_latitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+                'pickup_longitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+                'dropoff_latitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+                'dropoff_longitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+                'errand_type': openapi.Schema(type=openapi.TYPE_STRING, enum=['parcel', 'cargo', 'shopping']),
+                'shopping_amount': openapi.Schema(type=openapi.TYPE_NUMBER, description='Required for shopping errands'),
+                'is_emergency': openapi.Schema(type=openapi.TYPE_BOOLEAN, default=False),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Price calculation",
+                examples={
+                    'application/json': {
+                        'distance_km': 10.5,
+                        'errand_type': 'parcel',
+                        'base_price': 200,
+                        'distance_fee': 69,
+                        'emergency_fee': 0,
+                        'service_fee': 0,
+                        'total_price': 269,
+                        'upfront_payment': 269,
+                        'on_delivery_payment': 0
+                    }
+                }
+            )
+        }
+    )
+    def post(self, request):
+        from decimal import Decimal
+        import math
+        
+        # Extract data
+        pickup_lat = request.data.get('pickup_latitude')
+        pickup_lng = request.data.get('pickup_longitude')
+        dropoff_lat = request.data.get('dropoff_latitude')
+        dropoff_lng = request.data.get('dropoff_longitude')
+        errand_type = request.data.get('errand_type', '').lower()
+        shopping_amount = Decimal(str(request.data.get('shopping_amount', 0)))
+        is_emergency = request.data.get('is_emergency', False)
+        
+        # Validate inputs
+        if not all([pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, errand_type]):
+            return Response({'error': 'Missing required fields'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        if errand_type not in ['parcel', 'cargo', 'shopping']:
+            return Response({'error': 'Invalid errand_type. Must be: parcel, cargo, or shopping'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        if errand_type == 'shopping' and shopping_amount <= 0:
+            return Response({'error': 'shopping_amount required for shopping errands'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        
+        # Calculate distance using Haversine formula
+        def calculate_distance(lat1, lon1, lat2, lon2):
+            R = 6371  # Earth radius in km
+            lat1, lon1, lat2, lon2 = map(math.radians, [float(lat1), float(lon1), float(lat2), float(lon2)])
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+            a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+            c = 2 * math.asin(math.sqrt(a))
+            return R * c
+        
+        distance_km = calculate_distance(pickup_lat, pickup_lng, dropoff_lat, dropoff_lng)
+        distance_km = round(distance_km, 2)
+        
+        # Initialize price components
+        base_price = Decimal('0')
+        distance_fee = Decimal('0')
+        service_fee = Decimal('0')
+        emergency_fee = Decimal('50') if is_emergency else Decimal('0')
+        
+        # Calculate based on errand type
+        if errand_type == 'parcel':
+            # First 7.5 km: 200 KSH, then 23 KSH/km
+            base_price = Decimal('200')
+            if distance_km > 7.5:
+                extra_km = Decimal(str(distance_km - 7.5))
+                distance_fee = extra_km * Decimal('23')
+        
+        elif errand_type == 'cargo':
+            # First 7 km: 500 KSH, then 28 KSH/km
+            base_price = Decimal('500')
+            if distance_km > 7:
+                extra_km = Decimal(str(distance_km - 7))
+                distance_fee = extra_km * Decimal('28')
+        
+        elif errand_type == 'shopping':
+            # Distance fee: First 7.5 km: 200 KSH, then 23 KSH/km
+            base_price = Decimal('200')
+            if distance_km > 7.5:
+                extra_km = Decimal(str(distance_km - 7.5))
+                distance_fee = extra_km * Decimal('23')
+            
+            # Service fee: 200 for first 5000, then +50 per additional 5000
+            service_fee = Decimal('200')
+            if shopping_amount > 5000:
+                extra_blocks = math.ceil((shopping_amount - 5000) / 5000)
+                service_fee += Decimal(str(extra_blocks * 50))
+        
+        # Calculate totals
+        total_price = base_price + distance_fee + service_fee + emergency_fee
+        
+        # For shopping: 30% upfront, 70% on delivery
+        if errand_type == 'shopping':
+            upfront_payment = (shopping_amount * Decimal('0.30')).quantize(Decimal('0.01'))
+            delivery_payment = (shopping_amount * Decimal('0.70') + base_price + distance_fee + service_fee + emergency_fee).quantize(Decimal('0.01'))
+        else:
+            upfront_payment = total_price
+            delivery_payment = Decimal('0')
+        
+        return Response({
+            'distance_km': distance_km,
+            'errand_type': errand_type,
+            'base_price': float(base_price),
+            'distance_fee': float(distance_fee),
+            'service_fee': float(service_fee),
+            'emergency_fee': float(emergency_fee),
+            'shopping_amount': float(shopping_amount) if errand_type == 'shopping' else 0,
+            'total_price': float(total_price) if errand_type != 'shopping' else float(delivery_payment + upfront_payment),
+            'upfront_payment': float(upfront_payment),
+            'on_delivery_payment': float(delivery_payment),
+            'breakdown': {
+                'base_price': f'{base_price} KSH (first {"7.5" if errand_type in ["parcel", "shopping"] else "7"} km)',
+                'distance_fee': f'{distance_fee} KSH ({distance_km - (7.5 if errand_type in ["parcel", "shopping"] else 7):.2f} extra km)',
+                'service_fee': f'{service_fee} KSH (shopping service)' if errand_type == 'shopping' else '0 KSH',
+                'emergency_fee': f'{emergency_fee} KSH' if is_emergency else '0 KSH'
+            }
+        }, status=status.HTTP_200_OK)
+
+
 def get_client_user(request):
     """
     Helper function to get the client user for order creation.

@@ -16,7 +16,8 @@ from .views import (
     # deployment_check_view,
     PickupDeliveryOrderCreateView,
     CargoDeliveryOrderView,
-    OrderStatusPollingView,  # NEW
+    OrderStatusPollingView,
+    CalculatePriceView,  # NEW
     # HandlerAllOrdersView,  # New handler-specific view
     # New views from views_updated.py
     # ClientFeedbackCreateView,
@@ -104,13 +105,13 @@ urlpatterns = [
     
     # Enhanced order endpoints (NEW - Use these!)
     path('v1/create/', EnhancedPickupDeliveryOrderView.as_view(), name='enhanced-order-create'),
-#     path('v1/calculate-price/', PriceCalculationView.as_view(), name='calculate-price-v1'),
+    path('calculate-price/', CalculatePriceView.as_view(), name='calculate-price'),  # NEW
     
     # Existing order endpoints
     path('types/', OrderTypeListView.as_view(), name='order-type-list'),
     path('', OrderListCreateView.as_view(), name='order-list-create'),
     path('<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
-    path('<int:order_id>/status/', OrderStatusPollingView.as_view(), name='order-status-polling'),  # NEW
+    path('<int:order_id>/status/', OrderStatusPollingView.as_view(), name='order-status-polling'),
     path('shopping/', ShoppingOrderView.as_view(), name='shopping-order'),
     path('<int:pk>/status/', OrderStatusUpdateView.as_view(), name='order-status-update'),
     path('<int:pk>/assign/', AssignOrderView.as_view(), name='assign-order'),
