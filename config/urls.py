@@ -22,7 +22,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
-    # path('api/orders/', include('orders.urls')),  # Temporarily disabled due to import issues
+    path('api/orders/', include('orders.urls')),
     path('api/locations/', include('locations.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/marketplace/', include('marketplace.urls')),
