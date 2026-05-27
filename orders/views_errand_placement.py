@@ -78,14 +78,20 @@ def create_draft_errand(request):
             latitude=request.data['pickup_latitude'],
             longitude=request.data['pickup_longitude'],
             user=user,
-            defaults={'name': request.data.get('pickup_location_name', 'Pickup')}
+            defaults={
+                'name': request.data.get('pickup_location_name', 'Pickup'),
+                'address': request.data.get('pickup_location_name', '')
+            }
         )
         
         delivery_loc, _ = Location.objects.get_or_create(
             latitude=request.data['delivery_latitude'],
             longitude=request.data['delivery_longitude'],
             user=user,
-            defaults={'name': request.data.get('delivery_location_name', 'Delivery')}
+            defaults={
+                'name': request.data.get('delivery_location_name', 'Delivery'),
+                'address': request.data.get('delivery_location_name', '')
+            }
         )
         
         # Get order type
@@ -95,13 +101,14 @@ def create_draft_errand(request):
         
         # Create order
         order = Order.objects.create(
-            user=user,
+            client=user,
             order_type=order_type,
+            title=request.data.get('description', 'Errand Order')[:100],
             pickup_location=pickup_loc,
             delivery_location=delivery_loc,
             receiver_name=request.data.get('receiver_name', ''),
             receiver_phone=request.data.get('receiver_phone', ''),
-            description=request.data.get('description', ''),
+            description=request.data.get('description', 'Errand delivery'),
             price=request.data.get('price', 0),
             status='draft'
         )
@@ -120,7 +127,7 @@ def create_draft_errand(request):
 def upload_errand_image(request, order_id):
     """Upload image for errand"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user)
+        order = Order.objects.get(id=order_id, client=request.user)
         # Image upload logic here
         return Response({'message': 'Image uploaded'})
     except Order.DoesNotExist:
@@ -131,7 +138,7 @@ def upload_errand_image(request, order_id):
 def update_errand_receiver_info(request, order_id):
     """Update receiver info"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user)
+        order = Order.objects.get(id=order_id, client=request.user)
         order.receiver_name = request.data.get('receiver_name', order.receiver_name)
         order.receiver_phone = request.data.get('receiver_phone', order.receiver_phone)
         order.save()
@@ -144,7 +151,7 @@ def update_errand_receiver_info(request, order_id):
 def confirm_errand(request, order_id):
     """Confirm and submit errand"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user)
+        order = Order.objects.get(id=order_id, client=request.user)
         order.status = 'pending'
         order.save()
         return Response({
@@ -160,7 +167,7 @@ def confirm_errand(request, order_id):
 def get_draft_errand(request, order_id):
     """Get draft errand details"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user)
+        order = Order.objects.get(id=order_id, client=request.user)
         return Response({
             'order_id': order.id,
             'status': order.status,
@@ -179,7 +186,7 @@ def get_draft_errand(request, order_id):
 def delete_draft_errand(request, order_id):
     """Delete draft errand"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user, status='draft')
+        order = Order.objects.get(id=order_id, client=request.user, status='draft')
         order.delete()
         return Response({'message': 'Draft deleted'}, status=204)
     except Order.DoesNotExist:
