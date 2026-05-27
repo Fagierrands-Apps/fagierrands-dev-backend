@@ -106,8 +106,8 @@ def create_draft_errand(request):
             title=request.data.get('description', 'Errand Order')[:100],
             pickup_location=pickup_loc,
             delivery_location=delivery_loc,
-            receiver_name=request.data.get('receiver_name', ''),
-            receiver_phone=request.data.get('receiver_phone', ''),
+            recipient_name=request.data.get('receiver_name', ''),
+            contact_number=request.data.get('receiver_phone', ''),
             description=request.data.get('description', 'Errand delivery'),
             price=request.data.get('price', 0),
             status='draft'
@@ -139,8 +139,8 @@ def update_errand_receiver_info(request, order_id):
     """Update receiver info"""
     try:
         order = Order.objects.get(id=order_id, client=request.user)
-        order.receiver_name = request.data.get('receiver_name', order.receiver_name)
-        order.receiver_phone = request.data.get('receiver_phone', order.receiver_phone)
+        order.recipient_name = request.data.get('receiver_name', order.recipient_name)
+        order.contact_number = request.data.get('receiver_phone', order.contact_number)
         order.save()
         return Response({'message': 'Receiver info updated'})
     except Order.DoesNotExist:
@@ -173,8 +173,8 @@ def get_draft_errand(request, order_id):
             'status': order.status,
             'pickup_location': order.pickup_location.name if order.pickup_location else '',
             'delivery_location': order.delivery_location.name if order.delivery_location else '',
-            'receiver_name': order.receiver_name,
-            'receiver_phone': order.receiver_phone,
+            'receiver_name': order.recipient_name,
+            'receiver_phone': order.contact_number,
             'description': order.description,
             'price': float(order.price)
         })
