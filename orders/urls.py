@@ -50,6 +50,9 @@ from .views_payment_ncba import (
 # Import handyman payment view
 from .views_handyman_payment import HandymanServiceFinalPaymentView
 
+# Import price calculation view
+from .views_price_calculation import CalculatePriceView
+
 # Import quote management views
 from .views_quotes import (
     ServiceProviderQuoteListView, ServiceProviderQuoteDetailView,
@@ -200,6 +203,7 @@ urlpatterns = [
     
     # Price calculation endpoints
     path('calculate-price/', PriceCalculationView.as_view(), name='calculate-price'),
+    path('calculate-delivery-price/', CalculatePriceView.as_view(), name='calculate-delivery-price'),
     path('<int:pk>/update_price_realtime/', OrderPriceRealtimeUpdateView.as_view(), name='order-price-realtime-update'),
 ]
 
