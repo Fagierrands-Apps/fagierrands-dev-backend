@@ -54,57 +54,57 @@ from .views import (
 # from .views_handyman_payment import HandymanServiceFinalPaymentView
 
 # Import quote management views
-from .views_quotes import (
-    ServiceProviderQuoteListView, ServiceProviderQuoteDetailView,
-    SubmitQuoteView, HandlerQuoteManagementView, ApproveRejectQuoteView,
-    HandymanOrderQuotesView, QuoteImageUploadView, ServiceProviderDashboardView,
-    quote_status_check
-)
+# from .views_quotes import (
+#     ServiceProviderQuoteListView, ServiceProviderQuoteDetailView,
+#     SubmitQuoteView, HandlerQuoteManagementView, ApproveRejectQuoteView,
+#     HandymanOrderQuotesView, QuoteImageUploadView, ServiceProviderDashboardView,
+#     quote_status_check
+# )
 
 # Import enhanced order views
-from .views_enhanced_order import (
-    EnhancedPickupDeliveryOrderView,
+# from .views_enhanced_order import (
+#     EnhancedPickupDeliveryOrderView,
 #     PriceCalculationView,
-    EnhancedOrderImageUploadView
-)
+#     EnhancedOrderImageUploadView
+# )
 
 # Import 3-step order views
-from .views_three_step_order import (
-    CreateDraftOrderView,
-    UploadOrderImageView,
-    ConfirmOrderView
-)
+# from .views_three_step_order import (
+#     CreateDraftOrderView,
+#     UploadOrderImageView,
+#     ConfirmOrderView
+# )
 
 # Import 2-step errand placement views
-from .views_errand_placement import (
-    calculate_errand_price,
-    calculate_price_with_route,
-    create_draft_errand,
-    upload_errand_image,
-    update_errand_receiver_info,
-    confirm_errand,
-    get_draft_errand,
-    delete_draft_errand
-)
+# from .views_errand_placement import (
+#     calculate_errand_price,
+#     calculate_price_with_route,
+#     create_draft_errand,
+#     upload_errand_image,
+#     update_errand_receiver_info,
+#     confirm_errand,
+#     get_draft_errand,
+#     delete_draft_errand
+# )
 
 urlpatterns = [
     # 2-Step Errand Placement (Normal Errands - Pickup & Delivery)
-    path('errands/calculate-price/', calculate_errand_price, name='calculate-errand-price'),
-    path('errands/calculate-price-with-route/', calculate_price_with_route, name='calculate-price-with-route'),
-    path('errands/draft/', create_draft_errand, name='create-draft-errand'),
-    path('errands/<int:order_id>/upload-image/', upload_errand_image, name='upload-errand-image'),
-    path('errands/<int:order_id>/receiver-info/', update_errand_receiver_info, name='update-errand-receiver-info'),
-    path('errands/<int:order_id>/confirm/', confirm_errand, name='confirm-errand'),
-    path('errands/<int:order_id>/', get_draft_errand, name='get-draft-errand'),
-    path('errands/<int:order_id>/delete/', delete_draft_errand, name='delete-draft-errand'),
+    # path('errands/calculate-price/', calculate_errand_price, name='calculate-errand-price'),
+    # path('errands/calculate-price-with-route/', calculate_price_with_route, name='calculate-price-with-route'),
+    # path('errands/draft/', create_draft_errand, name='create-draft-errand'),
+    # path('errands/<int:order_id>/upload-image/', upload_errand_image, name='upload-errand-image'),
+    # path('errands/<int:order_id>/receiver-info/', update_errand_receiver_info, name='update-errand-receiver-info'),
+    # path('errands/<int:order_id>/confirm/', confirm_errand, name='confirm-errand'),
+    # path('errands/<int:order_id>/', get_draft_errand, name='get-draft-errand'),
+    # path('errands/<int:order_id>/delete/', delete_draft_errand, name='delete-draft-errand'),
     
     # 3-Step Order Creation (RECOMMENDED)
-    path('v1/draft/', CreateDraftOrderView.as_view(), name='create-draft-order'),
-    path('v1/<int:order_id>/upload-image/', UploadOrderImageView.as_view(), name='upload-order-image'),
-    path('v1/<int:order_id>/confirm/', ConfirmOrderView.as_view(), name='confirm-order'),
+    # path('v1/draft/', CreateDraftOrderView.as_view(), name='create-draft-order'),
+    # path('v1/<int:order_id>/upload-image/', UploadOrderImageView.as_view(), name='upload-order-image'),
+    # path('v1/<int:order_id>/confirm/', ConfirmOrderView.as_view(), name='confirm-order'),
     
     # Enhanced order endpoints (NEW - Use these!)
-    path('v1/create/', EnhancedPickupDeliveryOrderView.as_view(), name='enhanced-order-create'),
+    # path('v1/create/', EnhancedPickupDeliveryOrderView.as_view(), name='enhanced-order-create'),
     path('calculate-price/', CalculatePriceView.as_view(), name='calculate-price'),  # NEW
     
     # Existing order endpoints
@@ -138,21 +138,21 @@ urlpatterns = [
     path('assigned/', AssistantOrdersView.as_view(), name='assistant-orders'),
     path('available/', AvailableOrdersView.as_view(), name='available-orders'),
     path('assistant/', AssistantOrdersAPIView.as_view(), name='assistant-orders-api'),
-    path('handler/all/', HandlerAllOrdersView.as_view(), name='handler-all-orders'),
+    # path('handler/all/', HandlerAllOrdersView.as_view(), name='handler-all-orders'),
 
     # New endpoints for tracking, feedback, reporting, referral
 #     path('<int:pk>/tracking/', OrderTrackingView.as_view(), name='order-tracking'),
 #     path('<int:pk>/tracking/initialize/', InitializeTrackingView.as_view(), name='initialize-tracking'),
-    path('<int:order_id>/client-feedback/', ClientFeedbackCreateView.as_view(), name='client-feedback-create'),
-    path('client-feedback/<int:pk>/', ClientFeedbackDetailView.as_view(), name='client-feedback-detail'),
-    path('<int:order_id>/rider-feedback/', RiderFeedbackCreateView.as_view(), name='rider-feedback-create'),
-    path('rider-feedback/<int:pk>/', RiderFeedbackDetailView.as_view(), name='rider-feedback-detail'),
-    path('<int:order_id>/cargo-photos/', CargoPhotoUploadView.as_view(), name='cargo-photo-upload'),
-    path('cargo-value/<int:pk>/', CargoValueView.as_view(), name='cargo-value'),
-    path('<int:order_id>/report-issue/', ReportIssueCreateView.as_view(), name='report-issue-create'),
-    path('report-issues/', ReportIssueListView.as_view(), name='report-issue-list'),
-    path('referrals/', ReferralListView.as_view(), name='referral-list'),
-    path('referrals/create/', ReferralCreateView.as_view(), name='referral-create'),
+    # path('<int:order_id>/client-feedback/', ClientFeedbackCreateView.as_view(), name='client-feedback-create'),
+    # path('client-feedback/<int:pk>/', ClientFeedbackDetailView.as_view(), name='client-feedback-detail'),
+    # path('<int:order_id>/rider-feedback/', RiderFeedbackCreateView.as_view(), name='rider-feedback-create'),
+    # path('rider-feedback/<int:pk>/', RiderFeedbackDetailView.as_view(), name='rider-feedback-detail'),
+    # path('<int:order_id>/cargo-photos/', CargoPhotoUploadView.as_view(), name='cargo-photo-upload'),
+    # path('cargo-value/<int:pk>/', CargoValueView.as_view(), name='cargo-value'),
+    # path('<int:order_id>/report-issue/', ReportIssueCreateView.as_view(), name='report-issue-create'),
+    # path('report-issues/', ReportIssueListView.as_view(), name='report-issue-list'),
+    # path('referrals/', ReferralListView.as_view(), name='referral-list'),
+    # path('referrals/create/', ReferralCreateView.as_view(), name='referral-create'),
     
     # Tracking waypoints and events endpoints
 #     path('tracking/<int:tracking_id>/waypoints/', TrackingWaypointListCreateView.as_view(), name='tracking-waypoint-list'),
@@ -172,7 +172,7 @@ urlpatterns = [
     path('handyman/orders/<int:pk>/', HandymanOrderDetailView.as_view(), name='handyman-order-detail'),
     path('handyman/orders/<int:pk>/status/', HandymanOrderStatusUpdateView.as_view(), name='handyman-order-status-update'),
     path('handyman/orders/<int:pk>/assign/', AssignHandymanOrderView.as_view(), name='handyman-order-assign'),
-    path('handyman/orders/<int:pk>/quote/', HandymanServiceQuoteView.as_view(), name='handyman-service-quote'),
+    # path('handyman/orders/<int:pk>/quote/', HandymanServiceQuoteView.as_view(), name='handyman-service-quote'),
 #     path('handyman/orders/<int:handyman_order_id>/final-payment/', HandymanServiceFinalPaymentView.as_view(), name='handyman-final-payment'),
     path('handyman/orders/<int:order_id>/images/', HandymanOrderImageUploadView.as_view(), name='handyman-order-image-upload'),
     path('handyman/orders/pending/', PendingHandymanOrdersView.as_view(), name='handyman-pending-orders'),
@@ -180,21 +180,21 @@ urlpatterns = [
 #     path('deployment-check/', deployment_check_view, name='deployment-check'),
     
     # Quote Management URLs
-    path('quotes/', ServiceProviderQuoteListView.as_view(), name='service-provider-quotes'),
-    path('quotes/<int:pk>/', ServiceProviderQuoteDetailView.as_view(), name='service-provider-quote-detail'),
-    path('quotes/<int:quote_id>/submit/', SubmitQuoteView.as_view(), name='submit-quote'),
-    path('quotes/<int:quote_id>/images/', QuoteImageUploadView.as_view(), name='quote-image-upload'),
-    path('quotes/status-check/<int:order_id>/', quote_status_check, name='quote-status-check'),
+    # path('quotes/', ServiceProviderQuoteListView.as_view(), name='service-provider-quotes'),
+    # path('quotes/<int:pk>/', ServiceProviderQuoteDetailView.as_view(), name='service-provider-quote-detail'),
+    # path('quotes/<int:quote_id>/submit/', SubmitQuoteView.as_view(), name='submit-quote'),
+    # path('quotes/<int:quote_id>/images/', QuoteImageUploadView.as_view(), name='quote-image-upload'),
+    # path('quotes/status-check/<int:order_id>/', quote_status_check, name='quote-status-check'),
     
     # Handler Quote Management
-    path('handler/quotes/', HandlerQuoteManagementView.as_view(), name='handler-quotes'),
-    path('handler/quotes/<int:quote_id>/review/', ApproveRejectQuoteView.as_view(), name='approve-reject-quote'),
+    # path('handler/quotes/', HandlerQuoteManagementView.as_view(), name='handler-quotes'),
+    # path('handler/quotes/<int:quote_id>/review/', ApproveRejectQuoteView.as_view(), name='approve-reject-quote'),
     
     # Order with Quotes
-    path('handyman/orders/<int:pk>/quotes/', HandymanOrderQuotesView.as_view(), name='handyman-order-quotes'),
+    # path('handyman/orders/<int:pk>/quotes/', HandymanOrderQuotesView.as_view(), name='handyman-order-quotes'),
     
     # Service Provider Dashboard
-    path('service-provider/dashboard/', ServiceProviderDashboardView.as_view(), name='service-provider-dashboard'),
+    # path('service-provider/dashboard/', ServiceProviderDashboardView.as_view(), name='service-provider-dashboard'),
     
     # Payment endpoints (NCBA Till API)
 #     path('payments/initiate/', InitiatePaymentView.as_view(), name='initiate-payment'),
