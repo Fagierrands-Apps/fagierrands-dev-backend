@@ -53,6 +53,9 @@ from .views_handyman_payment import HandymanServiceFinalPaymentView
 # Import price calculation view
 from .views_price_calculation import CalculatePriceView
 
+# Import rider assignment status view
+from .views_rider_assignment import RiderAssignmentStatusView
+
 # Import quote management views
 from .views_quotes import (
     ServiceProviderQuoteListView, ServiceProviderQuoteDetailView,
@@ -121,6 +124,9 @@ urlpatterns = [
     
     # Rider status endpoint (for "Finding your rider" feature)
     path('<int:order_id>/rider-status/', get_order_rider_status, name='order-rider-status'),
+    
+    # Rider assignment status polling endpoint
+    path('<int:order_id>/rider-assignment/', RiderAssignmentStatusView.as_view(), name='rider-assignment-status'),
     
     # Attachment endpoints
     path('<int:order_id>/attachments/upload/', AttachmentUploadView.as_view(), name='order-attachment-upload'),
