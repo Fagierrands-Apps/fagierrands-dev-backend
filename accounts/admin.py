@@ -45,21 +45,17 @@ class CustomUserAdmin(UserAdmin):
     
     def delete_queryset(self, request, queryset):
         """Override to handle cascading deletes properly"""
-        try:
-            from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-            for obj in queryset:
-                OutstandingToken.objects.filter(user=obj).delete()
-        except:
-            pass
-        queryset.delete()
+        from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+        for obj in queryset:
+            # Delete related tokens first
+            OutstandingToken.objects.filter(user=obj).delete()
+            obj.delete()
     
     def delete_model(self, request, obj):
         """Override to handle cascading deletes properly"""
-        try:
-            from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-            OutstandingToken.objects.filter(user=obj).delete()
-        except:
-            pass
+        from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+        # Delete related tokens first
+        OutstandingToken.objects.filter(user=obj).delete()
         obj.delete()
 
 class EmailVerificationAdmin(admin.ModelAdmin):

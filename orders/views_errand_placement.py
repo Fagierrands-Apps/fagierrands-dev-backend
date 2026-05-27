@@ -1,193 +1,537 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework import status
-from .models import Order, OrderType
-from locations.models import Location
-from geopy.distance import geodesic
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from django.db import transaction
+from decimal import Decimal
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from .models import Order, OrderType, OrderImage
+from .serializers import OrderSerializer, OrderImageSerializer
+from django.conf import settings
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
+from locations.google_maps_service import GoogleMapsService
+import requests
 import logging
 
 logger = logging.getLogger(__name__)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def calculate_errand_price(request):
-    """Calculate price for errand"""
-    pickup_lat = request.data.get('pickup_latitude')
-    pickup_lng = request.data.get('pickup_longitude')
-    dropoff_lat = request.data.get('dropoff_latitude')
-    dropoff_lng = request.data.get('dropoff_longitude')
-    errand_type = request.data.get('errand_type', 'parcel')
-    shopping_amount = float(request.data.get('shopping_amount', 0))
-    is_emergency = request.data.get('is_emergency', False)
-    
-    if not all([pickup_lat, pickup_lng, dropoff_lat, dropoff_lng]):
-        return Response({'error': 'Missing coordinates'}, status=400)
-    
-    # Calculate distance
-    distance = geodesic((pickup_lat, pickup_lng), (dropoff_lat, dropoff_lng)).km
-    
-    # Calculate price based on type
-    if errand_type == 'parcel':
-        base = 200
-        if distance > 7.5:
-            distance_fee = (distance - 7.5) * 23
-        else:
-            distance_fee = 0
-        total = base + distance_fee
-    elif errand_type == 'cargo':
-        base = 500
-        if distance > 7:
-            distance_fee = (distance - 7) * 28
-        else:
-            distance_fee = 0
-        total = base + distance_fee
-    else:  # shopping
-        base = 200
-        if distance > 7.5:
-            distance_fee = (distance - 7.5) * 23
-        else:
-            distance_fee = 0
-        service_fee = 200 + max(0, (shopping_amount - 5000) / 5000) * 50
-        total = base + distance_fee + service_fee
-    
-    if is_emergency:
-        total += 50
-    
-    return Response({
-        'distance_km': round(distance, 2),
-        'total_price': round(total, 2),
-        'upfront_payment': round(total if errand_type != 'shopping' else shopping_amount * 0.3, 2)
-    })
 
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['order_type_id', 'pickup_lat', 'pickup_lng', 'dropoff_lat', 'dropoff_lng'],
+        properties={
+            'order_type_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'pickup_lat': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'pickup_lng': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'dropoff_lat': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'dropoff_lng': openapi.Schema(type=openapi.TYPE_NUMBER),
+        }
+    )
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def calculate_price_with_route(request):
-    """Calculate price with route details"""
-    return calculate_errand_price(request)
+    """
+    Calculate price based on pickup and dropoff coordinates
+    Returns: price breakdown, distance, duration, and route polyline
+    """
+    order_type_id = request.data.get('order_type_id')
+    pickup_lat = request.data.get('pickup_lat')
+    pickup_lng = request.data.get('pickup_lng')
+    dropoff_lat = request.data.get('dropoff_lat')
+    dropoff_lng = request.data.get('dropoff_lng')
+    
+    if not all([order_type_id, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng]):
+        return Response({
+            'error': 'order_type_id, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        order_type = OrderType.objects.get(id=order_type_id)
+        
+        # Get route from Google Maps Directions API
+        api_key = settings.GOOGLE_MAPS_API_KEY
+        directions_url = "https://maps.googleapis.com/maps/api/directions/json"
+        
+        params = {
+            'origin': f"{pickup_lat},{pickup_lng}",
+            'destination': f"{dropoff_lat},{dropoff_lng}",
+            'key': api_key,
+            'mode': 'driving'
+        }
+        
+        response = requests.get(directions_url, params=params, timeout=10)
+        data = response.json()
+        
+        if data.get('status') != 'OK':
+            return Response({
+                'error': f"Google Maps API error: {data.get('status')}"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        route = data['routes'][0]
+        leg = route['legs'][0]
+        
+        # Extract distance and duration
+        distance_meters = leg['distance']['value']
+        distance_km = Decimal(str(distance_meters / 1000))
+        duration_seconds = leg['duration']['value']
+        duration_minutes = duration_seconds / 60
+        
+        # Get polyline for route visualization
+        polyline = route['overview_polyline']['points']
+        
+        # Calculate price
+        calculated_price = order_type.calculate_price(distance_km)
+        
+        # Price breakdown
+        if distance_km <= 7:
+            distance_fee = Decimal('0.00')
+        else:
+            extra_km = distance_km - 7
+            distance_fee = extra_km * order_type.price_per_km
+        
+        return Response({
+            'order_type': order_type.name,
+            'distance': {
+                'km': float(distance_km),
+                'text': leg['distance']['text']
+            },
+            'duration': {
+                'minutes': int(duration_minutes),
+                'text': leg['duration']['text']
+            },
+            'pricing': {
+                'base_fee': float(order_type.base_price),
+                'distance_fee': float(distance_fee),
+                'total': float(calculated_price),
+                'currency': 'KSH'
+            },
+            'route': {
+                'polyline': polyline,
+                'start_address': leg['start_address'],
+                'end_address': leg['end_address']
+            },
+            'pricing_note': f'KSh {order_type.base_price} for first 7km, KSh {order_type.price_per_km}/km thereafter'
+        })
+        
+    except OrderType.DoesNotExist:
+        return Response({
+            'error': 'Order type not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Google Maps API error: {str(e)}")
+        return Response({
+            'error': 'Failed to calculate route'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        logger.error(f"Price calculation error: {str(e)}")
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['order_type_id', 'distance'],
+        properties={
+            'order_type_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'distance': openapi.Schema(type=openapi.TYPE_NUMBER),
+        }
+    )
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def calculate_errand_price(request):
+    """
+    Step 0: Calculate price based on pickup/delivery locations and distance
+    No order created yet - just price calculation
+    """
+    order_type_id = request.data.get('order_type_id')
+    distance = request.data.get('distance')
+    
+    if not order_type_id or distance is None:
+        return Response({
+            'error': 'order_type_id and distance are required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        order_type = OrderType.objects.get(id=order_type_id)
+        distance_decimal = Decimal(str(distance))
+        
+        # Calculate price breakdown
+        base_fee = order_type.base_price
+        
+        if distance_decimal <= 7:
+            distance_fee = Decimal('0.00')
+            total = base_fee
+        else:
+            extra_km = distance_decimal - 7
+            distance_fee = extra_km * order_type.price_per_km
+            total = base_fee + distance_fee
+        
+        return Response({
+            'order_type': order_type.name,
+            'pricing_breakdown': {
+                'base_fee': float(base_fee),
+                'distance_fee': float(distance_fee),
+                'total': float(total),
+                'distance_km': float(distance_decimal)
+            },
+            'calculation_note': f'Base fee KSh {base_fee} for first 7km, KSh {order_type.price_per_km}/km thereafter'
+        })
+        
+    except OrderType.DoesNotExist:
+        return Response({
+            'error': 'Order type not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['order_type_id', 'pickup_address', 'delivery_address'],
+        properties={
+            'order_type_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'title': openapi.Schema(type=openapi.TYPE_STRING),
+            'description': openapi.Schema(type=openapi.TYPE_STRING),
+            'pickup_address': openapi.Schema(type=openapi.TYPE_STRING),
+            'delivery_address': openapi.Schema(type=openapi.TYPE_STRING),
+            'pickup_latitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'pickup_longitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'delivery_latitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'delivery_longitude': openapi.Schema(type=openapi.TYPE_NUMBER),
+            'distance': openapi.Schema(type=openapi.TYPE_NUMBER),
+        }
+    )
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_draft_errand(request):
-    """Create draft errand order"""
-    user = request.user
-    
+    """
+    Step 1: Create errand with DRAFT status
+    User has filled: pickup, delivery, order type, description, title
+    Price is calculated and saved
+    No notifications sent yet
+    """
     try:
-        # Get or create locations
-        pickup_loc, _ = Location.objects.get_or_create(
-            latitude=request.data['pickup_latitude'],
-            longitude=request.data['pickup_longitude'],
-            user=user,
-            defaults={
-                'name': request.data.get('pickup_location_name', 'Pickup'),
-                'address': request.data.get('pickup_location_name', '')
-            }
-        )
-        
-        delivery_loc, _ = Location.objects.get_or_create(
-            latitude=request.data['delivery_latitude'],
-            longitude=request.data['delivery_longitude'],
-            user=user,
-            defaults={
-                'name': request.data.get('delivery_location_name', 'Delivery'),
-                'address': request.data.get('delivery_location_name', '')
-            }
-        )
-        
-        # Get order type
-        errand_type = request.data.get('errand_type', 'parcel')
-        type_map = {'parcel': 1, 'cargo': 2, 'shopping': 3}
-        order_type = OrderType.objects.get(id=type_map.get(errand_type, 1))
-        
-        # Create order
-        order = Order.objects.create(
-            client=user,
-            order_type=order_type,
-            title=request.data.get('description', 'Errand Order')[:100],
-            pickup_location=pickup_loc,
-            delivery_location=delivery_loc,
-            recipient_name=request.data.get('receiver_name', ''),
-            contact_number=request.data.get('receiver_phone', ''),
-            description=request.data.get('description', 'Errand delivery'),
-            price=request.data.get('price', 0),
-            status='draft'
-        )
-        
+        with transaction.atomic():
+            order_type_id = request.data.get('order_type_id')
+            distance = request.data.get('distance')
+            
+            if not order_type_id:
+                return Response({
+                    'error': 'order_type_id is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            order_type = OrderType.objects.get(id=order_type_id)
+            
+            # Calculate price
+            if distance:
+                distance_decimal = Decimal(str(distance))
+                calculated_price = order_type.calculate_price(distance_decimal)
+            else:
+                calculated_price = order_type.base_price
+            
+            # Create order with DRAFT status
+            order = Order.objects.create(
+                client=request.user,
+                order_type=order_type,
+                title=request.data.get('title', ''),
+                description=request.data.get('description', ''),
+                pickup_address=request.data.get('pickup_address', ''),
+                delivery_address=request.data.get('delivery_address', ''),
+                pickup_latitude=request.data.get('pickup_latitude'),
+                pickup_longitude=request.data.get('pickup_longitude'),
+                delivery_latitude=request.data.get('delivery_latitude'),
+                delivery_longitude=request.data.get('delivery_longitude'),
+                distance=distance,
+                price=calculated_price,
+                status='draft'  # DRAFT status
+            )
+            
+            serializer = OrderSerializer(order, context={'request': request})
+            
+            return Response({
+                'order_id': order.id,
+                'status': 'draft',
+                'pricing_breakdown': {
+                    'base_fee': float(order_type.base_price),
+                    'distance_fee': float(calculated_price - order_type.base_price) if calculated_price > order_type.base_price else 0.0,
+                    'total': float(calculated_price),
+                    'distance_km': float(distance) if distance else 0.0
+                },
+                'order': serializer.data,
+                'next_step': 'Upload images and add receiver contact info'
+            }, status=status.HTTP_201_CREATED)
+            
+    except OrderType.DoesNotExist:
         return Response({
-            'order_id': order.id,
-            'status': 'draft',
-            'message': 'Draft order created'
-        }, status=201)
+            'error': 'Order type not found'
+        }, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        logger.error(f"Error creating draft errand: {str(e)}")
-        return Response({'error': str(e)}, status=500)
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(
+    method='post',
+    manual_parameters=[
+        openapi.Parameter('image', openapi.IN_FORM, type=openapi.TYPE_FILE, required=True, description='Image file'),
+        openapi.Parameter('caption', openapi.IN_FORM, type=openapi.TYPE_STRING, required=False, description='Image caption'),
+    ],
+    consumes=['multipart/form-data'],
+    responses={201: 'Image uploaded successfully'}
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
 def upload_errand_image(request, order_id):
-    """Upload image for errand"""
+    """
+    Step 2a: Upload images to draft errand
+    Can be called multiple times
+    """
     try:
         order = Order.objects.get(id=order_id, client=request.user)
-        # Image upload logic here
-        return Response({'message': 'Image uploaded'})
+        
+        if order.status not in ['draft', 'pending']:
+            return Response({
+                'error': 'Can only upload images to draft or pending orders'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        image = request.FILES.get('image')
+        caption = request.data.get('caption', '')
+        
+        if not image:
+            return Response({
+                'error': 'Image file is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        order_image = OrderImage.objects.create(
+            order=order,
+            image=image,
+            description=caption,
+            stage='before'
+        )
+        
+        serializer = OrderImageSerializer(order_image, context={'request': request})
+        
+        return Response({
+            'image_id': order_image.id,
+            'image': serializer.data,
+            'total_images': order.images.count()
+        }, status=status.HTTP_201_CREATED)
+        
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return Response({
+            'error': 'Order not found or you do not have permission'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PATCH'])
+
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'recipient_name': openapi.Schema(type=openapi.TYPE_STRING),
+            'contact_number': openapi.Schema(type=openapi.TYPE_STRING),
+            'estimated_value': openapi.Schema(type=openapi.TYPE_NUMBER),
+        }
+    )
+)
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def update_errand_receiver_info(request, order_id):
-    """Update receiver info"""
+    """
+    Step 2b: Update receiver contact info and estimated value
+    """
     try:
         order = Order.objects.get(id=order_id, client=request.user)
-        order.recipient_name = request.data.get('receiver_name', order.recipient_name)
-        order.contact_number = request.data.get('receiver_phone', order.contact_number)
+        
+        if order.status not in ['draft', 'pending']:
+            return Response({
+                'error': 'Can only update draft or pending orders'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update receiver info
+        if 'recipient_name' in request.data:
+            order.recipient_name = request.data['recipient_name']
+        if 'contact_number' in request.data:
+            order.contact_number = request.data['contact_number']
+        if 'estimated_value' in request.data:
+            order.estimated_value = request.data['estimated_value']
+        
         order.save()
-        return Response({'message': 'Receiver info updated'})
+        
+        serializer = OrderSerializer(order, context={'request': request})
+        
+        return Response({
+            'message': 'Receiver info updated',
+            'order': serializer.data
+        })
+        
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return Response({
+            'error': 'Order not found or you do not have permission'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
+
+@swagger_auto_schema(
+    method='post',
+    responses={
+        200: openapi.Response(
+            description='Errand confirmed successfully',
+            examples={
+                'application/json': {
+                    'message': 'Errand confirmed successfully!',
+                    'order_id': 13,
+                    'status': 'pending',
+                    'order': {
+                        'id': 13,
+                        'title': 'Package Delivery',
+                        'status': 'pending',
+                        'pickup_address': 'Westlands Mall',
+                        'delivery_address': 'Yaya Centre'
+                    },
+                    'notifications_sent': True
+                }
+            }
+        ),
+        400: 'Validation error or order not in draft status',
+        404: 'Order not found'
+    }
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def confirm_errand(request, order_id):
-    """Confirm and submit errand"""
+    """
+    Step 3: Confirm errand - changes status from DRAFT to PENDING
+    This is when the errand becomes official and can be assigned to riders
+    Notifications and SMS sent here
+    """
     try:
-        order = Order.objects.get(id=order_id, client=request.user)
-        order.status = 'pending'
-        order.save()
-        return Response({
-            'order_id': order.id,
-            'status': 'pending',
-            'message': 'Order confirmed and submitted'
-        })
+        with transaction.atomic():
+            order = Order.objects.get(id=order_id, client=request.user)
+            
+            if order.status != 'draft':
+                return Response({
+                    'error': 'Can only confirm draft orders'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Validate required fields
+            if not order.pickup_address or not order.delivery_address:
+                return Response({
+                    'error': 'Pickup and delivery addresses are required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if not order.contact_number:
+                return Response({
+                    'error': 'Receiver contact number is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Change status to PENDING
+            order.status = 'pending'
+            order.save()
+            
+            # Send SMS notification to client
+            try:
+                from accounts.services.sms_service import SMSService
+                sms_message = f"""Hello! Your errand has been confirmed.
+
+Order: #{order.id}
+Pickup: {order.pickup_address}
+Delivery: {order.delivery_address}
+Amount: KES {order.price}
+
+A rider is on the way to pick up your item.
+
+Thank you for choosing FagiErrands!"""
+                SMSService.send_sms(request.user.phone_number, sms_message)
+            except Exception as sms_error:
+                print(f"SMS sending failed: {sms_error}")
+            
+            # TODO: Send push notification
+            # TODO: Notify available riders
+            
+            serializer = OrderSerializer(order, context={'request': request})
+            
+            return Response({
+                'message': 'Errand confirmed successfully!',
+                'order_id': order.id,
+                'status': 'pending',
+                'order': serializer.data,
+                'notifications_sent': True
+            })
+            
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return Response({
+            'error': 'Order not found or you do not have permission'
+        }, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_draft_errand(request, order_id):
-    """Get draft errand details"""
+    """
+    Get draft errand details
+    """
     try:
-        order = Order.objects.get(id=order_id, client=request.user)
+        order = Order.objects.get(id=order_id, client=request.user, status='draft')
+        serializer = OrderSerializer(order, context={'request': request})
+        
         return Response({
-            'order_id': order.id,
-            'status': order.status,
-            'pickup_location': order.pickup_location.name if order.pickup_location else '',
-            'delivery_location': order.delivery_location.name if order.delivery_location else '',
-            'receiver_name': order.recipient_name,
-            'receiver_phone': order.contact_number,
-            'description': order.description,
-            'price': float(order.price)
+            'order': serializer.data,
+            'images_count': order.images.count(),
+            'can_confirm': bool(order.pickup_address and order.delivery_address and order.contact_number)
         })
+        
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return Response({
+            'error': 'Draft order not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_draft_errand(request, order_id):
-    """Delete draft errand"""
+    """
+    Delete a draft errand
+    """
     try:
         order = Order.objects.get(id=order_id, client=request.user, status='draft')
         order.delete()
-        return Response({'message': 'Draft deleted'}, status=204)
+        
+        return Response({
+            'message': 'Draft errand deleted successfully'
+        })
+        
     except Order.DoesNotExist:
-        return Response({'error': 'Order not found'}, status=404)
+        return Response({
+            'error': 'Draft order not found'
+        }, status=status.HTTP_404_NOT_FOUND)

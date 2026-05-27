@@ -2,21 +2,17 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from .availability_views import AssistantAvailabilityView
-from .views_create_admin import create_admin_user
 from .password_reset_views import (
     RequestPasswordResetView,
     VerifyPasswordResetOTPView,
     ResetPasswordView
 )
-# from .password_reset_v1 import (
-#     RequestPasswordResetV1,
-#     ResetPasswordV1
-# )
+from .password_reset_v1 import (
+    RequestPasswordResetV1,
+    ResetPasswordV1
+)
 
 urlpatterns = [
-    # Emergency admin creation endpoint - REMOVE AFTER USE
-    path('emergency-create-admin/', create_admin_user, name='emergency_create_admin'),
-    
     # Standard authentication
     path('register/', views.RegisterView.as_view(), name='register'),
     path('verify-phone/', views.verify_phone, name='verify_phone'),
@@ -34,8 +30,8 @@ urlpatterns = [
     path('password-reset/reset/', ResetPasswordView.as_view(), name='reset_password_final'),
     
     # Password reset v1 (NEW - Clean 2-step process)
-    # path('v1/password-reset/request/', RequestPasswordResetV1.as_view(), name='password_reset_v1_request'),
-    # path('v1/password-reset/reset/', ResetPasswordV1.as_view(), name='password_reset_v1_reset'),
+    path('v1/password-reset/request/', RequestPasswordResetV1.as_view(), name='password_reset_v1_request'),
+    path('v1/password-reset/reset/', ResetPasswordV1.as_view(), name='password_reset_v1_reset'),
     
     # Supabase integration endpoints
     path('supabase/create-user/', views.supabase_user_creation, name='supabase_user_creation'),
@@ -74,7 +70,7 @@ urlpatterns = [
     # Individual assistant dashboard stats
     path('assistant/dashboard-stats/', views.AssistantDashboardStatsView.as_view(), name='assistant_dashboard_stats'),
     
-    # Assistant/Rider document upload (after registration)
+    # Assistant verification URLs
     path('assistant/verify/', 
          views.AssistantVerificationAPIView.as_view(), 
          name='assistant_verification'),

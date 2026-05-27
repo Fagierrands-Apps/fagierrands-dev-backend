@@ -78,11 +78,11 @@ class OrderSerializer(serializers.ModelSerializer):
             'alternative_contact_name', 'alternative_contact_number', 'scheduled_date',
             'scheduled_time', 'price', 'status', 'created_at', 'updated_at', 
             'assigned_at', 'started_at', 'completed_at', 'cancelled_at', 
-            'shopping_items', 'images', 'review', 'cargo_details', 'price_finalized', 'release_code'
+            'shopping_items', 'images', 'review', 'cargo_details', 'price_finalized'
         ]
         read_only_fields = [
             'id', 'client', 'assistant', 'handler', 'status', 'created_at', 
-            'updated_at', 'assigned_at', 'started_at', 'completed_at', 'cancelled_at', 'price_finalized', 'price', 'release_code'
+            'updated_at', 'assigned_at', 'started_at', 'completed_at', 'cancelled_at', 'price_finalized', 'price'
         ]
     
     def get_pickup_location_display(self, obj):
@@ -278,11 +278,9 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for updating the status of an order.
     """
-    release_code = serializers.CharField(max_length=6, required=False, allow_blank=True)
-    
     class Meta:
         model = Order
-        fields = ['status', 'release_code']
+        fields = ['status']
     
     def update(self, instance, validated_data):
         new_status = validated_data.get('status')
@@ -709,309 +707,309 @@ class AssignHandymanOrderSerializer(serializers.ModelSerializer):
         
         return instance
 
-# from rest_framework import serializers
-# # from .models import (
-# #     OrderTracking, ClientFeedback, RiderFeedback, CargoPhoto, CargoValue,
-# #     ReportIssue, Referral, OrderVideo
-# # )
-# # 
-# # class OrderTrackingSerializer(serializers.ModelSerializer):
-# #     class Meta:
-# #         model = OrderTracking
-# #         fields = ['order', 'current_latitude', 'current_longitude', 'last_updated']
-# # 
-# # class ClientFeedbackSerializer(serializers.ModelSerializer):
-# #     class Meta:
-# #         model = ClientFeedback
-# #         fields = ['order', 'delivered_promptly', 'professionalism', 'service_quality', 'comments', 'created_at']
-# #         read_only_fields = ['created_at']
-# # 
-# # class RiderFeedbackSerializer(serializers.ModelSerializer):
-# #     class Meta:
-#         model = RiderFeedback
-#         fields = ['order', 'clear_communication', 'payment_timeliness', 'interaction_quality', 'comments', 'created_at']
-#         read_only_fields = ['created_at']
-# 
-# class CargoPhotoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CargoPhoto
-#         fields = ['id', 'order', 'photo', 'description', 'uploaded_at']
-#         read_only_fields = ['uploaded_at']
-# 
-# class CargoValueSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CargoValue
-#         fields = ['order', 'value', 'visible_to_handler_only']
-# 
-# class OrderVideoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = OrderVideo
-#         fields = ['id', 'order', 'video', 'description', 'uploaded_at']
-#         read_only_fields = ['uploaded_at']
-# 
-# class ReportIssueSerializer(serializers.ModelSerializer):
-#     evidence_photos = CargoPhotoSerializer(many=True, read_only=True)
-#     evidence_videos = OrderVideoSerializer(many=True, read_only=True)
-# 
-#     class Meta:
-#         model = ReportIssue
-#         fields = ['id', 'order', 'description', 'incident_timestamp', 'evidence_photos', 'evidence_videos', 'reported_at']
-#         read_only_fields = ['reported_at']
-# 
-# class ReferralSerializer(serializers.ModelSerializer):
-#     referrer_username = serializers.CharField(source='referrer.username', read_only=True)
-#     referred_username = serializers.CharField(source='referred_user.username', read_only=True)
-#     
-#     class Meta:
-#         model = Referral
-#         fields = ['id', 'referrer', 'referrer_username', 'referred_user', 'referred_username', 
-#                  'discount_amount', 'points', 'created_at', 'redeemed', 'redeemed_at']
-#         read_only_fields = ['created_at', 'redeemed_at', 'points']
-# 
-# # Quote Management Serializers
-# class QuoteImageSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = QuoteImage
-#         fields = ['id', 'image', 'description', 'uploaded_at']
-#         read_only_fields = ['uploaded_at']
-# 
-# class ServiceQuoteSerializer(serializers.ModelSerializer):
-#     images = QuoteImageSerializer(many=True, read_only=True)
-#     service_provider_name = serializers.CharField(source='service_provider.get_full_name', read_only=True)
-#     service_provider_username = serializers.CharField(source='service_provider.username', read_only=True)
-#     handyman_order_details = serializers.SerializerMethodField()
-#     
-#     class Meta:
-#         model = ServiceQuote
-#         fields = [
-#             'id', 'handyman_order', 'service_provider', 'service_provider_name', 
-#             'service_provider_username', 'quoted_price', 'breakdown', 'description',
-#             'estimated_duration', 'materials_included', 'materials_list', 
-#             'warranty_period', 'additional_notes', 'status', 'submitted_at',
-#             'reviewed_at', 'approved_at', 'rejected_at', 'rejection_reason',
-#             'revision_notes', 'created_at', 'updated_at', 'images',
-#             'handyman_order_details'
-#         ]
-#         read_only_fields = [
-#             'service_provider', 'submitted_at', 'reviewed_at', 'approved_at', 
-#             'rejected_at', 'created_at', 'updated_at', 'service_provider_name',
-#             'service_provider_username', 'handyman_order_details'
-#         ]
-#     
-#     def get_handyman_order_details(self, obj):
-#         """Get basic details about the handyman order"""
-#         order = obj.handyman_order
-#         return {
-#             'id': order.id,
-#             'service_type': order.service_type.get_name_display(),
-#             'description': order.description,
-#             'address': order.address,
-#             'scheduled_date': order.scheduled_date,
-#             'scheduled_time_slot': order.get_scheduled_time_slot_display(),
-#             'client_name': order.client.get_full_name(),
-#             'status': order.get_status_display()
-#         }
-#     
-#     def create(self, validated_data):
-#         # Set the service provider to the current user
-#         request = self.context.get('request')
-#         if request and hasattr(request, 'user'):
-#             validated_data['service_provider'] = request.user
-#         return super().create(validated_data)
-# 
-# class ServiceQuoteCreateSerializer(serializers.ModelSerializer):
-#     """Simplified serializer for creating quotes"""
-#     
-#     class Meta:
-#         model = ServiceQuote
-#         fields = [
-#             'id', 'handyman_order', 'quoted_price', 'breakdown', 'description',
-#             'estimated_duration', 'materials_included', 'materials_list',
-#             'warranty_period', 'additional_notes'
-#         ]
-#         read_only_fields = ['id']
-#     
-#     def create(self, validated_data):
-#         request = self.context.get('request')
-#         if request and hasattr(request, 'user'):
-#             validated_data['service_provider'] = request.user
-#         return super().create(validated_data)
-# 
-# class ServiceQuoteUpdateSerializer(serializers.ModelSerializer):
-#     """Serializer for updating quote status (approve/reject)"""
-#     
-#     class Meta:
-#         model = ServiceQuote
-#         fields = ['status', 'rejection_reason', 'revision_notes']
-#     
-#     def update(self, instance, validated_data):
-#         status = validated_data.get('status')
-#         
-#         if status == 'approved':
-#             instance.approve_quote()
-#         elif status == 'rejected':
-#             reason = validated_data.get('rejection_reason', '')
-#             instance.reject_quote(reason)
-#         elif status == 'submitted':
-#             instance.submit_quote()
-#         
-#         return instance
-# 
-# class HandymanOrderWithQuotesSerializer(serializers.ModelSerializer):
-#     """Enhanced handyman order serializer that includes quotes"""
-#     quotes = ServiceQuoteSerializer(many=True, read_only=True)
-#     latest_quote = serializers.SerializerMethodField()
-#     can_submit_quote = serializers.SerializerMethodField()
-#     
-#     class Meta:
-#         model = HandymanOrder
-#         fields = [
-#             'id', 'client', 'assistant', 'handler', 'service_type', 'description',
-#             'address', 'scheduled_date', 'scheduled_time_slot', 'status',
-#             'facilitation_fee', 'service_quote', 'approved_service_price',
-#             'created_at', 'assigned_at', 'quote_provided_at', 'quote_approved_at',
-#             'quotes', 'latest_quote', 'can_submit_quote'
-#         ]
-#         read_only_fields = [
-#             'client', 'handler', 'facilitation_fee', 'service_quote',
-#             'approved_service_price', 'created_at', 'assigned_at',
-#             'quote_provided_at', 'quote_approved_at', 'quotes',
-#             'latest_quote', 'can_submit_quote'
-#         ]
-#     
-#     def get_latest_quote(self, obj):
-#         """Get the latest quote for this order"""
-#         latest_quote = obj.quotes.first()
-#         if latest_quote:
-#             return ServiceQuoteSerializer(latest_quote).data
-#         return None
-#     
-#     def get_can_submit_quote(self, obj):
-#         """Check if the current user can submit a quote"""
-#         request = self.context.get('request')
-#         if not request or not request.user.is_authenticated:
-#             return False
-#         
-#         # Only assigned service provider can submit quotes
-#         if obj.assistant != request.user:
-#             return False
-#         
-#         # Can only submit if status allows it
-#         allowed_statuses = ['assigned', 'quote_rejected']
-#         return obj.status in allowed_statuses
-# 
-# # orders/serializers.py
-# class PaymentSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Payment
-#         fields = [
-#             'id', 'order', 'amount', 'final_amount', 'payment_method', 'status',
-#             'transaction_id', 'transaction_reference',
-#             'mpesa_checkout_request_id', 'mpesa_merchant_request_id',
-#             'mpesa_receipt_number', 'mpesa_transaction_date',
-#             'mpesa_phone_number', 'mpesa_transaction_id',
-#             'payment_date', 'phone_number', 'email'
-#         ]
-#         read_only_fields = [
-#             'transaction_id', 'mpesa_checkout_request_id', 'mpesa_merchant_request_id',
-#             'mpesa_receipt_number', 'mpesa_transaction_date',
-#             'mpesa_phone_number', 'mpesa_transaction_id', 'payment_date', 'status'
-#         ]
-# 
-# class InitiatePaymentSerializer(serializers.ModelSerializer):
-#     payment_method = serializers.ChoiceField(choices=Payment.PAYMENT_METHOD_CHOICES)
-#     phone_number = serializers.CharField(max_length=20, required=False)
-#     email = serializers.EmailField(required=False)
-#     redeem_points = serializers.IntegerField(required=False, min_value=0, help_text="Points to redeem (1 point = KSh1)")
-#     
-#     class Meta:
-#         model = Payment
-#         fields = ['order', 'payment_method', 'phone_number', 'email', 'redeem_points']
-#     
-#     def validate(self, data):
-#         # Validate that either phone_number or email is provided based on payment method
-#         if data['payment_method'] in ['ncba', 'mpesa'] and not data.get('phone_number'):
-#             raise serializers.ValidationError({"phone_number": "Phone number is required for NCBA payments"})
-#         elif data['payment_method'] == 'card' and not data.get('email'):
-#             raise serializers.ValidationError({"email": "Email is required for card payments"})
-#         
-#         # Check if order exists and has a valid status for payment
-#         order = data['order']
-#         valid_statuses = ['payment_pending', 'completed', 'in_progress', 'assigned', 'In Progress', 'pending']
-#         
-#         # Print debug information
-#         print(f"Order ID: {order.id}, Status: {order.status}, Valid statuses: {valid_statuses}")
-#         
-#         if order.status not in valid_statuses:
-#             raise serializers.ValidationError({"order": f"Payment can only be initiated for orders with valid status. Current status: {order.status}"})
-#             
-#         # Don't automatically mark order as completed when initiating payment
-#         # Order should only be marked as completed when payment is actually confirmed
-#         
-#         # Check if payment already exists and is completed
-#         existing_payment = Payment.objects.filter(order=order, status='completed').first()
-#         if existing_payment:
-#             raise serializers.ValidationError({"order": "Payment for this order has already been completed"})
-#         
-#         return data
-#     
-#     def create(self, validated_data):
-#         # Generate a unique transaction reference
-#         transaction_reference = f"FAGI-{uuid.uuid4().hex[:8].upper()}"
-#         
-#         # Get the order and calculate the amount
-#         order = validated_data['order']
-#         total_amount = order.price or order.calculate_price()
-#         # For shopping orders, require a 30% upfront payment
-#         try:
-#             from decimal import Decimal, ROUND_HALF_UP
-#             if order.order_type and order.order_type.name and order.order_type.name.lower() == 'shopping':
-#                 amount = (Decimal(str(total_amount)) * Decimal('0.30')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-#             else:
-#                 amount = total_amount
-#         except Exception:
-#             amount = total_amount
-#         
-#         # Apply wallet points redemption if requested
-#         redeem_points = self.initial_data.get('redeem_points')
-#         try:
-#             redeem_points = int(redeem_points) if redeem_points is not None else 0
-#         except ValueError:
-#             redeem_points = 0
-# 
-#         discount_amount = 0
-#         final_amount = amount
-# 
-#         if redeem_points and order.client and hasattr(order.client, 'profile'):
-#             available = order.client.profile.wallet_points
-#             use_points = max(0, min(redeem_points, available, int(amount)))  # cannot exceed amount or available
-#             if use_points > 0:
-#                 # Deduct points and record transaction
-#                 from accounts.models import WalletTransaction
-#                 order.client.profile.wallet_points = available - use_points
-#                 order.client.profile.save(update_fields=['wallet_points'])
-#                 WalletTransaction.objects.create(
-#                     user=order.client,
-#                     points=-use_points,
-#                     amount_equivalent=use_points,
-#                     transaction_type='redeem',
-#                     reference=f'payment_redeem_order_{order.id}'
-#                 )
-#                 discount_amount = use_points
-#                 final_amount = amount - discount_amount
-# 
-#         # Create the payment record
-#         payment = Payment.objects.create(
-#             order=order,
-#             amount=amount,
-#             points_used=int(discount_amount),
-#             discount_amount=discount_amount,
-#             final_amount=final_amount,
-#             payment_method=validated_data['payment_method'],
-#             transaction_reference=transaction_reference,
-#             phone_number=validated_data.get('phone_number'),
-#             email=validated_data.get('email'),
-#             status='pending'
-#         )
-#         
-#         return payment
+from rest_framework import serializers
+from .models_updated import (
+    OrderTracking, ClientFeedback, RiderFeedback, CargoPhoto, CargoValue,
+    ReportIssue, Referral, OrderVideo
+)
+
+class OrderTrackingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderTracking
+        fields = ['order', 'current_latitude', 'current_longitude', 'last_updated']
+
+class ClientFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientFeedback
+        fields = ['order', 'delivered_promptly', 'professionalism', 'service_quality', 'comments', 'created_at']
+        read_only_fields = ['created_at']
+
+class RiderFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RiderFeedback
+        fields = ['order', 'clear_communication', 'payment_timeliness', 'interaction_quality', 'comments', 'created_at']
+        read_only_fields = ['created_at']
+
+class CargoPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoPhoto
+        fields = ['id', 'order', 'photo', 'description', 'uploaded_at']
+        read_only_fields = ['uploaded_at']
+
+class CargoValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CargoValue
+        fields = ['order', 'value', 'visible_to_handler_only']
+
+class OrderVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderVideo
+        fields = ['id', 'order', 'video', 'description', 'uploaded_at']
+        read_only_fields = ['uploaded_at']
+
+class ReportIssueSerializer(serializers.ModelSerializer):
+    evidence_photos = CargoPhotoSerializer(many=True, read_only=True)
+    evidence_videos = OrderVideoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ReportIssue
+        fields = ['id', 'order', 'description', 'incident_timestamp', 'evidence_photos', 'evidence_videos', 'reported_at']
+        read_only_fields = ['reported_at']
+
+class ReferralSerializer(serializers.ModelSerializer):
+    referrer_username = serializers.CharField(source='referrer.username', read_only=True)
+    referred_username = serializers.CharField(source='referred_user.username', read_only=True)
+    
+    class Meta:
+        model = Referral
+        fields = ['id', 'referrer', 'referrer_username', 'referred_user', 'referred_username', 
+                 'discount_amount', 'points', 'created_at', 'redeemed', 'redeemed_at']
+        read_only_fields = ['created_at', 'redeemed_at', 'points']
+
+# Quote Management Serializers
+class QuoteImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuoteImage
+        fields = ['id', 'image', 'description', 'uploaded_at']
+        read_only_fields = ['uploaded_at']
+
+class ServiceQuoteSerializer(serializers.ModelSerializer):
+    images = QuoteImageSerializer(many=True, read_only=True)
+    service_provider_name = serializers.CharField(source='service_provider.get_full_name', read_only=True)
+    service_provider_username = serializers.CharField(source='service_provider.username', read_only=True)
+    handyman_order_details = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ServiceQuote
+        fields = [
+            'id', 'handyman_order', 'service_provider', 'service_provider_name', 
+            'service_provider_username', 'quoted_price', 'breakdown', 'description',
+            'estimated_duration', 'materials_included', 'materials_list', 
+            'warranty_period', 'additional_notes', 'status', 'submitted_at',
+            'reviewed_at', 'approved_at', 'rejected_at', 'rejection_reason',
+            'revision_notes', 'created_at', 'updated_at', 'images',
+            'handyman_order_details'
+        ]
+        read_only_fields = [
+            'service_provider', 'submitted_at', 'reviewed_at', 'approved_at', 
+            'rejected_at', 'created_at', 'updated_at', 'service_provider_name',
+            'service_provider_username', 'handyman_order_details'
+        ]
+    
+    def get_handyman_order_details(self, obj):
+        """Get basic details about the handyman order"""
+        order = obj.handyman_order
+        return {
+            'id': order.id,
+            'service_type': order.service_type.get_name_display(),
+            'description': order.description,
+            'address': order.address,
+            'scheduled_date': order.scheduled_date,
+            'scheduled_time_slot': order.get_scheduled_time_slot_display(),
+            'client_name': order.client.get_full_name(),
+            'status': order.get_status_display()
+        }
+    
+    def create(self, validated_data):
+        # Set the service provider to the current user
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['service_provider'] = request.user
+        return super().create(validated_data)
+
+class ServiceQuoteCreateSerializer(serializers.ModelSerializer):
+    """Simplified serializer for creating quotes"""
+    
+    class Meta:
+        model = ServiceQuote
+        fields = [
+            'id', 'handyman_order', 'quoted_price', 'breakdown', 'description',
+            'estimated_duration', 'materials_included', 'materials_list',
+            'warranty_period', 'additional_notes'
+        ]
+        read_only_fields = ['id']
+    
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            validated_data['service_provider'] = request.user
+        return super().create(validated_data)
+
+class ServiceQuoteUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating quote status (approve/reject)"""
+    
+    class Meta:
+        model = ServiceQuote
+        fields = ['status', 'rejection_reason', 'revision_notes']
+    
+    def update(self, instance, validated_data):
+        status = validated_data.get('status')
+        
+        if status == 'approved':
+            instance.approve_quote()
+        elif status == 'rejected':
+            reason = validated_data.get('rejection_reason', '')
+            instance.reject_quote(reason)
+        elif status == 'submitted':
+            instance.submit_quote()
+        
+        return instance
+
+class HandymanOrderWithQuotesSerializer(serializers.ModelSerializer):
+    """Enhanced handyman order serializer that includes quotes"""
+    quotes = ServiceQuoteSerializer(many=True, read_only=True)
+    latest_quote = serializers.SerializerMethodField()
+    can_submit_quote = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = HandymanOrder
+        fields = [
+            'id', 'client', 'assistant', 'handler', 'service_type', 'description',
+            'address', 'scheduled_date', 'scheduled_time_slot', 'status',
+            'facilitation_fee', 'service_quote', 'approved_service_price',
+            'created_at', 'assigned_at', 'quote_provided_at', 'quote_approved_at',
+            'quotes', 'latest_quote', 'can_submit_quote'
+        ]
+        read_only_fields = [
+            'client', 'handler', 'facilitation_fee', 'service_quote',
+            'approved_service_price', 'created_at', 'assigned_at',
+            'quote_provided_at', 'quote_approved_at', 'quotes',
+            'latest_quote', 'can_submit_quote'
+        ]
+    
+    def get_latest_quote(self, obj):
+        """Get the latest quote for this order"""
+        latest_quote = obj.quotes.first()
+        if latest_quote:
+            return ServiceQuoteSerializer(latest_quote).data
+        return None
+    
+    def get_can_submit_quote(self, obj):
+        """Check if the current user can submit a quote"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        # Only assigned service provider can submit quotes
+        if obj.assistant != request.user:
+            return False
+        
+        # Can only submit if status allows it
+        allowed_statuses = ['assigned', 'quote_rejected']
+        return obj.status in allowed_statuses
+
+# orders/serializers.py
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = [
+            'id', 'order', 'amount', 'final_amount', 'payment_method', 'status',
+            'transaction_id', 'transaction_reference',
+            'mpesa_checkout_request_id', 'mpesa_merchant_request_id',
+            'mpesa_receipt_number', 'mpesa_transaction_date',
+            'mpesa_phone_number', 'mpesa_transaction_id',
+            'payment_date', 'phone_number', 'email'
+        ]
+        read_only_fields = [
+            'transaction_id', 'mpesa_checkout_request_id', 'mpesa_merchant_request_id',
+            'mpesa_receipt_number', 'mpesa_transaction_date',
+            'mpesa_phone_number', 'mpesa_transaction_id', 'payment_date', 'status'
+        ]
+
+class InitiatePaymentSerializer(serializers.ModelSerializer):
+    payment_method = serializers.ChoiceField(choices=Payment.PAYMENT_METHOD_CHOICES)
+    phone_number = serializers.CharField(max_length=20, required=False)
+    email = serializers.EmailField(required=False)
+    redeem_points = serializers.IntegerField(required=False, min_value=0, help_text="Points to redeem (1 point = KSh1)")
+    
+    class Meta:
+        model = Payment
+        fields = ['order', 'payment_method', 'phone_number', 'email', 'redeem_points']
+    
+    def validate(self, data):
+        # Validate that either phone_number or email is provided based on payment method
+        if data['payment_method'] in ['ncba', 'mpesa'] and not data.get('phone_number'):
+            raise serializers.ValidationError({"phone_number": "Phone number is required for NCBA payments"})
+        elif data['payment_method'] == 'card' and not data.get('email'):
+            raise serializers.ValidationError({"email": "Email is required for card payments"})
+        
+        # Check if order exists and has a valid status for payment
+        order = data['order']
+        valid_statuses = ['payment_pending', 'completed', 'in_progress', 'assigned', 'In Progress', 'pending']
+        
+        # Print debug information
+        print(f"Order ID: {order.id}, Status: {order.status}, Valid statuses: {valid_statuses}")
+        
+        if order.status not in valid_statuses:
+            raise serializers.ValidationError({"order": f"Payment can only be initiated for orders with valid status. Current status: {order.status}"})
+            
+        # Don't automatically mark order as completed when initiating payment
+        # Order should only be marked as completed when payment is actually confirmed
+        
+        # Check if payment already exists and is completed
+        existing_payment = Payment.objects.filter(order=order, status='completed').first()
+        if existing_payment:
+            raise serializers.ValidationError({"order": "Payment for this order has already been completed"})
+        
+        return data
+    
+    def create(self, validated_data):
+        # Generate a unique transaction reference
+        transaction_reference = f"FAGI-{uuid.uuid4().hex[:8].upper()}"
+        
+        # Get the order and calculate the amount
+        order = validated_data['order']
+        total_amount = order.price or order.calculate_price()
+        # For shopping orders, require a 30% upfront payment
+        try:
+            from decimal import Decimal, ROUND_HALF_UP
+            if order.order_type and order.order_type.name and order.order_type.name.lower() == 'shopping':
+                amount = (Decimal(str(total_amount)) * Decimal('0.30')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            else:
+                amount = total_amount
+        except Exception:
+            amount = total_amount
+        
+        # Apply wallet points redemption if requested
+        redeem_points = self.initial_data.get('redeem_points')
+        try:
+            redeem_points = int(redeem_points) if redeem_points is not None else 0
+        except ValueError:
+            redeem_points = 0
+
+        discount_amount = 0
+        final_amount = amount
+
+        if redeem_points and order.client and hasattr(order.client, 'profile'):
+            available = order.client.profile.wallet_points
+            use_points = max(0, min(redeem_points, available, int(amount)))  # cannot exceed amount or available
+            if use_points > 0:
+                # Deduct points and record transaction
+                from accounts.models import WalletTransaction
+                order.client.profile.wallet_points = available - use_points
+                order.client.profile.save(update_fields=['wallet_points'])
+                WalletTransaction.objects.create(
+                    user=order.client,
+                    points=-use_points,
+                    amount_equivalent=use_points,
+                    transaction_type='redeem',
+                    reference=f'payment_redeem_order_{order.id}'
+                )
+                discount_amount = use_points
+                final_amount = amount - discount_amount
+
+        # Create the payment record
+        payment = Payment.objects.create(
+            order=order,
+            amount=amount,
+            points_used=int(discount_amount),
+            discount_amount=discount_amount,
+            final_amount=final_amount,
+            payment_method=validated_data['payment_method'],
+            transaction_reference=transaction_reference,
+            phone_number=validated_data.get('phone_number'),
+            email=validated_data.get('email'),
+            status='pending'
+        )
+        
+        return payment

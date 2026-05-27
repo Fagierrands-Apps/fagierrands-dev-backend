@@ -2,9 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from .models import Profile, AssistantVerification, EmailVerification
-from django.utils import timezone
 import re
-import uuid
 
 User = get_user_model()
 
@@ -205,7 +203,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'profile_picture_url', 'bio', 'address', 'plate_number', 'bike_type', 'bike_color', 'wallet_points', 'wallet_balance']
+        fields = ['id', 'user', 'profile_picture_url', 'bio', 'address']
 
 # AssistantVerification serializers (imports already done above)
 

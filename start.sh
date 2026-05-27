@@ -5,4 +5,4 @@ echo "Running migrations..."
 python manage.py migrate --noinput
 
 echo "Starting gunicorn..."
-exec gunicorn config.wsgi --log-file -
+exec gunicorn fagierrandsbackup.wsgi --log-file -

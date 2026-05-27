@@ -1,4 +1,4 @@
-from rest_framework import generics, status, permissions, serializers, parsers
+from rest_framework import generics, status, permissions, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
@@ -429,36 +429,8 @@ class HandlerClientsView(APIView):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
-    authentication_classes = []
+    authentication_classes = []  # Disable authentication completely
     serializer_class = RegisterSerializer
-    
-    @swagger_auto_schema(
-        operation_description="Register new user (client/rider/handler) and send OTP",
-        request_body=RegisterSerializer,
-        responses={
-            201: openapi.Response(
-                description="Registration successful",
-                examples={
-                    'application/json': {
-                        'message': 'Registration successful. OTP sent to your phone number.',
-                        'phone_number': '+254712345678',
-                        'next_step': 'verify_phone'
-                    }
-                }
-            ),
-            400: 'Validation error'
-        }
-    )
-    def create(self, request, *args, **kwargs):
-        """Override to return custom response"""
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response({
-            'message': 'Registration successful. OTP sent to your phone number.',
-            'phone_number': request.data.get('phone_number'),
-            'next_step': 'verify_phone'
-        }, status=status.HTTP_201_CREATED)
     
     def perform_create(self, serializer):
         """Create user and send OTP via SMS"""
@@ -472,9 +444,10 @@ class RegisterView(generics.CreateAPIView):
             otp = SMSService.generate_otp()
             user.phone_otp = otp
             user.phone_otp_created_at = timezone.now()
-            user.is_active = False
+            user.is_active = False  # Deactivate until phone verified
             user.save()
             
+            # Send OTP via SMS
             response = SMSService.send_otp(user.phone_number, otp)
             
             if response.get('status_code') == '1000':
@@ -483,9 +456,17 @@ class RegisterView(generics.CreateAPIView):
                 logger.error(f"Failed to send OTP to {user.phone_number}: {response.get('status_desc')}")
         except Exception as e:
             logger.error(f"Failed to send OTP to {user.phone_number}: {str(e)}")
+            # Don't fail registration if SMS sending fails
             pass
-
-
+    
+    def create(self, request, *args, **kwargs):
+        """Override to return custom response"""
+        response = super().create(request, *args, **kwargs)
+        return Response({
+            'message': 'Registration successful. OTP sent to your phone number.',
+            'phone_number': request.data.get('phone_number'),
+            'next_step': 'verify_phone'
+        }, status=status.HTTP_201_CREATED)
 
 
 @swagger_auto_schema(

@@ -106,9 +106,6 @@ class Order(models.Model):
     estimated_value = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Estimated value of items (for pickup/delivery orders)")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     
-    # Release code
-    release_code = models.CharField(max_length=6, null=True, blank=True, help_text="6-digit code for order completion verification")
-    
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
