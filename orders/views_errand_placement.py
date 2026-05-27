@@ -77,12 +77,14 @@ def create_draft_errand(request):
         pickup_loc, _ = Location.objects.get_or_create(
             latitude=request.data['pickup_latitude'],
             longitude=request.data['pickup_longitude'],
+            user=user,
             defaults={'name': request.data.get('pickup_location_name', 'Pickup')}
         )
         
         delivery_loc, _ = Location.objects.get_or_create(
             latitude=request.data['delivery_latitude'],
             longitude=request.data['delivery_longitude'],
+            user=user,
             defaults={'name': request.data.get('delivery_location_name', 'Delivery')}
         )
         
