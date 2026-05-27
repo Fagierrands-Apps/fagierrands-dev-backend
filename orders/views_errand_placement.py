@@ -72,42 +72,46 @@ def create_draft_errand(request):
     """Create draft errand order"""
     user = request.user
     
-    # Get or create locations
-    pickup_loc, _ = Location.objects.get_or_create(
-        name=request.data.get('pickup_location_name', 'Pickup'),
-        latitude=request.data['pickup_latitude'],
-        longitude=request.data['pickup_longitude']
-    )
-    
-    delivery_loc, _ = Location.objects.get_or_create(
-        name=request.data.get('delivery_location_name', 'Delivery'),
-        latitude=request.data['delivery_latitude'],
-        longitude=request.data['delivery_longitude']
-    )
-    
-    # Get order type
-    errand_type = request.data.get('errand_type', 'parcel')
-    type_map = {'parcel': 1, 'cargo': 2, 'shopping': 3}
-    order_type = OrderType.objects.get(id=type_map.get(errand_type, 1))
-    
-    # Create order
-    order = Order.objects.create(
-        user=user,
-        order_type=order_type,
-        pickup_location=pickup_loc,
-        delivery_location=delivery_loc,
-        receiver_name=request.data.get('receiver_name', ''),
-        receiver_phone=request.data.get('receiver_phone', ''),
-        description=request.data.get('description', ''),
-        price=request.data.get('price', 0),
-        status='draft'
-    )
-    
-    return Response({
-        'order_id': order.id,
-        'status': 'draft',
-        'message': 'Draft order created'
-    }, status=201)
+    try:
+        # Get or create locations
+        pickup_loc, _ = Location.objects.get_or_create(
+            latitude=request.data['pickup_latitude'],
+            longitude=request.data['pickup_longitude'],
+            defaults={'name': request.data.get('pickup_location_name', 'Pickup')}
+        )
+        
+        delivery_loc, _ = Location.objects.get_or_create(
+            latitude=request.data['delivery_latitude'],
+            longitude=request.data['delivery_longitude'],
+            defaults={'name': request.data.get('delivery_location_name', 'Delivery')}
+        )
+        
+        # Get order type
+        errand_type = request.data.get('errand_type', 'parcel')
+        type_map = {'parcel': 1, 'cargo': 2, 'shopping': 3}
+        order_type = OrderType.objects.get(id=type_map.get(errand_type, 1))
+        
+        # Create order
+        order = Order.objects.create(
+            user=user,
+            order_type=order_type,
+            pickup_location=pickup_loc,
+            delivery_location=delivery_loc,
+            receiver_name=request.data.get('receiver_name', ''),
+            receiver_phone=request.data.get('receiver_phone', ''),
+            description=request.data.get('description', ''),
+            price=request.data.get('price', 0),
+            status='draft'
+        )
+        
+        return Response({
+            'order_id': order.id,
+            'status': 'draft',
+            'message': 'Draft order created'
+        }, status=201)
+    except Exception as e:
+        logger.error(f"Error creating draft errand: {str(e)}")
+        return Response({'error': str(e)}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
