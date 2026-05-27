@@ -200,10 +200,10 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
         
         if user.user_type == 'user':
             # Client: can only mark as completed or cancelled
-            return Order.objects.filter(client=user, status__in=['in_progress', 'assigned'])
+            return Order.objects.filter(client=user, status__in=['in_transit', 'assigned'])
         elif user.user_type == 'assistant':
             # Assistant: can mark as in_progress or completed
-            return Order.objects.filter(assistant=user, status__in=['assigned', 'in_progress'])
+            return Order.objects.filter(assistant=user, status__in=['assigned', 'in_transit'])
         elif user.user_type in ['handler', 'admin']:
             # Handler/Admin: can change any status
             return Order.objects.all()
@@ -222,14 +222,14 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
                 {"error": "Clients can only mark orders as completed or cancelled"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        elif user.user_type == 'assistant' and new_status not in ['in_progress', 'completed']:
+        elif user.user_type == 'assistant' and new_status not in ['in_transit', 'completed']:
             return Response(
                 {"error": "Assistants can only mark orders as in progress or completed"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         # For assistants changing to in_progress, make sure they're assigned
-        if user.user_type == 'assistant' and new_status == 'in_progress' and instance.assistant != user:
+        if user.user_type == 'assistant' and new_status == 'in_transit' and instance.assistant != user:
             return Response(
                 {"error": "You can only change status of orders assigned to you"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -240,7 +240,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
             pickup_lat = self.request.data.get('pickup_latitude')
             pickup_lon = self.request.data.get('pickup_longitude')
             pickup_addr = self.request.data.get('pickup_address')
-            if user.user_type == 'assistant' and new_status in ['in_progress', 'assigned'] and pickup_lat is not None and pickup_lon is not None:
+            if user.user_type == 'assistant' and new_status in ['in_transit', 'assigned'] and pickup_lat is not None and pickup_lon is not None:
                 try:
                     instance.pickup_latitude = float(pickup_lat)
                     instance.pickup_longitude = float(pickup_lon)
@@ -260,7 +260,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
         # After status update, if we have both pickup and delivery coordinates, compute distance/price
         try:
             instance.refresh_from_db()
-            if instance.status in ['assigned', 'in_progress'] \
+            if instance.status in ['assigned', 'in_transit'] \
                and instance.pickup_latitude is not None and instance.pickup_longitude is not None \
                and instance.delivery_latitude is not None and instance.delivery_longitude is not None:
                 # Update distance and estimated duration
@@ -1752,7 +1752,7 @@ class OrderPriceRealtimeUpdateView(APIView):
                 )
             
             # Only update for orders that are assigned or in progress
-            if order.status not in ['assigned', 'in_progress']:
+            if order.status not in ['assigned', 'in_transit']:
                 return Response(
                     {"detail": "Price can only be updated for assigned or in-progress orders."},
                     status=status.HTTP_400_BAD_REQUEST
@@ -1928,7 +1928,7 @@ class HandymanServiceQuoteView(generics.UpdateAPIView):
         # Only allow assistants to update their assigned orders
         return HandymanOrder.objects.filter(
             assistant=self.request.user,
-            status='in_progress'
+            status='in_transit'
         )
     
     def update(self, request, *args, **kwargs):

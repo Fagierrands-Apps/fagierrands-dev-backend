@@ -44,25 +44,30 @@ class RiderAssignmentStatusView(APIView):
             order = get_object_or_404(Order, id=order_id, client=request.user)
             
             # Check if rider is assigned
-            if order.assistant and order.status in ['assigned', 'in_progress', 'completed']:
+            if order.assistant and order.status in ['assigned', 'in_transit', 'completed']:
                 rider = order.assistant
                 profile = getattr(rider, 'profile', None)
+                
+                rider_data = {
+                    "id": rider.id,
+                    "name": f"{rider.first_name} {rider.last_name}".strip() or rider.username,
+                    "phone_number": rider.phone_number or "N/A",
+                }
+                
+                # Add profile fields if profile exists
+                if profile:
+                    rider_data["profile_picture"] = profile.profile_picture_url
+                    rider_data["plate_number"] = profile.plate_number
+                else:
+                    rider_data["profile_picture"] = None
+                    rider_data["plate_number"] = None
                 
                 return Response({
                     "order_id": order.id,
                     "status": order.status,
                     "rider_assigned": True,
                     "assigned_at": order.assigned_at,
-                    "rider": {
-                        "id": rider.id,
-                        "name": f"{rider.first_name} {rider.last_name}".strip() or rider.username,
-                        "phone_number": rider.phone_number or "N/A",
-                        "profile_picture": getattr(profile, 'profile_picture_url', None) if profile else None,
-                        "plate_number": getattr(profile, 'plate_number', None) if profile else None,
-                        "vehicle_type": getattr(profile, 'vehicle_type', None) if profile else None,
-                        "rating": getattr(profile, 'rating', None) if profile else None,
-                        "is_online": getattr(rider, 'is_online', False)
-                    }
+                    "rider": rider_data
                 }, status=status.HTTP_200_OK)
             
             # No rider assigned yet

@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='order',
             name='status',
-            field=models.CharField(choices=[('draft', 'Draft'), ('pending', 'Pending'), ('assigned', 'Assigned'), ('in_progress', 'In Progress'), ('payment_pending', 'Payment Pending'), ('completed', 'Completed'), ('cancelled', 'Cancelled')], db_index=True, default='pending', max_length=20),
+            field=models.CharField(choices=[('draft', 'Draft'), ('pending', 'Pending'), ('assigned', 'Assigned'), ('in_transit', 'In Progress'), ('payment_pending', 'Payment Pending'), ('completed', 'Completed'), ('cancelled', 'Cancelled')], db_index=True, default='pending', max_length=20),
         ),
     ]

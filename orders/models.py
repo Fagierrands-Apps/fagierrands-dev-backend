@@ -64,7 +64,7 @@ class Order(models.Model):
         ('draft', 'Draft'),
         ('pending', 'Pending'),
         ('assigned', 'Assigned'),
-        ('in_progress', 'In Progress'),
+        ('in_transit', 'In Transit'),
         ('payment_pending', 'Payment Pending'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
@@ -119,9 +119,9 @@ class Order(models.Model):
             Index(fields=["client", "status", "-created_at"], name="idx_cli_stat_cra"),
             Index(fields=["assistant", "status", "-created_at"], name="idx_ast_stat_cra"),
             Index(fields=["client", "-created_at"], name="idx_cli_act_cra",
-                  condition=Q(status__in=["pending", "assigned", "in_progress", "payment_pending"])),
+                  condition=Q(status__in=["pending", "assigned", "in_transit", "payment_pending"])),
             Index(fields=["assistant", "-created_at"], name="idx_ast_act_cra",
-                  condition=Q(status__in=["pending", "assigned", "in_progress", "payment_pending"])),
+                  condition=Q(status__in=["pending", "assigned", "in_transit", "payment_pending"])),
             # Trigram GIN index is managed conditionally via migration 0022 so that
             # deployments without pg_trgm can still migrate successfully.
             # When pg_trgm is available, migration 0022 will create `idx_title_trgm`.
@@ -205,7 +205,7 @@ class Order(models.Model):
         Update the price based on the distance between pickup and delivery locations.
         This method now preserves frontend-provided prices and only updates legacy orders.
         """
-        if self.status in ['assigned', 'in_progress'] and not self.price_finalized:
+        if self.status in ['assigned', 'in_transit'] and not self.price_finalized:
             # Only update for orders that are assigned or in progress and price not finalized
             try:
                 # Only recalculate for legacy orders that don't have frontend-provided distance
@@ -430,7 +430,7 @@ class HandymanOrder(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('assigned', 'Assigned'),
-        ('in_progress', 'In Progress'),
+        ('in_transit', 'In Progress'),
         ('quote_provided', 'Quote Provided'),
         ('quote_approved', 'Quote Approved'),
         ('quote_rejected', 'Quote Rejected'),

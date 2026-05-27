@@ -89,7 +89,7 @@ def initialize_order_tracking(order):
 @receiver(pre_save, sender=Order)
 def order_status_changed_tracking(sender, instance, **kwargs):
     """
-    Automatically initialize tracking when order status changes to 'assigned' or 'in_progress'.
+    Automatically initialize tracking when order status changes to 'assigned' or 'in_transit'.
     This signal handler is separate from notifications to maintain separation of concerns.
     """
     # Skip for new orders
@@ -105,7 +105,7 @@ def order_status_changed_tracking(sender, instance, **kwargs):
             return
         
         # Automatically initialize tracking when order is assigned or goes in_progress
-        if instance.status in ['assigned', 'in_progress'] and instance.assistant:
+        if instance.status in ['assigned', 'in_transit'] and instance.assistant:
             initialize_order_tracking(instance)
             
     except Order.DoesNotExist:

@@ -708,7 +708,7 @@ class HandymanOrderAdmin(admin.ModelAdmin):
                     f"for the service. They have already paid the KSh {obj.facilitation_fee} facilitation fee.")
         
         # If service_quote is set and status is in_progress, update status to quote_provided
-        if obj.service_quote and obj.status == 'in_progress' and not obj.quote_provided_at:
+        if obj.service_quote and obj.status == 'in_transit' and not obj.quote_provided_at:
             obj.status = 'quote_provided'
             obj.quote_provided_at = timezone.now()
             

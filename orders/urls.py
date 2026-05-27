@@ -64,6 +64,9 @@ from .views_quotes import (
     quote_status_check
 )
 
+# Import cancel order view
+from .views_cancel import CancelOrderView
+
 # Import enhanced order views
 from .views_enhanced_order import (
     EnhancedPickupDeliveryOrderView,
@@ -114,6 +117,7 @@ urlpatterns = [
     path('types/', OrderTypeListView.as_view(), name='order-type-list'),
     path('', OrderListCreateView.as_view(), name='order-list-create'),
     path('<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
+    path('<int:order_id>/cancel/', CancelOrderView.as_view(), name='cancel-order'),
     path('shopping/', ShoppingOrderView.as_view(), name='shopping-order'),
     path('<int:pk>/status/', OrderStatusUpdateView.as_view(), name='order-status-update'),
     path('<int:pk>/assign/', AssignOrderView.as_view(), name='assign-order'),

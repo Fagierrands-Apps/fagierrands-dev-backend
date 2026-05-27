@@ -299,7 +299,7 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
         # Update timestamp fields based on status change
         if new_status == 'assigned' and current_status != 'assigned':
             instance.assigned_at = timezone.now()
-        elif new_status == 'in_progress' and current_status != 'in_progress':
+        elif new_status == 'in_transit' and current_status != 'in_transit':
             instance.started_at = timezone.now()
         elif new_status == 'payment_pending' and current_status != 'payment_pending':
             # When work is completed but payment is pending, don't set completed_at yet
@@ -641,7 +641,7 @@ class HandymanOrderStatusUpdateSerializer(serializers.ModelSerializer):
         # Update timestamp fields based on status change
         if new_status == 'assigned' and current_status != 'assigned':
             instance.assigned_at = timezone.now()
-        elif new_status == 'in_progress' and current_status != 'in_progress':
+        elif new_status == 'in_transit' and current_status != 'in_transit':
             instance.started_at = timezone.now()
         elif new_status == 'completed' and current_status != 'completed':
             instance.completed_at = timezone.now()
@@ -935,7 +935,7 @@ class InitiatePaymentSerializer(serializers.ModelSerializer):
         
         # Check if order exists and has a valid status for payment
         order = data['order']
-        valid_statuses = ['payment_pending', 'completed', 'in_progress', 'assigned', 'In Progress', 'pending']
+        valid_statuses = ['payment_pending', 'completed', 'in_transit', 'assigned', 'In Progress', 'pending']
         
         # Print debug information
         print(f"Order ID: {order.id}, Status: {order.status}, Valid statuses: {valid_statuses}")

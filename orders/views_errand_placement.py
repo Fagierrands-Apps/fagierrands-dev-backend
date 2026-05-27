@@ -430,10 +430,24 @@ def confirm_errand(request, order_id):
     Step 3: Confirm errand - changes status from DRAFT to PENDING
     This is when the errand becomes official and can be assigned to riders
     Notifications and SMS sent here
+    Working hours: 6 AM - 8 PM
     """
     try:
         with transaction.atomic():
             order = Order.objects.get(id=order_id, client=request.user)
+            
+            # Check working hours (6 AM - 8 PM)
+            from datetime import datetime
+            import pytz
+            
+            nairobi_tz = pytz.timezone('Africa/Nairobi')
+            current_time = datetime.now(nairobi_tz)
+            current_hour = current_time.hour
+            
+            if current_hour < 6 or current_hour >= 20:
+                return Response({
+                    'error': 'Errands can only be placed between 6:00 AM and 8:00 PM'
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             if order.status != 'draft':
                 return Response({

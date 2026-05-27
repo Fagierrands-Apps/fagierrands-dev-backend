@@ -26,7 +26,7 @@ class SosCreateView(APIView):
         order = get_object_or_404(Order, pk=data.validated_data['order_id'])
 
         # Must be active and assigned to this assistant
-        if order.status not in ['assigned', 'in_progress']:
+        if order.status not in ['assigned', 'in_transit']:
             return Response({'error': 'SOS allowed only for active orders'}, status=400)
         if not order.assistant_id or order.assistant_id != request.user.id:
             return Response({'error': 'You are not assigned to this order'}, status=403)

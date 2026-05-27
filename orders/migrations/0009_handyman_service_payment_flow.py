@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='handymanorder',
             name='status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('assigned', 'Assigned'), ('in_progress', 'In Progress'), ('quote_provided', 'Quote Provided'), ('quote_approved', 'Quote Approved'), ('quote_rejected', 'Quote Rejected'), ('completed', 'Completed'), ('cancelled', 'Cancelled')], default='pending', max_length=20),
+            field=models.CharField(choices=[('pending', 'Pending'), ('assigned', 'Assigned'), ('in_transit', 'In Progress'), ('quote_provided', 'Quote Provided'), ('quote_approved', 'Quote Approved'), ('quote_rejected', 'Quote Rejected'), ('completed', 'Completed'), ('cancelled', 'Cancelled')], default='pending', max_length=20),
         ),
         migrations.AlterField(
             model_name='handymanservicetype',
