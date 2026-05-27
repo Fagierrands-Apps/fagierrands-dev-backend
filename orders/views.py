@@ -278,6 +278,38 @@ class AssignOrderView(generics.UpdateAPIView):
     def get_queryset(self):
         return Order.objects.filter(status='pending')
     
+    @swagger_auto_schema(
+        operation_description="Assign a rider to a pending order. Returns rider details after assignment.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['assistant_id'],
+            properties={
+                'assistant_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the rider to assign')
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Rider assigned successfully",
+                examples={
+                    "application/json": {
+                        "message": "Rider assigned successfully",
+                        "order_id": 9,
+                        "status": "assigned",
+                        "rider": {
+                            "id": 12,
+                            "name": "John Kamau",
+                            "phone_number": "0712345678",
+                            "plate_number": "KCA 123B",
+                            "profile_picture": "http://localhost:8000/media/profiles/john.jpg"
+                        },
+                        "assigned_at": "2026-04-12T22:30:15.123456+03:00"
+                    }
+                }
+            ),
+            400: "Invalid data or order cannot be assigned",
+            404: "Order not found"
+        }
+    )
     def update(self, request, *args, **kwargs):
         """Override to return rider details after assignment"""
         partial = kwargs.pop('partial', False)

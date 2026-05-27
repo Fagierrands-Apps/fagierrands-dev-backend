@@ -497,6 +497,28 @@ Thank you for choosing FagiErrands!"""
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Get draft errand details",
+    responses={
+        200: openapi.Response(
+            description="Draft errand details",
+            examples={
+                "application/json": {
+                    "order": {
+                        "id": 9,
+                        "status": "draft",
+                        "title": "tea leaves",
+                        "pickup_address": "next gen mall",
+                        "delivery_address": "kilimani"
+                    },
+                    "images_count": 1,
+                    "has_receiver_info": False
+                }
+            }
+        ),
+        404: "Draft order not found"
+    }
+)
 def get_draft_errand(request, order_id):
     """
     Get draft errand details
@@ -519,6 +541,20 @@ def get_draft_errand(request, order_id):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
+@swagger_auto_schema(
+    operation_description="Delete a draft errand",
+    responses={
+        200: openapi.Response(
+            description="Draft deleted successfully",
+            examples={
+                "application/json": {
+                    "message": "Draft errand deleted successfully"
+                }
+            }
+        ),
+        404: "Draft order not found"
+    }
+)
 def delete_draft_errand(request, order_id):
     """
     Delete a draft errand
