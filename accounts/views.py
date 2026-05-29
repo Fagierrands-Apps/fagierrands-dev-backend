@@ -240,6 +240,9 @@ class LoginView(APIView):
                     'refresh': refresh_token,
                     'user_id': user.id,
                     'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'phone_number': user.phone_number,
                     'user_type': getattr(user, 'user_type', 'user'),
                     'is_verified': getattr(user, 'is_verified', False),
                     'email_verified': getattr(user, 'email_verified', False)
