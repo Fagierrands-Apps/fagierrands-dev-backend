@@ -61,13 +61,13 @@ class OrderType(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = (
-        ('draft', 'Draft'),
-        ('pending', 'Pending'),
-        ('assigned', 'Assigned'),
-        ('in_transit', 'In Transit'),
-        ('payment_pending', 'Payment Pending'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
+        ('Draft', 'Draft'),
+        ('Pending', 'Pending'),
+        ('Assigned', 'Assigned'),
+        ('InTransit', 'InTransit'),
+        ('PaymentPending', 'PaymentPending'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
     )
     
     client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client_orders', db_index=True)
@@ -104,7 +104,7 @@ class Order(models.Model):
     distance = models.FloatField(help_text="Distance in kilometers", null=True, blank=True)
     estimated_duration = models.IntegerField(help_text="Estimated duration in minutes", null=True, blank=True)
     estimated_value = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Estimated value of items (for pickup/delivery orders)")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending', db_index=True)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -374,10 +374,10 @@ class BankingOrder(models.Model):
     )
     
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
     )
     
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='banking_orders', null=True)
@@ -387,7 +387,7 @@ class BankingOrder(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_details = models.TextField(help_text="Cheque details: number, payee name, account to deposit into")
     scheduled_date = models.DateField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -428,14 +428,14 @@ class HandymanServiceTypes(models.Model):
 class HandymanOrder(models.Model):
     """Model for handyman service orders"""
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('assigned', 'Assigned'),
-        ('in_transit', 'In Progress'),
-        ('quote_provided', 'Quote Provided'),
-        ('quote_approved', 'Quote Approved'),
-        ('quote_rejected', 'Quote Rejected'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
+        ('Pending', 'Pending'),
+        ('Assigned', 'Assigned'),
+        ('InTransit', 'InTransit'),
+        ('QuoteProvided', 'QuoteProvided'),
+        ('QuoteApproved', 'QuoteApproved'),
+        ('QuoteRejected', 'QuoteRejected'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
     )
     
     TIME_SLOT_CHOICES = (
@@ -470,7 +470,7 @@ class HandymanOrder(models.Model):
                                     help_text="Total price including facilitation fee and service price")
     final_payment_complete = models.BooleanField(default=False)
     
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -502,11 +502,11 @@ class HandymanOrder(models.Model):
 class ServiceQuote(models.Model):
     """Model for managing service provider quotes"""
     QUOTE_STATUS_CHOICES = (
-        ('draft', 'Draft'),
-        ('submitted', 'Submitted'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-        ('revised', 'Revised'),
+        ('Draft', 'Draft'),
+        ('Submitted', 'Submitted'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+        ('Revised', 'Revised'),
     )
     
     handyman_order = models.ForeignKey(HandymanOrder, on_delete=models.CASCADE, related_name='quotes')
@@ -525,7 +525,7 @@ class ServiceQuote(models.Model):
     additional_notes = models.TextField(blank=True)
     
     # Status and timestamps
-    status = models.CharField(max_length=20, choices=QUOTE_STATUS_CHOICES, default='draft')
+    status = models.CharField(max_length=20, choices=QUOTE_STATUS_CHOICES, default='Draft')
     submitted_at = models.DateTimeField(null=True, blank=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
     approved_at = models.DateTimeField(null=True, blank=True)
@@ -603,11 +603,11 @@ class HandymanOrderImage(models.Model):
 
 class Payment(models.Model):
     PAYMENT_STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('cancelled', 'Cancelled'),
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Completed', 'Completed'),
+        ('Failed', 'Failed'),
+        ('Cancelled', 'Cancelled'),
     )
     
     PAYMENT_METHOD_CHOICES = (
@@ -625,7 +625,7 @@ class Payment(models.Model):
     final_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Amount to charge after discounts")
 
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
-    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
     transaction_id = models.CharField(max_length=255, blank=True, null=True)
     transaction_reference = models.CharField(max_length=255, unique=True)
     
@@ -648,11 +648,11 @@ class Payment(models.Model):
 class OrderPrepayment(models.Model):
     """Temporary record to hold order details until 30% deposit is paid"""
     STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('cancelled', 'Cancelled'),
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Completed', 'Completed'),
+        ('Failed', 'Failed'),
+        ('Cancelled', 'Cancelled'),
     )
 
     client = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='order_prepayments')
@@ -679,7 +679,7 @@ class OrderPrepayment(models.Model):
 
     # Payment
     payment_method = models.CharField(max_length=20, choices=Payment.PAYMENT_METHOD_CHOICES, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     transaction_reference = models.CharField(max_length=255, unique=True)
     
     # M-Pesa Daraja API fields
@@ -701,15 +701,15 @@ class OrderPrepayment(models.Model):
 class EmergencyAlert(models.Model):
     """SOS alerts raised by assistants, tied only to active orders."""
     STATUS_CHOICES = (
-        ('open', 'Open'),
-        ('resolved', 'Resolved'),
+        ('Open', 'Open'),
+        ('Resolved', 'Resolved'),
     )
     assistant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sos_alerts')
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='sos_alerts')
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     message = models.CharField(max_length=255, blank=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='open')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Open')
     created_at = models.DateTimeField(auto_now_add=True)
     resolved_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='resolved_sos_alerts')
     resolved_at = models.DateTimeField(null=True, blank=True)
