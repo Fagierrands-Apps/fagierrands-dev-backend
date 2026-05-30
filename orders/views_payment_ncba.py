@@ -392,7 +392,7 @@ class NCBAWebhookHandler:
                         
                         # Update order
                         order = payment.order
-                        if order.status == 'payment_pending':
+                        if order.status == 'PaymentPending':
                             order.status = 'Completed'
                             order.completed_at = timezone.now()
                             order.save()
@@ -409,7 +409,7 @@ class NCBAWebhookHandler:
                             order = prepayment.order
                             logger.info(f"Linked order {order.id} found for prepayment")
                             # If it was payment_pending, move to pending
-                            if order.status == 'payment_pending':
+                            if order.status == 'PaymentPending':
                                 order.status = 'Pending'
                                 order.save()
                         else:
@@ -507,7 +507,7 @@ class OrderPaymentStatusView(APIView):
                         if query_resp.get('status') == 'SUCCESS':
                             payment.status = 'Completed'
                             payment.save()
-                            if order.status == 'payment_pending':
+                            if order.status == 'PaymentPending':
                                 order.status = 'Completed'
                                 order.completed_at = timezone.now()
                                 order.save()

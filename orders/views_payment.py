@@ -389,7 +389,7 @@ class PaymentCallbackView(APIView):
                 # Update order status to completed when payment is successful
                 # Only mark as completed if order is in payment_pending status
                 order = payment.order
-                if order.status == 'payment_pending':
+                if order.status == 'PaymentPending':
                     order.status = 'Completed'
                     order.completed_at = timezone.now()
                     order.save()
@@ -427,7 +427,7 @@ class PaymentCallbackView(APIView):
                 from .models import HandymanOrder
                 try:
                     handyman_order = HandymanOrder.objects.get(order=order)
-                    if handyman_order.status == 'quote_approved':
+                    if handyman_order.status == 'QuoteApproved':
                         handyman_order.status = 'Completed'
                         handyman_order.completed_at = timezone.now()
                         handyman_order.final_payment_complete = True
@@ -691,7 +691,7 @@ class PaymentWebhookView(APIView):
                             
                             # Update order status to completed when payment is successful
                             order = payment.order
-                            if order.status == 'payment_pending':
+                            if order.status == 'PaymentPending':
                                 order.status = 'Completed'
                                 order.completed_at = timezone.now()
                                 order.save()
@@ -729,7 +729,7 @@ class PaymentWebhookView(APIView):
                             from .models import HandymanOrder
                             try:
                                 handyman_order = HandymanOrder.objects.get(order=order)
-                                if handyman_order.status == 'quote_approved':
+                                if handyman_order.status == 'QuoteApproved':
                                     handyman_order.status = 'Completed'
                                     handyman_order.completed_at = timezone.now()
                                     handyman_order.final_payment_complete = True

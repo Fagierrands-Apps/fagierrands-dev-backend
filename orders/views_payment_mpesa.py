@@ -372,7 +372,7 @@ class MpesaWebhookHandler:
 
         # Update order status
         order = payment.order
-        if order.status == 'payment_pending':
+        if order.status == 'PaymentPending':
             order.status = 'Completed'
             order.completed_at = timezone.now()
             order.save()
@@ -413,7 +413,7 @@ class MpesaWebhookHandler:
         from .models import HandymanOrder
         try:
             handyman_order = HandymanOrder.objects.get(order=order)
-            if handyman_order.status == 'quote_approved':
+            if handyman_order.status == 'QuoteApproved':
                 handyman_order.status = 'Completed'
                 handyman_order.completed_at = timezone.now()
                 handyman_order.final_payment_complete = True
@@ -439,7 +439,7 @@ class MpesaWebhookHandler:
             logger.info(f"Using existing order {order.id} for prepayment {prepayment.transaction_reference}")
 
             # Update order status to completed since payment is successful
-            if order.status == 'payment_pending':
+            if order.status == 'PaymentPending':
                 order.status = 'Completed'
                 order.completed_at = timezone.now()
                 order.save()
@@ -565,7 +565,7 @@ class MpesaWebhookHandler:
 
                     # Update order
                     order = payment.order
-                    if order.status == 'payment_pending':
+                    if order.status == 'PaymentPending':
                         order.status = 'Completed'
                         order.completed_at = timezone.now()
                         order.save()
@@ -723,7 +723,7 @@ class MpesaC2BConfirmationView(APIView):
                     
                     # Update order
                     order = payment.order
-                    if order.status == 'payment_pending':
+                    if order.status == 'PaymentPending':
                         order.status = 'Completed'
                         order.completed_at = timezone.now()
                         order.save()
@@ -856,7 +856,7 @@ class OrderPaymentStatusView(APIView):
                                     
                                     # Update order if needed
                                     order = payment.order
-                                    if order.status == 'payment_pending':
+                                    if order.status == 'PaymentPending':
                                         order.status = 'Completed'
                                         order.completed_at = timezone.now()
                                         order.save()

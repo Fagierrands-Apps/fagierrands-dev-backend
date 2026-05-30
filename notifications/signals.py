@@ -337,7 +337,7 @@ def verification_status_changed(sender, instance, **kwargs):
         content_type = ContentType.objects.get_for_model(AssistantVerification)
         
         # Handle different status changes
-        if instance.status == 'approved':
+        if instance.status == 'Approved':
             # Notify assistant
             NotificationService.create_notification(
                 recipient=instance.assistant,
@@ -347,7 +347,7 @@ def verification_status_changed(sender, instance, **kwargs):
                 content_object=instance
             )
                 
-        elif instance.status == 'rejected':
+        elif instance.status == 'Rejected':
             # Notify assistant
             NotificationService.create_notification(
                 recipient=instance.assistant,

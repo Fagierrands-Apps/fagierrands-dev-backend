@@ -845,12 +845,12 @@ class ServiceQuoteUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         status = validated_data.get('status')
         
-        if status == 'approved':
+        if status == 'Approved':
             instance.approve_quote()
-        elif status == 'rejected':
+        elif status == 'Rejected':
             reason = validated_data.get('rejection_reason', '')
             instance.reject_quote(reason)
-        elif status == 'submitted':
+        elif status == 'Submitted':
             instance.submit_quote()
         
         return instance

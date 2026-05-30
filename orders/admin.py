@@ -697,7 +697,7 @@ class HandymanOrderAdmin(admin.ModelAdmin):
             obj.total_price = obj.facilitation_fee + obj.approved_service_price
             
             # Update status to quote_approved if it was in quote_provided status
-            if obj.status == 'quote_provided':
+            if obj.status == 'QuoteProvided':
                 obj.status = 'quote_approved'
                 obj.quote_approved_at = timezone.now()
                 
