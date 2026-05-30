@@ -1,0 +1,44 @@
+# Force sync plate numbers from verification to profile
+
+from django.db import migrations
+
+
+def force_sync_plate_numbers(apps, schema_editor):
+    """Force sync driving_license_number to plate_number for all riders"""
+    User = apps.get_model('accounts', 'User')
+    Profile = apps.get_model('accounts', 'Profile')
+    AssistantVerification = apps.get_model('accounts', 'AssistantVerification')
+    
+    riders = User.objects.filter(user_type='rider')
+    updated_count = 0
+    
+    for rider in riders:
+        try:
+            profile = Profile.objects.get(user=rider)
+            verification = AssistantVerification.objects.get(user=rider)
+            
+            # Update if verification has driving_license_number
+            if verification.driving_license_number:
+                profile.plate_number = verification.driving_license_number
+                profile.save(update_fields=['plate_number'])
+                updated_count += 1
+                print(f"✅ Updated rider {rider.username} (ID: {rider.id}): {verification.driving_license_number}")
+        except Profile.DoesNotExist:
+            print(f"⚠️  No profile for rider {rider.username} (ID: {rider.id})")
+        except AssistantVerification.DoesNotExist:
+            print(f"⚠️  No verification for rider {rider.username} (ID: {rider.id})")
+        except Exception as e:
+            print(f"❌ Error for rider {rider.id}: {e}")
+    
+    print(f"\n✅ Synced plate numbers for {updated_count} riders")
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('accounts', '0102_sync_plate_numbers_from_verification'),
+    ]
+
+    operations = [
+        migrations.RunPython(force_sync_plate_numbers, migrations.RunPython.noop),
+    ]
