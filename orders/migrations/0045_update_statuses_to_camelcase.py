@@ -159,7 +159,7 @@ def reverse_statuses_to_lowercase(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('orders', '0044_alter_handymanorder_status_alter_order_status'),
+        ('orders', '0044_remove_bankingorder_recipient_account_and_more'),
     ]
 
     operations = [
