@@ -129,7 +129,16 @@ WSGI_APPLICATION = 'fagierrandsbackup.wsgi.application'
     #}
 
 # Database configuration
-if DEBUG:
+# Use PostgreSQL from DATABASE_URL environment variable
+import dj_database_url
+
+database_url = os.getenv('DATABASE_URL')
+if database_url and database_url.startswith('postgresql'):
+    # Use PostgreSQL from environment
+    DATABASES = {
+        'default': dj_database_url.config(default=database_url, conn_max_age=600)
+    }
+elif DEBUG:
     # SQLite for local development
     DATABASES = {
         'default': {
