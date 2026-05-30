@@ -267,7 +267,7 @@ def create_draft_errand(request):
             
             return Response({
                 'order_id': order.id,
-                'status': 'draft',
+                'status': 'Draft',
                 'pricing_breakdown': {
                     'base_fee': float(order_type.base_price),
                     'distance_fee': float(calculated_price - order_type.base_price) if calculated_price > order_type.base_price else 0.0,
@@ -308,7 +308,7 @@ def upload_errand_image(request, order_id):
     try:
         order = Order.objects.get(id=order_id, client=request.user)
         
-        if order.status not in ['draft', 'pending']:
+        if order.status not in ['Draft', 'Pending']:
             return Response({
                 'error': 'Can only upload images to draft or pending orders'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -366,7 +366,7 @@ def update_errand_receiver_info(request, order_id):
     try:
         order = Order.objects.get(id=order_id, client=request.user)
         
-        if order.status not in ['draft', 'pending']:
+        if order.status not in ['Draft', 'Pending']:
             return Response({
                 'error': 'Can only update draft or pending orders'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -407,11 +407,11 @@ def update_errand_receiver_info(request, order_id):
                 'application/json': {
                     'message': 'Errand confirmed successfully!',
                     'order_id': 13,
-                    'status': 'pending',
+                    'status': 'Pending',
                     'order': {
                         'id': 13,
                         'title': 'Package Delivery',
-                        'status': 'pending',
+                        'status': 'Pending',
                         'pickup_address': 'Westlands Mall',
                         'delivery_address': 'Yaya Centre'
                     },
@@ -449,7 +449,7 @@ def confirm_errand(request, order_id):
                     'error': 'Errands can only be placed between 6:00 AM and 8:00 PM'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            if order.status != 'draft':
+            if order.status != 'Draft':
                 return Response({
                     'error': 'Can only confirm draft orders'
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -466,7 +466,7 @@ def confirm_errand(request, order_id):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Change status to PENDING
-            order.status = 'pending'
+            order.status = 'Pending'
             order.save()
             
             # Send SMS notification to client
@@ -494,7 +494,7 @@ Thank you for choosing FagiErrands!"""
             return Response({
                 'message': 'Errand confirmed successfully!',
                 'order_id': order.id,
-                'status': 'pending',
+                'status': 'Pending',
                 'order': serializer.data,
                 'notifications_sent': True
             })

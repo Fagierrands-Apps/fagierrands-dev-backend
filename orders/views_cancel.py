@@ -36,13 +36,13 @@ class CancelOrderView(APIView):
         order = get_object_or_404(Order, id=order_id, client=request.user)
         
         # Only allow cancellation if order is pending or assigned
-        if order.status not in ['pending', 'assigned', 'draft']:
+        if order.status not in ['Pending', 'Assigned', 'draft']:
             return Response({
                 "error": f"Cannot cancel order with status '{order.status}'. Only pending, assigned, or draft orders can be cancelled."
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Cancel the order
-        order.status = 'cancelled'
+        order.status = 'Cancelled'
         order.cancelled_at = timezone.now()
         order.save()
         

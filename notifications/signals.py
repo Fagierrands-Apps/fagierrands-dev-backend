@@ -30,7 +30,7 @@ def order_status_changed(sender, instance, **kwargs):
         content_type = ContentType.objects.get_for_model(Order)
         
         # Handle different status changes
-        if instance.status == 'assigned':
+        if instance.status == 'Assigned':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -55,7 +55,7 @@ def order_status_changed(sender, instance, **kwargs):
             if not instance.assigned_at:
                 instance.assigned_at = timezone.now()
                 
-        elif instance.status == 'in_progress':
+        elif instance.status == 'InProgress':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -70,7 +70,7 @@ def order_status_changed(sender, instance, **kwargs):
             if not instance.started_at:
                 instance.started_at = timezone.now()
                 
-        elif instance.status == 'completed':
+        elif instance.status == 'Completed':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -95,7 +95,7 @@ def order_status_changed(sender, instance, **kwargs):
             if not instance.completed_at:
                 instance.completed_at = timezone.now()
                 
-        elif instance.status == 'cancelled':
+        elif instance.status == 'Cancelled':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -193,7 +193,7 @@ def handyman_order_status_changed(sender, instance, **kwargs):
         content_type = ContentType.objects.get_for_model(HandymanOrder)
         
         # Handle different status changes
-        if instance.status == 'assigned':
+        if instance.status == 'Assigned':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -218,7 +218,7 @@ def handyman_order_status_changed(sender, instance, **kwargs):
             if not instance.assigned_at:
                 instance.assigned_at = timezone.now()
                 
-        elif instance.status == 'in_progress':
+        elif instance.status == 'InProgress':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -233,7 +233,7 @@ def handyman_order_status_changed(sender, instance, **kwargs):
             if not instance.started_at:
                 instance.started_at = timezone.now()
                 
-        elif instance.status == 'completed':
+        elif instance.status == 'Completed':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(
@@ -258,7 +258,7 @@ def handyman_order_status_changed(sender, instance, **kwargs):
             if not instance.completed_at:
                 instance.completed_at = timezone.now()
                 
-        elif instance.status == 'cancelled':
+        elif instance.status == 'Cancelled':
             # Notify client
             if instance.client:
                 NotificationService.create_notification(

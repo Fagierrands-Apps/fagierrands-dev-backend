@@ -290,23 +290,23 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
         
         # Intercept Assistant marking as completed for specific order types
         # If work is done, it should go to payment_pending first
-        if request_user and request_user.user_type == 'assistant' and new_status == 'completed':
+        if request_user and request_user.user_type == 'assistant' and new_status == 'Completed':
             order_type_name = (instance.order_type.name or '').lower().strip() if instance.order_type else ''
             # All errands should go to payment_pending first so client can pay the final amount
             if any(name in order_type_name for name in ['pickup', 'delivery', 'cargo', 'banking', 'shopping']):
                 new_status = 'payment_pending'
         
         # Update timestamp fields based on status change
-        if new_status == 'assigned' and current_status != 'assigned':
+        if new_status == 'Assigned' and current_status != 'Assigned':
             instance.assigned_at = timezone.now()
-        elif new_status == 'in_transit' and current_status != 'in_transit':
+        elif new_status == 'InTransit' and current_status != 'InTransit':
             instance.started_at = timezone.now()
-        elif new_status == 'payment_pending' and current_status != 'payment_pending':
+        elif new_status == 'PaymentPending' and current_status != 'PaymentPending':
             # When work is completed but payment is pending, don't set completed_at yet
             pass
-        elif new_status == 'completed' and current_status != 'completed':
+        elif new_status == 'Completed' and current_status != 'Completed':
             instance.completed_at = timezone.now()
-        elif new_status == 'cancelled' and current_status != 'cancelled':
+        elif new_status == 'Cancelled' and current_status != 'Cancelled':
             instance.cancelled_at = timezone.now()
         
         instance.status = new_status
@@ -329,7 +329,7 @@ class AssignOrderSerializer(serializers.ModelSerializer):
         
     def validate(self, data):
         # Ensure the order can only be assigned if it's pending
-        if self.instance.status != 'pending':
+        if self.instance.status != 'Pending':
             raise serializers.ValidationError("Only pending orders can be assigned")
         
         # Block assignment until required deposits are paid for Shopping and Handyman
@@ -353,7 +353,7 @@ class AssignOrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Update the assistant
         instance.assistant = validated_data.get('assistant')
-        instance.status = 'assigned'
+        instance.status = 'Assigned'
         instance.assigned_at = timezone.now()
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
@@ -639,13 +639,13 @@ class HandymanOrderStatusUpdateSerializer(serializers.ModelSerializer):
         current_status = instance.status
         
         # Update timestamp fields based on status change
-        if new_status == 'assigned' and current_status != 'assigned':
+        if new_status == 'Assigned' and current_status != 'Assigned':
             instance.assigned_at = timezone.now()
-        elif new_status == 'in_transit' and current_status != 'in_transit':
+        elif new_status == 'InTransit' and current_status != 'InTransit':
             instance.started_at = timezone.now()
-        elif new_status == 'completed' and current_status != 'completed':
+        elif new_status == 'Completed' and current_status != 'Completed':
             instance.completed_at = timezone.now()
-        elif new_status == 'cancelled' and current_status != 'cancelled':
+        elif new_status == 'Cancelled' and current_status != 'Cancelled':
             instance.cancelled_at = timezone.now()
         
         instance.status = new_status
@@ -665,7 +665,7 @@ class AssignHandymanOrderSerializer(serializers.ModelSerializer):
         
     def validate(self, data):
         # Ensure the order can only be assigned if it's pending
-        if self.instance.status != 'pending':
+        if self.instance.status != 'Pending':
             raise serializers.ValidationError("Only pending orders can be assigned")
         
         # Always update status to 'assigned' when assigning an assistant
@@ -675,7 +675,7 @@ class AssignHandymanOrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Update the assistant
         instance.assistant = validated_data.get('assistant')
-        instance.status = 'assigned'
+        instance.status = 'Assigned'
         instance.assigned_at = timezone.now()
         request = self.context.get('request')
         if request and hasattr(request, 'user'):

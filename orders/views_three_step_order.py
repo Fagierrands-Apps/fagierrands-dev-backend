@@ -122,7 +122,7 @@ class CreateDraftOrderView(APIView):
         
         return Response({
             'order_id': order.id,
-            'status': 'draft',
+            'status': 'Draft',
             'pricing_breakdown': pricing,
             'next_step': 'Upload images at /api/orders/v1/{order_id}/upload-image/',
             'message': 'Draft order created. Please upload images next.'
@@ -262,7 +262,7 @@ class ConfirmOrderView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Confirm order (already pending, just mark as confirmed)
-        order.status = 'pending'
+        order.status = 'Pending'
         order.save()
         
         # Send notification (manually since we skipped it during draft creation)

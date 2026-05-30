@@ -52,12 +52,12 @@ class InitiatePaymentView(generics.CreateAPIView):
                                status=status.HTTP_404_NOT_FOUND)
             
             # Check if payment already exists for this order
-            existing_payment = Payment.objects.filter(order=order, status__in=['pending', 'processing']).first()
+            existing_payment = Payment.objects.filter(order=order, status__in=['Pending', 'Processing']).first()
             if existing_payment:
                 # If payment is in processing status, reset it to pending to allow retry
-                if existing_payment.status == 'processing':
+                if existing_payment.status == 'Processing':
                     logger.info(f"Resetting payment {existing_payment.id} from processing to pending for retry")
-                    existing_payment.status = 'pending'
+                    existing_payment.status = 'Pending'
                     existing_payment.save()
                 
                 # Return the existing payment info
@@ -147,7 +147,7 @@ class MpesaPaymentView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Check if payment is already completed
-            if payment.status == 'completed':
+            if payment.status == 'Completed':
                 return Response({
                     'status': 'error',
                     'message': 'Payment is already completed'
@@ -217,7 +217,7 @@ class MpesaPaymentView(APIView):
                 
                 # Update payment with NCBA references
                 payment.mpesa_checkout_request_id = transaction_id # Reusing field for TransactionID
-                payment.status = 'processing'
+                payment.status = 'Processing'
                 payment.save()
                 
                 logger.info(f"Payment {payment.id} updated with NCBA references")
@@ -236,7 +236,7 @@ class MpesaPaymentView(APIView):
                 error_message = response.get('StatusDescription', 'Failed to initiate NCBA payment')
                 logger.error(f"NCBA STK Push failed: {error_message}")
                 
-                payment.status = 'failed'
+                payment.status = 'Failed'
                 payment.save()
                 
                 return Response({
@@ -250,7 +250,7 @@ class MpesaPaymentView(APIView):
             logger.error(f"Full traceback: {traceback.format_exc()}")
             
             # Update payment status to failed
-            payment.status = 'failed'
+            payment.status = 'Failed'
             payment.save()
             
             return Response({
@@ -335,11 +335,11 @@ class MpesaWebhookHandler:
                 # Payment failed or cancelled
                 logger.warning(f"Payment failed/cancelled: {result_desc}")
                 if payment:
-                    payment.status = 'failed'
+                    payment.status = 'Failed'
                     payment.save()
                     logger.info(f"Regular payment {payment.id} marked as failed")
                 elif prepayment:
-                    prepayment.status = 'failed'
+                    prepayment.status = 'Failed'
                     prepayment.save()
                     logger.info(f"Prepayment {prepayment.id} marked as failed")
 
@@ -361,7 +361,7 @@ class MpesaWebhookHandler:
     @staticmethod
     def _process_regular_payment_success(payment, metadata):
         """Process successful regular payment"""
-        payment.status = 'completed'
+        payment.status = 'Completed'
         payment.transaction_id = metadata.get('MpesaReceiptNumber')
         payment.mpesa_receipt_number = metadata.get('MpesaReceiptNumber')
         payment.mpesa_transaction_date = metadata.get('TransactionDate')
@@ -373,7 +373,7 @@ class MpesaWebhookHandler:
         # Update order status
         order = payment.order
         if order.status == 'payment_pending':
-            order.status = 'completed'
+            order.status = 'Completed'
             order.completed_at = timezone.now()
             order.save()
             logger.info(f"Order {order.id} marked as completed")
@@ -414,7 +414,7 @@ class MpesaWebhookHandler:
         try:
             handyman_order = HandymanOrder.objects.get(order=order)
             if handyman_order.status == 'quote_approved':
-                handyman_order.status = 'completed'
+                handyman_order.status = 'Completed'
                 handyman_order.completed_at = timezone.now()
                 handyman_order.final_payment_complete = True
                 handyman_order.save()
@@ -425,7 +425,7 @@ class MpesaWebhookHandler:
     @staticmethod
     def _process_pre_payment_success(prepayment, metadata, checkout_request_id):
         """Process successful prepayment and use existing order if available"""
-        prepayment.status = 'completed'
+        prepayment.status = 'Completed'
         prepayment.mpesa_receipt_number = metadata.get('MpesaReceiptNumber')
         prepayment.mpesa_checkout_request_id = checkout_request_id
         prepayment.save()
@@ -440,7 +440,7 @@ class MpesaWebhookHandler:
 
             # Update order status to completed since payment is successful
             if order.status == 'payment_pending':
-                order.status = 'completed'
+                order.status = 'Completed'
                 order.completed_at = timezone.now()
                 order.save()
                 logger.info(f"Order {order.id} marked as completed")
@@ -554,7 +554,7 @@ class MpesaWebhookHandler:
 
                 # Update payment
                 with db_transaction.atomic():
-                    payment.status = 'completed'
+                    payment.status = 'Completed'
                     payment.transaction_id = trans_id
                     payment.mpesa_receipt_number = trans_id
                     payment.mpesa_transaction_date = trans_time
@@ -566,7 +566,7 @@ class MpesaWebhookHandler:
                     # Update order
                     order = payment.order
                     if order.status == 'payment_pending':
-                        order.status = 'completed'
+                        order.status = 'Completed'
                         order.completed_at = timezone.now()
                         order.save()
                         logger.info(f"Order {order.id} marked as completed")
@@ -712,7 +712,7 @@ class MpesaC2BConfirmationView(APIView):
                 
                 # Update payment
                 with db_transaction.atomic():
-                    payment.status = 'completed'
+                    payment.status = 'Completed'
                     payment.transaction_id = trans_id
                     payment.mpesa_receipt_number = trans_id
                     payment.mpesa_transaction_date = trans_time
@@ -724,7 +724,7 @@ class MpesaC2BConfirmationView(APIView):
                     # Update order
                     order = payment.order
                     if order.status == 'payment_pending':
-                        order.status = 'completed'
+                        order.status = 'Completed'
                         order.completed_at = timezone.now()
                         order.save()
                         logger.info(f"Order {order.id} marked as completed")
@@ -838,7 +838,7 @@ class OrderPaymentStatusView(APIView):
                 }
                 
                 # Add processing time information
-                if payment.status == 'processing' and payment.mpesa_checkout_request_id:
+                if payment.status == 'Processing' and payment.mpesa_checkout_request_id:
                     # Trigger a background check or do it synchronously if not checked recently
                     last_query_key = f"ncba_query_last_checked_{payment.id}"
                     if not cache.get(last_query_key):
@@ -851,19 +851,19 @@ class OrderPaymentStatusView(APIView):
                             ncba_status = query_resp.get('status')
                             if ncba_status == 'SUCCESS':
                                 with db_transaction.atomic():
-                                    payment.status = 'completed'
+                                    payment.status = 'Completed'
                                     payment.save()
                                     
                                     # Update order if needed
                                     order = payment.order
                                     if order.status == 'payment_pending':
-                                        order.status = 'completed'
+                                        order.status = 'Completed'
                                         order.completed_at = timezone.now()
                                         order.save()
                                     
                                     payment_data['status'] = 'completed'
                             elif ncba_status == 'FAILED':
-                                payment.status = 'failed'
+                                payment.status = 'Failed'
                                 payment.save()
                                 payment_data['status'] = 'failed'
                                 
@@ -908,7 +908,7 @@ class OrderPaymentStatusView(APIView):
                     }
 
                     # Add NCBA polling for prepayment
-                    if prepayment.status == 'processing' and prepayment.mpesa_checkout_request_id:
+                    if prepayment.status == 'Processing' and prepayment.mpesa_checkout_request_id:
                         last_query_key = f"ncba_query_last_checked_prepay_{prepayment.id}"
                         if not cache.get(last_query_key):
                             try:
@@ -919,14 +919,14 @@ class OrderPaymentStatusView(APIView):
                                 ncba_status = query_resp.get('status')
                                 if ncba_status == 'SUCCESS':
                                     with db_transaction.atomic():
-                                        prepayment.status = 'completed'
+                                        prepayment.status = 'Completed'
                                         prepayment.save()
                                         
                                         # Shopping orders might need specific logic when deposit is paid
                                         # but typically the order status remains unchanged or moves to next stage
                                         prepayment_data['status'] = 'completed'
                                 elif ncba_status == 'FAILED':
-                                    prepayment.status = 'failed'
+                                    prepayment.status = 'Failed'
                                     prepayment.save()
                                     prepayment_data['status'] = 'failed'
                                     
@@ -984,13 +984,13 @@ class PaymentCancellationView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Only allow cancellation of processing/pending payments
-            if payment.status not in ['processing', 'pending', 'initiated']:
+            if payment.status not in ['Processing', 'Pending', 'Initiated']:
                 return Response({
                     'error': f'Cannot cancel payment with status: {payment.status}'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Update payment status to cancelled
-            payment.status = 'cancelled'
+            payment.status = 'Cancelled'
             payment.save()
             
             # Clear cache for this order's payment status

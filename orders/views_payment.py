@@ -53,12 +53,12 @@ class InitiatePaymentView(generics.CreateAPIView):
                                status=status.HTTP_404_NOT_FOUND)
             
             # Check if payment already exists for this order
-            existing_payment = Payment.objects.filter(order=order, status__in=['pending', 'processing']).first()
+            existing_payment = Payment.objects.filter(order=order, status__in=['Pending', 'Processing']).first()
             if existing_payment:
                 # If payment is in processing status, reset it to pending to allow retry
-                if existing_payment.status == 'processing':
+                if existing_payment.status == 'Processing':
                     logger.info(f"Resetting payment {existing_payment.id} from processing to pending for retry")
-                    existing_payment.status = 'pending'
+                    existing_payment.status = 'Pending'
                     existing_payment.save()
                 
                 # Return the existing payment info
@@ -146,7 +146,7 @@ class IntaSendPaymentView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Check if payment is already completed
-            if payment.status == 'completed':
+            if payment.status == 'Completed':
                 return Response({
                     'status': 'error',
                     'message': 'Payment is already completed'
@@ -161,7 +161,7 @@ class IntaSendPaymentView(APIView):
             elif payment.payment_method == 'card':
                 return self.process_card_payment(payment)
             else:
-                payment.status = 'failed'
+                payment.status = 'Failed'
                 payment.save()
                 return Response({
                     'status': 'error',
@@ -183,7 +183,7 @@ class IntaSendPaymentView(APIView):
             # Validate IntaSend configuration
             if not INTASEND_SECRET_KEY or not INTASEND_PUBLISHABLE_KEY:
                 logger.error("IntaSend keys are not properly configured")
-                payment.status = 'failed'
+                payment.status = 'Failed'
                 payment.save()
                 return Response({
                     'status': 'error',
@@ -230,7 +230,7 @@ class IntaSendPaymentView(APIView):
                 # Update payment with IntaSend references
                 payment.intasend_checkout_id = checkout_id
                 payment.intasend_invoice_id = invoice_id
-                payment.status = 'processing'
+                payment.status = 'Processing'
                 payment.save()
                 
                 logger.info(f"Payment {payment.id} updated with IntaSend references")
@@ -248,7 +248,7 @@ class IntaSendPaymentView(APIView):
                 # Log the failure details
                 logger.error(f"STK Push failed - State: {state}, Response: {response}")
                 
-                payment.status = 'failed'
+                payment.status = 'Failed'
                 payment.save()
                 
                 return Response({
@@ -261,7 +261,7 @@ class IntaSendPaymentView(APIView):
             import traceback
             logger.error(f"Full traceback: {traceback.format_exc()}")
             # Update payment status to failed
-            payment.status = 'failed'
+            payment.status = 'Failed'
             payment.save()
             
             return Response({
@@ -315,7 +315,7 @@ class IntaSendPaymentView(APIView):
                 # Update payment with IntaSend references and set status to processing
                 payment.intasend_checkout_id = response.get('id')
                 payment.intasend_invoice_id = response.get('invoice', {}).get('id')
-                payment.status = 'processing'  # Set to processing only after successful checkout creation
+                payment.status = 'Processing'  # Set to processing only after successful checkout creation
                 payment.save()
                 
                 return Response({
@@ -329,7 +329,7 @@ class IntaSendPaymentView(APIView):
                 })
             else:
                 # Update payment status to failed
-                payment.status = 'failed'
+                payment.status = 'Failed'
                 payment.save()
                 
                 return Response({
@@ -339,7 +339,7 @@ class IntaSendPaymentView(APIView):
         
         except Exception as e:
             # Update payment status to failed
-            payment.status = 'failed'
+            payment.status = 'Failed'
             payment.save()
             
             return Response({
@@ -383,14 +383,14 @@ class PaymentCallbackView(APIView):
             verification_status = self.verify_payment(payment)
             
             if verification_status:
-                payment.status = 'completed'
+                payment.status = 'Completed'
                 payment.save()
                 
                 # Update order status to completed when payment is successful
                 # Only mark as completed if order is in payment_pending status
                 order = payment.order
                 if order.status == 'payment_pending':
-                    order.status = 'completed'
+                    order.status = 'Completed'
                     order.completed_at = timezone.now()
                     order.save()
 
@@ -428,7 +428,7 @@ class PaymentCallbackView(APIView):
                 try:
                     handyman_order = HandymanOrder.objects.get(order=order)
                     if handyman_order.status == 'quote_approved':
-                        handyman_order.status = 'completed'
+                        handyman_order.status = 'Completed'
                         handyman_order.completed_at = timezone.now()
                         handyman_order.final_payment_complete = True
                         handyman_order.save()
@@ -441,7 +441,7 @@ class PaymentCallbackView(APIView):
                     'redirect_url': f"/orders/{payment.order.id}"
                 })
             else:
-                payment.status = 'failed'
+                payment.status = 'Failed'
                 payment.save()
                 
                 return Response({
@@ -450,7 +450,7 @@ class PaymentCallbackView(APIView):
                     'redirect_url': f"/payment/{payment.id}"
                 }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            payment.status = 'failed'
+            payment.status = 'Failed'
             payment.save()
             
             return Response({
@@ -533,7 +533,7 @@ class OrderPaymentStatusView(APIView):
                 }
                 
                 # Add processing time information
-                if payment.status == 'processing':
+                if payment.status == 'Processing':
                     processing_time = timezone.now() - payment.updated_at
                     payment_data['processing_duration_seconds'] = int(processing_time.total_seconds())
                     
@@ -573,15 +573,15 @@ class OrderPaymentStatusView(APIView):
                 'payment': payment_data,
                 'handyman_payment': handyman_payment_info,
                 'last_checked': timezone.now().isoformat(),
-                'polling_recommended': payment_data and payment_data['status'] in ['processing', 'pending', 'initiated'],
-                'next_check_in_seconds': 5 if (payment_data and payment_data['status'] in ['processing', 'pending']) else 30,
+                'polling_recommended': payment_data and payment_data['status'] in ['Processing', 'Pending', 'Initiated'],
+                'next_check_in_seconds': 5 if (payment_data and payment_data['status'] in ['Processing', 'Pending']) else 30,
                 'from_cache': False,
             }
             
             # Cache the response for 10 seconds (only for non-final statuses)
-            if payment_data and payment_data['status'] in ['processing', 'pending', 'initiated']:
+            if payment_data and payment_data['status'] in ['Processing', 'Pending', 'Initiated']:
                 cache.set(cache_key, response_data, 10)  # Cache for 10 seconds
-            elif payment_data and payment_data['status'] in ['paid', 'completed', 'failed', 'cancelled']:
+            elif payment_data and payment_data['status'] in ['Paid', 'Completed', 'Failed', 'Cancelled']:
                 cache.set(cache_key, response_data, 300)  # Cache final statuses for 5 minutes
             
             return Response(response_data)
@@ -611,13 +611,13 @@ class PaymentCancellationView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Only allow cancellation of processing/pending payments
-            if payment.status not in ['processing', 'pending', 'initiated']:
+            if payment.status not in ['Processing', 'Pending', 'Initiated']:
                 return Response({
                     'error': f'Cannot cancel payment with status: {payment.status}'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Update payment status to cancelled
-            payment.status = 'cancelled'
+            payment.status = 'Cancelled'
             payment.save()
             
             # Clear cache for this order's payment status
@@ -680,7 +680,7 @@ class PaymentWebhookView(APIView):
                         
                         # Map IntaSend states to our payment statuses
                         if state == 'COMPLETE':
-                            payment.status = 'completed'
+                            payment.status = 'Completed'
                             
                             # Update transaction ID if available (for M-Pesa)
                             if payload.get('account'):  # M-Pesa receipt number
@@ -692,7 +692,7 @@ class PaymentWebhookView(APIView):
                             # Update order status to completed when payment is successful
                             order = payment.order
                             if order.status == 'payment_pending':
-                                order.status = 'completed'
+                                order.status = 'Completed'
                                 order.completed_at = timezone.now()
                                 order.save()
                                 logger.info(f"Order {order.id} status updated to 'completed'")
@@ -730,7 +730,7 @@ class PaymentWebhookView(APIView):
                             try:
                                 handyman_order = HandymanOrder.objects.get(order=order)
                                 if handyman_order.status == 'quote_approved':
-                                    handyman_order.status = 'completed'
+                                    handyman_order.status = 'Completed'
                                     handyman_order.completed_at = timezone.now()
                                     handyman_order.final_payment_complete = True
                                     handyman_order.save()
@@ -739,17 +739,17 @@ class PaymentWebhookView(APIView):
                                 pass
                                 
                         elif state == 'FAILED':
-                            payment.status = 'failed'
+                            payment.status = 'Failed'
                             payment.save()
                             logger.info(f"Payment {payment.id} status updated from '{old_status}' to 'failed'")
                             
                         elif state == 'PROCESSING':
-                            payment.status = 'processing'
+                            payment.status = 'Processing'
                             payment.save()
                             logger.info(f"Payment {payment.id} status updated from '{old_status}' to 'processing'")
                             
                         elif state == 'PENDING':
-                            payment.status = 'pending'
+                            payment.status = 'Pending'
                             payment.save()
                             logger.info(f"Payment {payment.id} status updated from '{old_status}' to 'pending'")
                             
@@ -771,7 +771,7 @@ class PaymentWebhookView(APIView):
                             payment = Payment.objects.get(intasend_invoice_id=invoice_id)
                             
                             old_status = payment.status
-                            payment.status = 'completed'
+                            payment.status = 'Completed'
                             
                             if data.get('mpesa_receipt'):
                                 payment.transaction_id = data.get('mpesa_receipt')
@@ -785,9 +785,9 @@ class PaymentWebhookView(APIView):
                             try:
                                 from .models import OrderPrepayment, Order, OrderType, ShoppingItem
                                 prepay = OrderPrepayment.objects.filter(intasend_invoice_id=invoice_id).first()
-                                if prepay and prepay.status in ['pending', 'processing'] and not prepay.order:
+                                if prepay and prepay.status in ['Pending', 'Processing'] and not prepay.order:
                                     # Mark prepayment as completed
-                                    prepay.status = 'completed'
+                                    prepay.status = 'Completed'
                                     prepay.save(update_fields=['status'])
                                     # Create the actual order now that deposit is paid
                                     order = Order.objects.create(
@@ -835,9 +835,9 @@ class PaymentWebhookView(APIView):
                             
                             old_status = payment.status
                             if event == 'payment.cancelled':
-                                payment.status = 'cancelled'
+                                payment.status = 'Cancelled'
                             else:
-                                payment.status = 'failed'
+                                payment.status = 'Failed'
                             
                             payment.save()
                             logger.info(f"Payment {payment.id} status updated from '{old_status}' to '{payment.status}'")
@@ -848,8 +848,8 @@ class PaymentWebhookView(APIView):
                             try:
                                 from .models import OrderPrepayment, Order, ShoppingItem, HandymanOrder, HandymanServiceType
                                 prepay = OrderPrepayment.objects.filter(intasend_invoice_id=invoice_id).first()
-                                if prepay and prepay.status in ['pending', 'processing'] and not prepay.order:
-                                    prepay.status = 'completed'
+                                if prepay and prepay.status in ['Pending', 'Processing'] and not prepay.order:
+                                    prepay.status = 'Completed'
                                     prepay.save(update_fields=['status'])
                                     # Create master order
                                     order = Order.objects.create(

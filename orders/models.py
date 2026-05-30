@@ -135,7 +135,7 @@ class Order(models.Model):
         Override save method to add 10 points to the user's wallet and 20 points to the referrer when an order is completed.
         """
         super().save(*args, **kwargs)
-        if self.status == 'completed':
+        if self.status == 'Completed':
             # Only add points if the order is completed
             from accounts.models import Profile  # Avoid circular import
             user_profile, created = Profile.objects.get_or_create(user=self.client)
@@ -205,7 +205,7 @@ class Order(models.Model):
         Update the price based on the distance between pickup and delivery locations.
         This method now preserves frontend-provided prices and only updates legacy orders.
         """
-        if self.status in ['assigned', 'in_transit'] and not self.price_finalized:
+        if self.status in ['Assigned', 'InTransit'] and not self.price_finalized:
             # Only update for orders that are assigned or in progress and price not finalized
             try:
                 # Only recalculate for legacy orders that don't have frontend-provided distance

@@ -26,7 +26,7 @@ class SosCreateView(APIView):
         order = get_object_or_404(Order, pk=data.validated_data['order_id'])
 
         # Must be active and assigned to this assistant
-        if order.status not in ['assigned', 'in_transit']:
+        if order.status not in ['Assigned', 'InTransit']:
             return Response({'error': 'SOS allowed only for active orders'}, status=400)
         if not order.assistant_id or order.assistant_id != request.user.id:
             return Response({'error': 'You are not assigned to this order'}, status=403)
@@ -79,9 +79,9 @@ class SosResolveView(APIView):
         if getattr(request.user, 'user_type', 'user') not in ['handler', 'admin']:
             return Response({'error': 'Not allowed'}, status=403)
         alert = get_object_or_404(EmergencyAlert, pk=alert_id)
-        if alert.status == 'resolved':
+        if alert.status == 'Resolved':
             return Response({'id': alert.id, 'status': alert.status})
-        alert.status = 'resolved'
+        alert.status = 'Resolved'
         alert.resolved_by = request.user
         alert.resolved_at = timezone.now()
         alert.save(update_fields=['status', 'resolved_by', 'resolved_at'])

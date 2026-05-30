@@ -17,7 +17,7 @@ from .models import Order
                 'application/json': {
                     'finding_rider': {
                         'order_id': 13,
-                        'status': 'pending',
+                        'status': 'Pending',
                         'rider_status': 'finding_rider',
                         'message': 'Finding you a rider...',
                         'elapsed_time': {
@@ -29,7 +29,7 @@ from .models import Order
                     },
                     'rider_found': {
                         'order_id': 13,
-                        'status': 'assigned',
+                        'status': 'Assigned',
                         'rider_status': 'rider_found',
                         'message': 'Rider found!',
                         'rider': {
@@ -68,7 +68,7 @@ def get_order_rider_status(request, order_id):
             'status': order.status,
         }
         
-        if order.status == 'pending':
+        if order.status == 'Pending':
             # Finding rider phase
             elapsed_seconds = (timezone.now() - order.created_at).total_seconds()
             elapsed_minutes = int(elapsed_seconds // 60)
@@ -84,7 +84,7 @@ def get_order_rider_status(request, order_id):
                 'max_wait_time_minutes': 5
             })
             
-        elif order.status == 'assigned' and order.assistant:
+        elif order.status == 'Assigned' and order.assistant:
             # Rider found
             rider = order.assistant
             profile = getattr(rider, 'profile', None)

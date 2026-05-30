@@ -160,7 +160,7 @@ class PaymentAdmin(admin.ModelAdmin):
         """Display status with warning for stuck payments"""
         try:
             status = obj.status
-            if status == 'processing':
+            if status == 'Processing':
                 hours_since = (timezone.now() - obj.payment_date).total_seconds() / 3600
                 if hours_since > 2:  # More than 2 hours
                     return f"🔴 {status} ({hours_since:.1f}h)"
@@ -258,10 +258,10 @@ class PaymentAdmin(admin.ModelAdmin):
                 # Update payment status if found
                 ncba_status = result.get('status')
                 if ncba_status == 'SUCCESS':
-                    payment.status = 'completed'
+                    payment.status = 'Completed'
                     payment.save()
                 elif ncba_status == 'FAILED':
-                    payment.status = 'failed'
+                    payment.status = 'Failed'
                     payment.save()
                     
             except Exception as exc:
@@ -431,7 +431,7 @@ class PaymentAdmin(admin.ModelAdmin):
         if result.get('StatusCode') == '0':
             payment.mpesa_checkout_request_id = result.get('TransactionID')
             payment.mpesa_phone_number = formatted_phone
-            payment.status = 'processing'
+            payment.status = 'Processing'
             payment.save(update_fields=[
                 'mpesa_checkout_request_id',
                 'mpesa_phone_number',
@@ -450,7 +450,7 @@ class PaymentAdmin(admin.ModelAdmin):
             f"NCBA STK Push failed: {error_message}",
             level=messages.ERROR,
         )
-        payment.status = 'failed'
+        payment.status = 'Failed'
         payment.save(update_fields=['status'])
         return False
 
@@ -522,7 +522,7 @@ class OrderPrepaymentAdmin(admin.ModelAdmin):
         errors = 0
         for prepay in queryset:
             try:
-                if prepay.order_id or prepay.status != 'completed':
+                if prepay.order_id or prepay.status != 'Completed':
                     skipped += 1
                     continue
                 with transaction.atomic():
@@ -708,7 +708,7 @@ class HandymanOrderAdmin(admin.ModelAdmin):
                     f"for the service. They have already paid the KSh {obj.facilitation_fee} facilitation fee.")
         
         # If service_quote is set and status is in_progress, update status to quote_provided
-        if obj.service_quote and obj.status == 'in_transit' and not obj.quote_provided_at:
+        if obj.service_quote and obj.status == 'InTransit' and not obj.quote_provided_at:
             obj.status = 'quote_provided'
             obj.quote_provided_at = timezone.now()
             

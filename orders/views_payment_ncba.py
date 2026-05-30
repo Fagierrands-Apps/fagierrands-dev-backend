@@ -72,7 +72,7 @@ def process_ncba_stk_push(payment):
             
             # Update payment with NCBA references
             payment.mpesa_checkout_request_id = transaction_id # Reusing field for TransactionID
-            payment.status = 'processing'
+            payment.status = 'Processing'
             payment.save()
             
             logger.info(f"Payment {payment.id} updated with NCBA references")
@@ -96,7 +96,7 @@ def process_ncba_stk_push(payment):
             
             logger.error(f"NCBA STK Push failed for payment {payment.id}: {error_message}")
             
-            payment.status = 'failed'
+            payment.status = 'Failed'
             payment.save()
             
             return {
@@ -116,7 +116,7 @@ def process_ncba_stk_push(payment):
         logger.error(f"Full traceback: {traceback.format_exc()}")
         
         # Update payment status to failed
-        payment.status = 'failed'
+        payment.status = 'Failed'
         payment.save()
         
         return {
@@ -156,13 +156,13 @@ class InitiatePaymentView(generics.CreateAPIView):
                                status=status.HTTP_404_NOT_FOUND)
             
             # Check if payment already exists for this order
-            existing_payment = Payment.objects.filter(order=order, status__in=['pending', 'processing']).first()
+            existing_payment = Payment.objects.filter(order=order, status__in=['Pending', 'Processing']).first()
             if existing_payment:
                 logger.info(f"Existing payment found: ID={existing_payment.id}, Method={existing_payment.payment_method}, Status={existing_payment.status}")
                 # If payment is in processing status, reset it to pending to allow retry
-                if existing_payment.status == 'processing':
+                if existing_payment.status == 'Processing':
                     logger.info(f"Resetting payment {existing_payment.id} from processing to pending for retry")
-                    existing_payment.status = 'pending'
+                    existing_payment.status = 'Pending'
                     existing_payment.save()
                 
                 # Return the existing payment info
@@ -292,7 +292,7 @@ class NCBAPaymentView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Check if payment is already completed
-            if payment.status == 'completed':
+            if payment.status == 'Completed':
                 return Response({
                     'status': 'error',
                     'message': 'Payment is already completed'
@@ -386,18 +386,18 @@ class NCBAWebhookHandler:
                 logger.info("NCBA Payment successful")
                 with db_transaction.atomic():
                     if payment:
-                        payment.status = 'completed'
+                        payment.status = 'Completed'
                         payment.transaction_id = payload.get('MpesaReceiptNumber', transaction_id)
                         payment.save()
                         
                         # Update order
                         order = payment.order
                         if order.status == 'payment_pending':
-                            order.status = 'completed'
+                            order.status = 'Completed'
                             order.completed_at = timezone.now()
                             order.save()
                     elif prepayment:
-                        prepayment.status = 'completed'
+                        prepayment.status = 'Completed'
                         prepayment.transaction_id = payload.get('MpesaReceiptNumber', transaction_id)
                         prepayment.save()
                         
@@ -410,7 +410,7 @@ class NCBAWebhookHandler:
                             logger.info(f"Linked order {order.id} found for prepayment")
                             # If it was payment_pending, move to pending
                             if order.status == 'payment_pending':
-                                order.status = 'pending'
+                                order.status = 'Pending'
                                 order.save()
                         else:
                             # Legacy flow: create order from prepayment details
@@ -453,10 +453,10 @@ class NCBAWebhookHandler:
             else:
                 logger.warning(f"NCBA Payment failed: {status_val}")
                 if payment:
-                    payment.status = 'failed'
+                    payment.status = 'Failed'
                     payment.save()
                 elif prepayment:
-                    prepayment.status = 'failed'
+                    prepayment.status = 'Failed'
                     prepayment.save()
 
             return {'status': 'success'}
@@ -501,18 +501,18 @@ class OrderPaymentStatusView(APIView):
             payment = Payment.objects.filter(order=order).order_by('-payment_date').first()
             if payment:
                 # Polling logic for NCBA
-                if payment.status == 'processing' and payment.mpesa_checkout_request_id:
+                if payment.status == 'Processing' and payment.mpesa_checkout_request_id:
                     try:
                         query_resp = ncba_service.stk_query(payment.mpesa_checkout_request_id)
                         if query_resp.get('status') == 'SUCCESS':
-                            payment.status = 'completed'
+                            payment.status = 'Completed'
                             payment.save()
                             if order.status == 'payment_pending':
-                                order.status = 'completed'
+                                order.status = 'Completed'
                                 order.completed_at = timezone.now()
                                 order.save()
                         elif query_resp.get('status') == 'FAILED':
-                            payment.status = 'failed'
+                            payment.status = 'Failed'
                             payment.save()
                     except Exception as e:
                         logger.error(f"NCBA Query failed: {e}")
@@ -576,13 +576,13 @@ class PaymentCancellationView(APIView):
                 }, status=status.HTTP_403_FORBIDDEN)
             
             # Only allow cancellation of processing/pending payments
-            if payment.status not in ['processing', 'pending', 'initiated']:
+            if payment.status not in ['Processing', 'Pending', 'Initiated']:
                 return Response({
                     'error': f'Cannot cancel payment with status: {payment.status}'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Update payment status to cancelled
-            payment.status = 'cancelled'
+            payment.status = 'Cancelled'
             payment.save()
             
             # Clear cache for this order's payment status

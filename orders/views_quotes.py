@@ -62,7 +62,7 @@ class ServiceProviderQuoteDetailView(generics.RetrieveUpdateDestroyAPIView):
         quote = self.get_object()
         
         # Only allow updates if quote is in draft status
-        if quote.status != 'draft':
+        if quote.status != 'Draft':
             return Response(
                 {'error': 'Can only update quotes in draft status'}, 
                 status=status.HTTP_400_BAD_REQUEST
@@ -80,7 +80,7 @@ class SubmitQuoteView(APIView):
     def post(self, request, quote_id):
         quote = get_object_or_404(ServiceQuote, id=quote_id, service_provider=request.user)
         
-        if quote.status != 'draft':
+        if quote.status != 'Draft':
             return Response(
                 {'error': 'Can only submit quotes in draft status'}, 
                 status=status.HTTP_400_BAD_REQUEST
@@ -179,7 +179,7 @@ class QuoteImageUploadView(generics.CreateAPIView):
         quote = get_object_or_404(ServiceQuote, id=quote_id, service_provider=self.request.user)
         
         # Only allow image upload for draft quotes
-        if quote.status != 'draft':
+        if quote.status != 'Draft':
             raise PermissionDenied("Can only upload images for draft quotes")
         
         serializer.save(quote=quote)

@@ -105,7 +105,7 @@ def order_status_changed_tracking(sender, instance, **kwargs):
             return
         
         # Automatically initialize tracking when order is assigned or goes in_progress
-        if instance.status in ['assigned', 'in_transit'] and instance.assistant:
+        if instance.status in ['Assigned', 'InTransit'] and instance.assistant:
             initialize_order_tracking(instance)
             
     except Order.DoesNotExist:

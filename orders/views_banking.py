@@ -84,10 +84,10 @@ class BankingOrderCancelView(APIView):
         except BankingOrder.DoesNotExist:
             return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        if order.status != 'pending':
+        if order.status != 'Pending':
             return Response({"detail": "Only pending orders can be cancelled."}, status=status.HTTP_400_BAD_REQUEST)
 
-        order.status = 'cancelled'
+        order.status = 'Cancelled'
         order.save()
         serializer = BankingOrderSerializer(order)
         return Response(serializer.data)

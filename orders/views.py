@@ -184,7 +184,7 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Order.objects.none()
     
     def perform_destroy(self, instance):
-        if instance.status not in ['pending', 'cancelled']:
+        if instance.status not in ['Pending', 'Cancelled']:
             return Response(
                 {"error": "Only pending or cancelled orders can be deleted"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -203,7 +203,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
             return Order.objects.filter(client=user, status__in=['in_transit', 'assigned'])
         elif user.user_type == 'assistant':
             # Assistant: can mark as in_progress or completed
-            return Order.objects.filter(assistant=user, status__in=['assigned', 'in_transit'])
+            return Order.objects.filter(assistant=user, status__in=['Assigned', 'InTransit'])
         elif user.user_type in ['handler', 'admin']:
             # Handler/Admin: can change any status
             return Order.objects.all()
@@ -229,7 +229,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
             )
         
         # For assistants changing to in_progress, make sure they're assigned
-        if user.user_type == 'assistant' and new_status == 'in_transit' and instance.assistant != user:
+        if user.user_type == 'assistant' and new_status == 'InTransit' and instance.assistant != user:
             return Response(
                 {"error": "You can only change status of orders assigned to you"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -260,7 +260,7 @@ class OrderStatusUpdateView(generics.UpdateAPIView):
         # After status update, if we have both pickup and delivery coordinates, compute distance/price
         try:
             instance.refresh_from_db()
-            if instance.status in ['assigned', 'in_transit'] \
+            if instance.status in ['Assigned', 'InTransit'] \
                and instance.pickup_latitude is not None and instance.pickup_longitude is not None \
                and instance.delivery_latitude is not None and instance.delivery_longitude is not None:
                 # Update distance and estimated duration
@@ -431,7 +431,7 @@ class OrderReviewCreateView(generics.CreateAPIView):
         order = Order.objects.get(id=order_id)
         
         # Check if the order is completed and belongs to the user
-        if order.status != 'completed':
+        if order.status != 'Completed':
             return Response(
                 {"error": "You can only review completed orders"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -529,7 +529,7 @@ class AcceptOrderView(APIView):
             
             # Assign the order to the current assistant and change status to assigned
             order.assistant = request.user
-            order.status = 'assigned'
+            order.status = 'Assigned'
             order.save()
             
             # Return the updated order
@@ -787,10 +787,10 @@ class ShoppingOrderView(APIView):
 
                         # Update prepayment with NCBA transaction details
                         prepay.mpesa_checkout_request_id = transaction_id # Reusing field for TransactionID
-                        prepay.status = 'processing' if status_code == '0' else 'failed'
+                        prepay.status = 'Processing' if status_code == '0' else 'Failed'
                         prepay.save()
 
-                        if prepay.status == 'failed':
+                        if prepay.status == 'Failed':
                             response_desc = response.get('StatusDescription', 'Unknown error')
                             return Response({
                                 'status': 'error',
@@ -803,7 +803,7 @@ class ShoppingOrderView(APIView):
                             }, status=status.HTTP_400_BAD_REQUEST)
 
                         return Response({
-                            'status': 'pending',
+                            'status': 'Pending',
                             'status_code': 202,
                             'message': 'NCBA STK push sent. Check your phone to complete payment.',
                             'prepayment_reference': prepay.transaction_reference,
@@ -820,7 +820,7 @@ class ShoppingOrderView(APIView):
 
                     except Exception as e:
                         logger.error(f"STK Push initiation failed: {str(e)}")
-                        prepay.status = 'failed'
+                        prepay.status = 'Failed'
                         prepay.save()
                         return Response({
                             'status': 'error',
@@ -828,7 +828,7 @@ class ShoppingOrderView(APIView):
                         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
                     # Card payment - not supported via M-Pesa Daraja API
-                    prepay.status = 'failed'
+                    prepay.status = 'Failed'
                     prepay.save()
                     return Response({
                         'status': 'error',
@@ -1303,8 +1303,8 @@ class BankingOrderViewSet(viewsets.ModelViewSet):
         Cancel a pending banking order
         """
         order = self.get_object()
-        if order.status == 'pending':
-            order.status = 'cancelled'
+        if order.status == 'Pending':
+            order.status = 'Cancelled'
             order.save()
             serializer = self.get_serializer(order)
             return Response(serializer.data)
@@ -1752,7 +1752,7 @@ class OrderPriceRealtimeUpdateView(APIView):
                 )
             
             # Only update for orders that are assigned or in progress
-            if order.status not in ['assigned', 'in_transit']:
+            if order.status not in ['Assigned', 'InTransit']:
                 return Response(
                     {"detail": "Price can only be updated for assigned or in-progress orders."},
                     status=status.HTTP_400_BAD_REQUEST

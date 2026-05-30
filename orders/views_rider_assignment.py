@@ -44,7 +44,7 @@ class RiderAssignmentStatusView(APIView):
             order = get_object_or_404(Order, id=order_id, client=request.user)
             
             # Check if rider is assigned
-            if order.assistant and order.status in ['assigned', 'in_transit', 'completed']:
+            if order.assistant and order.status in ['Assigned', 'InTransit', 'Completed']:
                 rider = order.assistant
                 profile = getattr(rider, 'profile', None)
                 
