@@ -73,11 +73,11 @@ def update_statuses_to_camelcase(apps, schema_editor):
     except LookupError:
         pass
     
-    # Update EmergencyAlert statuses
+    # Update EmergencyAlert statuses (only open/resolved)
     try:
         EmergencyAlert = apps.get_model('orders', 'EmergencyAlert')
-        for old_status, new_status in status_map.items():
-            EmergencyAlert.objects.filter(status=old_status).update(status=new_status)
+        EmergencyAlert.objects.filter(status='open').update(status='Open')
+        EmergencyAlert.objects.filter(status='resolved').update(status='Resolved')
     except LookupError:
         pass
 
