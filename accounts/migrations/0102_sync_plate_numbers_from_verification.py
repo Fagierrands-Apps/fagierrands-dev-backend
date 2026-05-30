@@ -17,12 +17,20 @@ def sync_plate_numbers(apps, schema_editor):
             profile = Profile.objects.get(user=rider)
             verification = AssistantVerification.objects.get(user=rider)
             
-            # If profile has no plate_number but verification has driving_license_number
-            if not profile.plate_number and verification.driving_license_number:
+            # If profile has no plate_number (null or empty) but verification has driving_license_number
+            if (not profile.plate_number or profile.plate_number.strip() == '') and verification.driving_license_number:
                 profile.plate_number = verification.driving_license_number
-                profile.save()
+                profile.save(update_fields=['plate_number'])
                 updated_count += 1
-        except (Profile.DoesNotExist, AssistantVerification.DoesNotExist):
+                print(f"Updated rider {rider.id}: {verification.driving_license_number}")
+        except Profile.DoesNotExist:
+            print(f"No profile for rider {rider.id}")
+            continue
+        except AssistantVerification.DoesNotExist:
+            print(f"No verification for rider {rider.id}")
+            continue
+        except Exception as e:
+            print(f"Error for rider {rider.id}: {e}")
             continue
     
     print(f"Synced plate numbers for {updated_count} riders")
