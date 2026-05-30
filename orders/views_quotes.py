@@ -214,7 +214,7 @@ class ServiceProviderDashboardView(APIView):
         
         # Approved orders ready to start
         approved_orders = assigned_orders.filter(
-            status='quote_approved'
+            status='QuoteApproved'
         )
         
         dashboard_data = {

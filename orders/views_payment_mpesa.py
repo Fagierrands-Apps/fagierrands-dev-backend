@@ -456,7 +456,7 @@ class MpesaWebhookHandler:
                     delivery_address=prepayment.delivery_address or '',
                     delivery_latitude=prepayment.delivery_latitude,
                     delivery_longitude=prepayment.delivery_longitude,
-                    status='completed'  # Order starts as completed since payment succeeded
+                    status='Completed'  # Order starts as completed since payment succeeded
                 )
 
                 # Create shopping items if provided

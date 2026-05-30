@@ -276,7 +276,7 @@ class AssignOrderView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsHandler|IsAdmin]
     
     def get_queryset(self):
-        return Order.objects.filter(status='pending')
+        return Order.objects.filter(status='Pending')
     
     @swagger_auto_schema(
         operation_description="Assign a rider to a pending order. Returns rider details after assignment.",
@@ -459,7 +459,7 @@ class PendingOrdersView(generics.ListAPIView):
     def get_queryset(self):
         # Narrow fields and prefetch to avoid N+1
         return (
-            Order.objects.filter(status='pending')
+            Order.objects.filter(status='Pending')
             .select_related('client', 'assistant', 'order_type')
             .only(
                 'id', 'status', 'price', 'created_at', 'updated_at',
@@ -504,7 +504,7 @@ class AvailableOrdersView(generics.ListAPIView):
     def get_queryset(self):
         # Return pending orders that are not assigned to any assistant
         return (
-            Order.objects.filter(status='pending', assistant__isnull=True)
+            Order.objects.filter(status='Pending', assistant__isnull=True)
             .select_related('client', 'order_type')
             .only(
                 'id', 'status', 'price', 'created_at', 'updated_at',
@@ -525,7 +525,7 @@ class AcceptOrderView(APIView):
     def post(self, request, pk):
         try:
             # Get the order
-            order = Order.objects.get(pk=pk, status='pending', assistant__isnull=True)
+            order = Order.objects.get(pk=pk, status='Pending', assistant__isnull=True)
             
             # Assign the order to the current assistant and change status to assigned
             order.assistant = request.user
@@ -625,7 +625,7 @@ class ShoppingOrderView(APIView):
                     delivery_longitude=delivery_longitude,
                     recipient_name=contact_name,
                     contact_number=contact_phone,
-                    status='pending'
+                    status='Pending'
                 )
 
                 # Create shopping items
@@ -945,7 +945,7 @@ class PickupDeliveryOrderCreateView(APIView):
                     recipient_name=recipient_name,
                     contact_number=contact_number,
                     estimated_value=estimated_value,
-                    status='pending',
+                    status='Pending',
                     created_at=timezone.now()
                 )
                 print(f"[PickupDeliveryOrderCreateView] Order {order.id} created with estimated_value: {order.estimated_value} (type: {type(order.estimated_value)})")
@@ -1112,7 +1112,7 @@ class CargoDeliveryOrderView(APIView):
                 delivery_longitude=data.get('delivery_longitude'),
                 recipient_name=data.get('recipient_name', ''),
                 contact_number=data.get('contact_number', ''),
-                status='pending'
+                status='Pending'
             )
             print(f"Order created successfully with ID: {order.id}")
             
@@ -1455,7 +1455,7 @@ class PendingHandymanOrdersView(generics.ListAPIView):
         user = self.request.user
         # Only admin, staff, or handlers can see pending orders
         if user.is_staff or user.user_type in ['admin', 'handler']:
-            return HandymanOrder.objects.filter(status='pending').order_by('-created_at')
+            return HandymanOrder.objects.filter(status='Pending').order_by('-created_at')
         return HandymanOrder.objects.none()
 
 class AssistantHandymanOrdersView(generics.ListAPIView):

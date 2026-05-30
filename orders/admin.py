@@ -204,13 +204,13 @@ class PaymentAdmin(admin.ModelAdmin):
     
     def mark_as_pending(self, request, queryset):
         """Mark selected payments as pending"""
-        count = queryset.update(status='pending')
+        count = queryset.update(status='Pending')
         self.message_user(request, f'{count} payments marked as pending.')
     mark_as_pending.short_description = "Mark selected payments as pending"
     
     def mark_as_completed(self, request, queryset):
         """Mark selected payments as completed"""
-        count = queryset.update(status='completed')
+        count = queryset.update(status='Completed')
         self.message_user(request, f'{count} payments marked as completed.')
     mark_as_completed.short_description = "Mark selected payments as completed"
     
@@ -501,7 +501,7 @@ class OrderPrepaymentAdmin(admin.ModelAdmin):
 
     # Admin actions
     def mark_as_completed(self, request, queryset):
-        updated = queryset.update(status='completed')
+        updated = queryset.update(status='Completed')
         self.message_user(request, f"{updated} prepayment(s) marked as completed.")
     mark_as_completed.short_description = 'Mark selected prepayments as completed'
 
@@ -537,7 +537,7 @@ class OrderPrepaymentAdmin(admin.ModelAdmin):
                         delivery_address=prepay.delivery_address or '',
                         delivery_latitude=prepay.delivery_latitude,
                         delivery_longitude=prepay.delivery_longitude,
-                        status='pending',
+                        status='Pending',
                     )
 
                     items_payload = prepay.items
@@ -579,7 +579,7 @@ class OrderPrepaymentAdmin(admin.ModelAdmin):
                                 alternative_contact=handyman_payload.get('alternative_contact') or '',
                                 facilitation_fee=prepay.deposit_amount,
                                 facilitation_fee_paid=True,
-                                status='pending',
+                                status='Pending',
                             )
                     except Exception:
                         pass

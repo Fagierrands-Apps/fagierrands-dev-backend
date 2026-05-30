@@ -115,7 +115,7 @@ class EnhancedPickupDeliveryOrderView(APIView):
             distance=distance,
             price=pricing['total'],
             estimated_value=data['approximate_value'],
-            status='pending'
+            status='Pending'
         )
         
         # Create shopping items

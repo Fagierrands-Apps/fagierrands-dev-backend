@@ -103,7 +103,7 @@ class CreateDraftOrderView(APIView):
             distance=distance,
             price=pricing['total'],
             estimated_value=data['approximate_value'],
-            status='pending'  # Draft status
+            status='Pending'  # Draft status
         )
         
         # Mark as draft to skip notifications

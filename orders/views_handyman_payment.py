@@ -30,7 +30,7 @@ class HandymanServiceFinalPaymentView(APIView):
             handyman_order = HandymanOrder.objects.get(
                 id=handyman_order_id,
                 client=request.user,
-                status='quote_approved',
+                status='QuoteApproved',
                 final_payment_complete=False
             )
         except HandymanOrder.DoesNotExist:
@@ -53,7 +53,7 @@ class HandymanServiceFinalPaymentView(APIView):
             amount=handyman_order.approved_service_price,  # Only charge the approved service price
             final_amount=handyman_order.approved_service_price, # Ensure final_amount is set
             payment_method=request.data.get('payment_method', 'ncba'), # Default to ncba
-            status='pending',
+            status='Pending',
             transaction_reference=f"HANDYMAN-FINAL-{handyman_order.id}-{uuid.uuid4().hex[:8]}",
             phone_number=request.data.get('phone_number'),
             email=request.data.get('email')

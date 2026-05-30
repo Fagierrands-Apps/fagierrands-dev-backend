@@ -427,7 +427,7 @@ class NCBAWebhookHandler:
                                     delivery_address=prepayment.delivery_address,
                                     delivery_latitude=prepayment.delivery_latitude,
                                     delivery_longitude=prepayment.delivery_longitude,
-                                    status='pending'
+                                    status='Pending'
                                 )
                                 
                                 # Create shopping items if provided

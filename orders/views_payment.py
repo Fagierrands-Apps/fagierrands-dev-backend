@@ -798,7 +798,7 @@ class PaymentWebhookView(APIView):
                                         delivery_address=prepay.delivery_address or '',
                                         delivery_latitude=prepay.delivery_latitude,
                                         delivery_longitude=prepay.delivery_longitude,
-                                        status='pending'
+                                        status='Pending'
                                     )
                                     # Create shopping items if provided
                                     if isinstance(prepay.items, list):
@@ -860,7 +860,7 @@ class PaymentWebhookView(APIView):
                                         delivery_address=prepay.delivery_address or '',
                                         delivery_latitude=prepay.delivery_latitude,
                                         delivery_longitude=prepay.delivery_longitude,
-                                        status='pending'
+                                        status='Pending'
                                     )
                                     prepay.order = order
                                     prepay.save(update_fields=['order'])
@@ -884,7 +884,7 @@ class PaymentWebhookView(APIView):
                                                 alternative_contact=handyman_payload.get('alternative_contact') or '',
                                                 facilitation_fee=prepay.deposit_amount,
                                                 facilitation_fee_paid=True,
-                                                status='pending'
+                                                status='Pending'
                                             )
                                         except Exception as e3:
                                             logger.error(f"Failed creating HandymanOrder from prepayment {prepay.transaction_reference}: {e3}")

@@ -260,7 +260,7 @@ def create_draft_errand(request):
                 delivery_longitude=request.data.get('delivery_longitude'),
                 distance=distance,
                 price=calculated_price,
-                status='draft'  # DRAFT status
+                status='Draft'  # DRAFT status
             )
             
             serializer = OrderSerializer(order, context={'request': request})
@@ -538,7 +538,7 @@ def get_draft_errand(request, order_id):
     Get draft errand details
     """
     try:
-        order = Order.objects.get(id=order_id, client=request.user, status='draft')
+        order = Order.objects.get(id=order_id, client=request.user, status='Draft')
         serializer = OrderSerializer(order, context={'request': request})
         
         return Response({
@@ -574,7 +574,7 @@ def delete_draft_errand(request, order_id):
     Delete a draft errand
     """
     try:
-        order = Order.objects.get(id=order_id, client=request.user, status='draft')
+        order = Order.objects.get(id=order_id, client=request.user, status='Draft')
         order.delete()
         
         return Response({

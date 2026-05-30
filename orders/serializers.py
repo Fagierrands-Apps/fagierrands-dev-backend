@@ -339,7 +339,7 @@ class AssignOrderSerializer(serializers.ModelSerializer):
         if order_type_name in ['shopping', 'shopping order']:
             price = self.instance.price or Decimal('0')
             required = (price * Decimal('0.30')).quantize(Decimal('0.01'))
-            paid = self.instance.payments.filter(status='completed').aggregate(total=Sum('final_amount'))['total'] or Decimal('0')
+            paid = self.instance.payments.filter(status='Completed').aggregate(total=Sum('final_amount'))['total'] or Decimal('0')
             if paid < required:
                 raise serializers.ValidationError("Cannot assign: 30% deposit not paid for shopping order")
         if hasattr(self.instance, 'handyman_orders') and self.instance.handyman_orders.exists():
@@ -438,7 +438,7 @@ class BankingOrderSerializer(serializers.ModelSerializer):
             order_type=order_type,
             title=title,
             description=validated_data.get('transaction_details', ''),
-            status='pending',
+            status='Pending',
             price=validated_data.get('amount', 0)
         )
         
@@ -590,7 +590,7 @@ class HandymanOrderCreateSerializer(serializers.Serializer):
                 delivery_address=validated_data.get('address', ''),
                 delivery_latitude=validated_data.get('latitude'),
                 delivery_longitude=validated_data.get('longitude'),
-                status='pending'
+                status='Pending'
             )
             
             # Get the facilitation fee from the service type
@@ -947,7 +947,7 @@ class InitiatePaymentSerializer(serializers.ModelSerializer):
         # Order should only be marked as completed when payment is actually confirmed
         
         # Check if payment already exists and is completed
-        existing_payment = Payment.objects.filter(order=order, status='completed').first()
+        existing_payment = Payment.objects.filter(order=order, status='Completed').first()
         if existing_payment:
             raise serializers.ValidationError({"order": "Payment for this order has already been completed"})
         
@@ -1009,7 +1009,7 @@ class InitiatePaymentSerializer(serializers.ModelSerializer):
             transaction_reference=transaction_reference,
             phone_number=validated_data.get('phone_number'),
             email=validated_data.get('email'),
-            status='pending'
+            status='Pending'
         )
         
         return payment
