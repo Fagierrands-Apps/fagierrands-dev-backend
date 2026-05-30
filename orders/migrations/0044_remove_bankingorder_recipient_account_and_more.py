@@ -26,6 +26,23 @@ def remove_fields_if_exist(apps, schema_editor):
         """)
 
 
+def add_index_if_not_exists(apps, schema_editor):
+    """Add index to created_at only if it doesn't exist"""
+    if schema_editor.connection.vendor == 'postgresql':
+        schema_editor.execute("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_indexes 
+                    WHERE tablename = 'orders_order' 
+                    AND indexname = 'orders_order_created_at_20b8d253'
+                ) THEN
+                    CREATE INDEX orders_order_created_at_20b8d253 ON orders_order (created_at);
+                END IF;
+            END $$;
+        """)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -39,11 +56,8 @@ class Migration(migrations.Migration):
             name='transaction_details',
             field=models.TextField(help_text='Cheque details: number, payee name, account to deposit into'),
         ),
-        migrations.AlterField(
-            model_name='order',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, db_index=True),
-        ),
+        migrations.RunPython(add_index_if_not_exists, migrations.RunPython.noop),
+    ]
         migrations.AlterField(
             model_name='order',
             name='status',
