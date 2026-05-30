@@ -3,6 +3,29 @@
 from django.db import migrations, models
 
 
+def remove_fields_if_exist(apps, schema_editor):
+    """Safely remove fields only if they exist"""
+    if schema_editor.connection.vendor == 'postgresql':
+        schema_editor.execute("""
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name='orders_bankingorder' AND column_name='recipient_account'
+                ) THEN
+                    ALTER TABLE orders_bankingorder DROP COLUMN recipient_account;
+                END IF;
+                
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name='orders_bankingorder' AND column_name='recipient_name'
+                ) THEN
+                    ALTER TABLE orders_bankingorder DROP COLUMN recipient_name;
+                END IF;
+            END $$;
+        """)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,14 +33,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='bankingorder',
-            name='recipient_account',
-        ),
-        migrations.RemoveField(
-            model_name='bankingorder',
-            name='recipient_name',
-        ),
+        migrations.RunPython(remove_fields_if_exist, migrations.RunPython.noop),
         migrations.AlterField(
             model_name='bankingorder',
             name='transaction_details',
