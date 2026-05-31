@@ -12,18 +12,12 @@ jobs:
       
       - name: Create deployment structure
         run: |
-          mkdir -p deploy_temp/fagierrandsbackend
-          mkdir -p deploy_temp/logs
+          mkdir -p deploy_temp
           
-          # Copy root files
-          cp requirements.txt deploy_temp/
-          cp passenger_wsgi.py deploy_temp/
-          cp .env deploy_temp/ 2>/dev/null || echo "No .env file"
-          
-          # Copy all application files to fagierrandsbackend folder
+          # Copy all files directly
           rsync -av --exclude='deploy_temp' --exclude='.git' --exclude='.github' \
-            --exclude='requirements.txt' --exclude='passenger_wsgi.py' --exclude='.env' \
-            ./ deploy_temp/fagierrandsbackend/
+            --exclude='.env' --exclude='.env.local' \
+            ./ deploy_temp/
       
       - name: Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
