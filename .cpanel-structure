@@ -1,0 +1,9 @@
+# This file defines the cPanel deployment structure
+# Root files (in api.errandserver.fagitone.com/):
+# - requirements.txt
+# - passenger_wsgi.py
+# - .env
+# - logs/ (directory)
+#
+# Application files (in api.errandserver.fagitone.com/fagierrandsbackend/):
+# - All other files and folders
