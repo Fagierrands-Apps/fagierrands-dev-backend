@@ -14,7 +14,7 @@ env_vars = {
     'SECRET_KEY': '9r1%hz2tdkhu39#6f^^_z(&0u&1g8=^cy_$(907_fs#tni-1r7',
     'DEBUG': 'False',
     'ALLOWED_HOSTS': 'api.errandserver.fagitone.com',
-    'DJANGO_SETTINGS_MODULE': 'fagierrandsbackup.settings',
+    'DJANGO_SETTINGS_MODULE': 'fagierrandsbackend.settings',
     'GOOGLE_MAPS_API_KEY': '',
     'TEXTPIE_API_KEY': 'M176esJGFImYzBlqk9dgKfjuRXE2U3nyHZQvL4hiAWp08rTxwSNDVabtPO5oCc',
     'TEXTPIE_SERVICE_ID': '77',
@@ -27,4 +27,4 @@ env_vars = {
 for key, value in env_vars.items():
     os.environ.setdefault(key, value)
 
-from fagierrandsbackup.wsgi import application
+from fagierrandsbackend.wsgi import application
