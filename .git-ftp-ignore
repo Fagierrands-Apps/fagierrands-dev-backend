@@ -1,3 +1,2 @@
-passenger_wsgi.py
 *.pyc
 __pycache__/
