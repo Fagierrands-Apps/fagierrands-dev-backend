@@ -1,0 +1,28 @@
+from django.db import migrations
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('orders', '0039_add_draft_status'),
+    ]
+
+    operations = [
+        # Drop the orphaned reportissue tables if they exist
+        migrations.RunSQL(
+            sql="DROP TABLE IF EXISTS orders_reportissue_evidence_photos CASCADE;",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql="DROP TABLE IF EXISTS orders_reportissue CASCADE;",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql="DROP SEQUENCE IF EXISTS orders_reportissue_evidence_photos_id_seq CASCADE;",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        migrations.RunSQL(
+            sql="DROP SEQUENCE IF EXISTS orders_reportissue_id_seq CASCADE;",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+    ]
