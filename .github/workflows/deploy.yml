@@ -18,6 +18,9 @@ jobs:
           rsync -av --exclude='deploy_temp' --exclude='.git' --exclude='.github' \
             --exclude='.env' --exclude='.env.local' \
             ./ deploy_temp/
+          
+          # Copy .env.cpanel as .env for production
+          cp .env.cpanel deploy_temp/.env
       
       - name: Deploy to cPanel via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
