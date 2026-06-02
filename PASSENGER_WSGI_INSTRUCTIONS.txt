@@ -1,0 +1,15 @@
+AFTER CPANEL CREATES THE PYTHON APP, IT WILL OVERWRITE passenger_wsgi.py
+
+YOU MUST REPLACE IT WITH THIS EXACT CODE:
+================================================================
+
+import os
+import sys
+sys.path.insert(0, os.path.dirname(__file__))
+from wsgi_app import application
+
+================================================================
+
+COPY THE 4 LINES ABOVE INTO passenger_wsgi.py IN FILE MANAGER
+
+This tells cPanel to use wsgi_app.py which has all the Django setup.
