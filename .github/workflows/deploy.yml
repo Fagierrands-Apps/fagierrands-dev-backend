@@ -28,6 +28,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: fagierrands.backend/
+          server-dir: fagierrands-server.com/
           local-dir: ./deploy_temp/
           dangerous-clean-slate: true
