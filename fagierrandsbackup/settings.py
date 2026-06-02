@@ -129,12 +129,27 @@ WSGI_APPLICATION = 'fagierrandsbackup.wsgi.application'
     #}
 
 # Database configuration
-# Use PostgreSQL from DATABASE_URL environment variable
+# Works for both Render (DATABASE_URL) and cPanel (individual credentials)
 import dj_database_url
 
 database_url = os.getenv('DATABASE_URL')
-if database_url and database_url.startswith('postgresql'):
-    # Use PostgreSQL from environment
+
+# Check if we're on cPanel (no DATABASE_URL, use individual credentials)
+if not database_url:
+    # cPanel PostgreSQL - using individual credentials
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'distinc3_fagierrandsNew'),
+            'USER': os.getenv('DB_USER', 'distinc3_FagierrandsNew'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'Pa7swrd1990@'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+            'CONN_MAX_AGE': 600,
+        }
+    }
+elif database_url.startswith('postgresql'):
+    # Render PostgreSQL - using DATABASE_URL
     DATABASES = {
         'default': dj_database_url.config(default=database_url, conn_max_age=600)
     }
@@ -147,16 +162,11 @@ elif DEBUG:
         }
     }
 else:
-    # PostgreSQL for production (hardcoded)
+    # Fallback to SQLite if nothing else works
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'thirddb_yjtl',
-            'USER': 'thirddb_yjtl_user',
-            'PASSWORD': 'PUZzZo5hrPJns0s6GRuTYlBJoqEm18ug',
-            'HOST': 'dpg-d8013167r5hc73b6vrhg-a',
-            'PORT': '5432',
-            'CONN_MAX_AGE': 600,
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 

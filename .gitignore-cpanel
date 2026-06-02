@@ -1,0 +1,16 @@
+# This gitignore is for the production-cpanel branch
+# We want to INCLUDE settings_cpanel.py (normally you'd exclude it)
+# But exclude these:
+
+*.pyc
+__pycache__/
+*.log
+db.sqlite3
+.env
+.env.local
+media/
+staticfiles/
+
+# Keep these IN the repo for cPanel deployment:
+# fagierrandsbackup/settings_cpanel.py  (we want this committed)
+# passenger_wsgi.py (we want this committed)

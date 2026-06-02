@@ -1,0 +1,68 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                 RENDER vs cPanel - SAME FILE STRUCTURE                    ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────┬─────────────────────────────────┐
+│     RENDER (main branch)        │   cPanel (production-cpanel)    │
+├─────────────────────────────────┼─────────────────────────────────┤
+│                                 │                                 │
+│  fagierrands-dev-backend/       │  fagierrands-dev-backend/       │
+│  ├── .env ◄──────────────────── │  ├── .env ◄─────────────────────┤
+│  │   DATABASE_URL=postgres://.. │  │   DB_NAME=distinc3_...       │
+│  │                               │  │   DB_USER=distinc3_...       │
+│  │                               │  │   DB_PASSWORD=Pa7swrd...     │
+│  │                               │  │                              │
+│  ├── settings.py ◄────────────── │  ├── settings.py ◄─────────────┤
+│  │   (auto-detects DATABASE_URL)│  │   (auto-detects DB_NAME)     │
+│  │                     SAME FILE │  │                   SAME FILE  │
+│  │                               │  │                              │
+│  ├── passenger_wsgi.py ◄──────── │  ├── passenger_wsgi.py ◄───────┤
+│  │                     SAME FILE │  │                   SAME FILE  │
+│  │                               │  │                              │
+│  ├── manage.py ◄──────────────── │  ├── manage.py ◄───────────────┤
+│  │                     SAME FILE │  │                   SAME FILE  │
+│  │                               │  │                              │
+│  ├── requirements.txt ◄───────── │  ├── requirements.txt ◄────────┤
+│  │                     SAME FILE │  │                   SAME FILE  │
+│  │                               │  │                              │
+│  ├── accounts/ ◄──────────────── │  ├── accounts/ ◄───────────────┤
+│  │   ├── models.py    SAME FILES│  │   ├── models.py    SAME FILES│
+│  │   ├── views.py               │  │   ├── views.py               │
+│  │   └── ...                    │  │   └── ...                    │
+│  │                               │  │                              │
+│  ├── orders/ ◄────────────────── │  ├── orders/ ◄─────────────────┤
+│  │   ├── models.py    SAME FILES│  │   ├── models.py    SAME FILES│
+│  │   ├── views_payment_ncba.py  │  │   ├── views_payment_ncba.py  │
+│  │   └── ...                    │  │   └── ...                    │
+│  │                               │  │                              │
+│  └── [all other apps] ◄───────── │  └── [all other apps] ◄────────┤
+│                        SAME FILES│                       SAME FILES│
+│                                 │                                 │
+└─────────────────────────────────┴─────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────────┐
+│                     HOW AUTO-DETECTION WORKS                      │
+├───────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  settings.py:                                                     │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ database_url = os.getenv('DATABASE_URL')                │    │
+│  │                                                          │    │
+│  │ if not database_url:  ◄─── cPanel (no DATABASE_URL)     │    │
+│  │     use DB_NAME, DB_USER, DB_PASSWORD                   │    │
+│  │                                                          │    │
+│  │ elif database_url.startswith('postgresql'):             │    │
+│  │     use DATABASE_URL  ◄─── Render (has DATABASE_URL)    │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                   │
+└───────────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                            RESULT                                 ║
+╠═══════════════════════════════════════════════════════════════════╣
+║  ✓ SAME file names on both platforms                             ║
+║  ✓ SAME folder structure on both platforms                       ║
+║  ✓ SAME code in all files (except .env content)                  ║
+║  ✓ SAME commands work on both (python manage.py ...)             ║
+║  ✓ ONE codebase maintained, TWO platforms supported              ║
+╚═══════════════════════════════════════════════════════════════════╝
