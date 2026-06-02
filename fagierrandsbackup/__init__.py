@@ -1,4 +1,3 @@
-# Celery disabled for cPanel deployment
-# from .celery_app import app as celery_app
+# Django app initialization
+# Celery import disabled for cPanel deployment (no Redis available)
 
-__all__ = ()
