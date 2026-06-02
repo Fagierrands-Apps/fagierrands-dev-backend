@@ -1,5 +1,5 @@
-PassengerAppRoot "/home3/distinc3/api.errandserver.fagierrands.com"
+PassengerAppRoot "/home3/distinc3/fagierrands.backend"
 PassengerBaseURI "/"
-PassengerPython "/home3/distinc3/virtualenv/api.errandserver.fagierrands.com/3.11/bin/python3.11"
+PassengerPython "/home3/distinc3/virtualenv/fagierrands.backend/3.11/bin/python3.11"
 PassengerAppLogFile "/home3/distinc3/logs/api.errandserver.fagierrands.com.error.log"
 PassengerEnabled On
