@@ -935,10 +935,7 @@ class InitiatePaymentSerializer(serializers.ModelSerializer):
         
         # Check if order exists and has a valid status for payment
         order = data['order']
-        valid_statuses = ['payment_pending', 'completed', 'in_transit', 'assigned', 'In Progress', 'pending']
-        
-        # Print debug information
-        print(f"Order ID: {order.id}, Status: {order.status}, Valid statuses: {valid_statuses}")
+        valid_statuses = ['PaymentPending', 'Draft']
         
         if order.status not in valid_statuses:
             raise serializers.ValidationError({"order": f"Payment can only be initiated for orders with valid status. Current status: {order.status}"})
