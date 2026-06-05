@@ -55,11 +55,11 @@ def process_ncba_stk_push(payment):
         
         logger.info(f"Original Amount: {amount_to_charge}, Rounded Amount: {final_amount_to_charge}")
         
-        # Initiate STK Push via NCBA
+        # Initiate STK Push via NCBA (use Till number as account)
         response = ncba_service.initiate_stk_push(
             phone_number=phone_number,
             amount=final_amount_to_charge,
-            account_no=f"Order-{payment.order.id}"
+            account_no=ncba_service.till_no
         )
         
         logger.info(f"NCBA STK Push response: {json.dumps(response, indent=2)}")

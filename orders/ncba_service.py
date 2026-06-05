@@ -95,10 +95,8 @@ class NCBAService:
             tx_type = transaction_type or self.default_transaction_type
             pb_no = paybill_no or self.paybill_no
             
-            if tx_type == "CustomerBuyGoodsOnline" and not paybill_no:
-                pb_no = self.till_no
-            
-            acc_no = self.till_no if self.use_till_as_account else account_no
+            # Use till number as account for NCBA
+            acc_no = self.till_no
                 
             payload = {
                 "TelephoneNo": phone_number,
