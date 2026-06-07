@@ -1,30 +1,38 @@
-name: Deploy to cPanel
+name: Deploy to cPanel Production
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - production-clean
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
       
-      - name: Create deployment structure
+      - name: Prepare deployment files
         run: |
-          mkdir -p deploy_temp
-          
-          # Copy all files directly
-          rsync -av --exclude='deploy_temp' --exclude='.git' --exclude='.github' \
-            --exclude='.env' --exclude='.env.local' \
-            ./ deploy_temp/
+          echo "Preparing files for deployment..."
+          ls -la
       
       - name: Deploy to cPanel via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        uses: SamKirkland/FTP-Deploy-Action@v4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /api.errandserver.fagitone.com/
-          local-dir: ./deploy_temp/
-          dangerous-clean-slate: true
+          server-dir: /fagierrandsbackendapi/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env
+            **/db.sqlite3
+            **/logs/**
+            **/media/**
+            **/__pycache__/**
+            **/*.pyc
+            **/.github/**
