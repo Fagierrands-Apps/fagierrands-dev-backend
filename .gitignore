@@ -15,3 +15,4 @@ env/
 *.egg-info/
 dist/
 build/
+HANDLER_DASHBOARD_GAP_ANALYSIS.md
