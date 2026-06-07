@@ -1,43 +1,48 @@
 from django.contrib import admin
 from .models import (
-    DailyMetrics, 
-    CustomerSatisfaction, 
-    UserRetention, 
-    ServicePerformance, 
-    AdvertisementMetrics
+    DailyMetrics, UserRetention, ServicePerformance,
+    CustomerSatisfaction, AdvertisementMetrics
 )
+
 
 @admin.register(DailyMetrics)
 class DailyMetricsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'total_users', 'new_users', 'active_users', 'total_orders', 'new_orders', 'total_revenue')
+    list_display = ('date', 'total_orders', 'completed_orders', 'total_revenue', 'new_users', 'active_users')
     list_filter = ('date',)
+    search_fields = ('date',)
     date_hierarchy = 'date'
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at',)
 
-@admin.register(CustomerSatisfaction)
-class CustomerSatisfactionAdmin(admin.ModelAdmin):
-    list_display = ('date', 'nps_score', 'avg_rating', 'total_reviews', 'positive_feedback', 'negative_feedback')
-    list_filter = ('date',)
-    date_hierarchy = 'date'
-    readonly_fields = ('created_at', 'updated_at')
 
 @admin.register(UserRetention)
 class UserRetentionAdmin(admin.ModelAdmin):
-    list_display = ('cohort_date', 'cohort_size', 'week_1_retention', 'month_1_retention', 'month_3_retention')
-    list_filter = ('cohort_date',)
-    date_hierarchy = 'cohort_date'
-    readonly_fields = ('created_at', 'updated_at')
+    list_display = ('date', 'cohort_month', 'users_count', 'retention_rate')
+    list_filter = ('date', 'cohort_month')
+    date_hierarchy = 'date'
+    readonly_fields = ('created_at',)
+
 
 @admin.register(ServicePerformance)
 class ServicePerformanceAdmin(admin.ModelAdmin):
-    list_display = ('date', 'service_type', 'total_orders', 'completed_orders', 'total_revenue', 'avg_rating')
+    list_display = ('date', 'service_type', 'total_orders', 'avg_rating', 'revenue')
     list_filter = ('date', 'service_type')
+    search_fields = ('service_type',)
     date_hierarchy = 'date'
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at',)
+
+
+@admin.register(CustomerSatisfaction)
+class CustomerSatisfactionAdmin(admin.ModelAdmin):
+    list_display = ('date', 'avg_rating', 'total_reviews', 'positive_reviews', 'negative_reviews')
+    list_filter = ('date',)
+    date_hierarchy = 'date'
+    readonly_fields = ('created_at',)
+
 
 @admin.register(AdvertisementMetrics)
 class AdvertisementMetricsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'impressions', 'clicks', 'revenue', 'ctr', 'cpm')
-    list_filter = ('date',)
+    list_display = ('date', 'platform', 'impressions', 'clicks', 'conversions', 'cost', 'revenue')
+    list_filter = ('date', 'platform')
+    search_fields = ('platform',)
     date_hierarchy = 'date'
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at',)

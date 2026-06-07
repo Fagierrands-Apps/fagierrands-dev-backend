@@ -1,103 +1,69 @@
+"""
+Accounts URLs - Authentication endpoints
+"""
+
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
-from .availability_views import AssistantAvailabilityView
-from .password_reset_views import (
-    RequestPasswordResetView,
-    VerifyPasswordResetOTPView,
-    ResetPasswordView
-)
-from .password_reset_v1 import (
-    RequestPasswordResetV1,
-    ResetPasswordV1
+from .views_handler import (
+    handler_get_clients, handler_assign_client, handler_create_order_for_client,
+    handler_confirm_order_for_client, handler_get_client_orders,
+    handler_cancel_order, handler_dashboard_stats,
+    list_handlers, handler_detail, verify_handler, available_handlers, handler_stats
 )
 
 urlpatterns = [
-    # Standard authentication
-    path('register/', views.RegisterView.as_view(), name='register'),
-    path('verify-phone/', views.verify_phone, name='verify_phone'),
-    path('resend-otp/', views.resend_otp, name='resend_otp'),
-    path('login/', views.LoginView.as_view(), name='login'),
-    path('simple-login/', views.simple_login, name='simple_login'),  # Simple login endpoint
-    path('debug/', views.debug_info, name='debug_info'),  # Debug endpoint
-    path('token/', views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('logout/', views.LogoutView.as_view(), name='logout'),
-
-    # Password reset (phone OTP) - OLD (deprecated)
-    path('password-reset/request/', RequestPasswordResetView.as_view(), name='request_password_reset'),
-    path('password-reset/verify-otp/', VerifyPasswordResetOTPView.as_view(), name='verify_password_reset_otp'),
-    path('password-reset/reset/', ResetPasswordView.as_view(), name='reset_password_final'),
+    # Handler Dashboard Endpoints (NEW)
+    path('handlers/', list_handlers, name='list-handlers'),  # GET /api/accounts/handlers/
+    path('handlers/<int:handler_id>/', handler_detail, name='handler-detail'),  # GET /api/accounts/handlers/{id}/
+    path('handlers/<int:handler_id>/verify/', verify_handler, name='verify-handler'),  # PATCH /api/accounts/handlers/{id}/verify/
+    path('handlers/available/', available_handlers, name='available-handlers'),  # GET /api/accounts/handlers/available/
+    path('handlers/stats/', handler_stats, name='handlers-stats'),  # GET /api/accounts/handlers/stats/
     
-    # Password reset v1 (NEW - Clean 2-step process)
-    path('v1/password-reset/request/', RequestPasswordResetV1.as_view(), name='password_reset_v1_request'),
-    path('v1/password-reset/reset/', ResetPasswordV1.as_view(), name='password_reset_v1_reset'),
+    # Authentication
+    path('register/', views.register, name='register'),
+    path('verify-phone/', views.verify_phone, name='verify-phone'),
+    path('resend-otp/', views.resend_otp, name='resend-otp'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('logout', views.logout, name='logout-no-slash'),  # Mobile app compatibility
+    path('token/', views.CustomTokenObtainPairView.as_view(), name='token'),
+    path('token/refresh/', views.CustomTokenRefreshView.as_view(), name='token-refresh'),
     
-    # Supabase integration endpoints
-    path('supabase/create-user/', views.supabase_user_creation, name='supabase_user_creation'),
-    path('supabase/webhook/', views.supabase_auth_webhook, name='supabase_auth_webhook'),
-    path('supabase/validate-token/', views.validate_supabase_token, name='validate_supabase_token'),
+    # Password Management
+    path('v1/password-reset/request/', views.password_reset_request, name='password-reset-request'),
+    path('password-reset/request/', views.password_reset_request, name='password-reset-request-alias'),  # App compatibility
+    path('v1/password-reset/reset/', views.password_reset, name='password-reset'),
+    path('password-reset/reset/', views.password_reset, name='password-reset-alias'),  # App compatibility
+    path('change-password/', views.change_password, name='change-password'),
     
-    # User and profile management
-    path('user/', views.UserDetailView.as_view(), name='user_detail'),
-    path('user/<int:pk>/', views.UserByIdView.as_view(), name='user_by_id'),
-    path('profile/', views.ProfileView.as_view(), name='user_profile'),
-    path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
+    # User Profile
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('user/', views.user_detail, name='user-detail'),
+    path('user/list/', views.user_list, name='user-list'),
     
-    # Email verification (legacy)
-    path('verify-email/<uuid:token>/', views.EmailVerificationView.as_view(), name='verify_email'),
-    path('verify-email-otp/', views.VerifyEmailOTPView.as_view(), name='verify_email_otp'),
-    path('resend-verification/', views.ResendVerificationEmailView.as_view(), name='resend_verification'),
-    path('supabase/resend-verification/', views.SupabaseResendVerificationView.as_view(), name='supabase_resend_verification'),
-    path('supabase/verify-otp/', views.supabase_verify_otp, name='supabase_verify_otp'),
-    path('custom/resend-verification/', views.custom_resend_verification, name='custom_resend_verification'),
-    path('check-email-verification/', views.CheckEmailVerificationView.as_view(), name='check_email_verification'),
+    # Rider/Assistant Endpoints
+    path('assistant/verify/', views.submit_verification, name='submit-verification'),
+    path('assistant/verification-status/', views.assistant_verification_status, name='verification-status'),
+    path('assistant/dashboard-stats/', views.assistant_dashboard_stats, name='assistant-stats'),
+    path('assistant/availability/', views.assistant_availability, name='assistant-availability'),
+    path('assistants/stats/', views.assistants_stats, name='assistants-stats'),
     
-    # OTP verification (new)
-    path('send-otp/', views.SendOTPView.as_view(), name='send_otp'),
-    path('verify-otp/', views.VerifyOTPView.as_view(), name='verify_otp'),
-    path('resend-otp/', views.ResendOTPView.as_view(), name='resend_otp'),
-    path('otp-status/', views.OTPStatusView.as_view(), name='otp_status'),
+    # Admin - Verification Management
+    path('admin/verifications/', views.admin_verifications_list, name='admin-verifications'),
+    path('admin/verifications/<int:id>/', views.admin_verification_detail, name='admin-verification-detail'),
+    path('admin/verifications/<int:id>/update/', views.admin_verification_update, name='admin-verification-update'),
     
-    # SMTP-based email verification (no domain restrictions)
-    path('smtp/send-otp/', views.SMTPSendOTPView.as_view(), name='smtp_send_otp'),
-    path('smtp/verify-otp/', views.SMTPVerifyOTPView.as_view(), name='smtp_verify_otp'),
-
-    # Assistant list API endpoint for handlers/admins
-    path('user/list/', views.AssistantListView.as_view(), name='assistant_list'),
-    path('assistants/stats/', views.AssistantStatsView.as_view(), name='assistant_stats'),
+    # Handler Endpoints - Client Management
+    path('handler/clients/', handler_get_clients, name='handler-clients'),
+    path('handler/dashboard-stats/', handler_dashboard_stats, name='handler-dashboard-stats'),
+    path('user/<int:user_id>/assign-account-manager/', handler_assign_client, name='assign-account-manager'),
     
-    # Individual assistant dashboard stats
-    path('assistant/dashboard-stats/', views.AssistantDashboardStatsView.as_view(), name='assistant_dashboard_stats'),
+    # Handler Endpoints - Order Management
+    path('handler/orders/create-for-client/', handler_create_order_for_client, name='handler-create-order'),
+    path('handler/orders/<int:order_id>/confirm/', handler_confirm_order_for_client, name='handler-confirm-order'),
+    path('handler/orders/<int:order_id>/cancel/', handler_cancel_order, name='handler-cancel-order'),
+    path('handler/clients/<int:client_id>/orders/', handler_get_client_orders, name='handler-client-orders'),
     
-    # Assistant verification URLs
-    path('assistant/verify/', 
-         views.AssistantVerificationAPIView.as_view(), 
-         name='assistant_verification'),
-    
-    path('assistant/verification-status/', 
-         views.VerificationStatusView.as_view(), 
-         name='verification_status'),
-    
-    # Admin verification management URLs
-    path('admin/verifications/', 
-         views.AssistantVerificationListView.as_view(), 
-         name='verification_list'),
-    
-    path('admin/verifications/<int:pk>/', 
-         views.AssistantVerificationDetailView.as_view(), 
-         name='verification_detail'),
-    
-    path('admin/verifications/<int:pk>/update/', 
-         views.AssistantVerificationUpdateView.as_view(), 
-         name='verification_update'),
-
-    # Assistant self-availability endpoint
-    path('assistant/availability/', AssistantAvailabilityView.as_view(), name='assistant_availability'),
-    
-    # Handler clients endpoint
-    path('handler/clients/', views.HandlerClientsView.as_view(), name='handler_clients'),
-    
-    # Account manager assignment
-    path('user/<int:pk>/assign-account-manager/', views.AssignAccountManagerView.as_view(), name='assign_account_manager'),
+    # Admin Only
+    path('admin/users/<int:user_id>/change-type/', views.admin_change_user_type, name='admin-change-user-type'),
 ]

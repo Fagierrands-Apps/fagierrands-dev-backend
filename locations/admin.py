@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Location, UserLocation
 
+
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('user', 'name', 'address', 'is_default', 'created_at')
@@ -8,8 +9,10 @@ class LocationAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'name', 'address')
     date_hierarchy = 'created_at'
 
+
 @admin.register(UserLocation)
 class UserLocationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'latitude', 'longitude', 'last_updated')
+    list_display = ('user', 'latitude', 'longitude', 'updated_at')
     search_fields = ('user__username',)
-    date_hierarchy = 'last_updated'
+    date_hierarchy = 'updated_at'
+

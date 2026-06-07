@@ -1,6 +1,8 @@
 """
-NCBA Till API Payment Views
-Replaces legacy M-Pesa integration
+⚠️⚠️⚠️ CRITICAL PAYMENT VIEWS - DO NOT MODIFY ⚠️⚠️⚠️
+This module handles real money transactions with NCBA.
+Working configuration verified: June 5, 2026
+See: /orders/PAYMENT_SYSTEM_WARNING.py for details
 """
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -55,11 +57,11 @@ def process_ncba_stk_push(payment):
         
         logger.info(f"Original Amount: {amount_to_charge}, Rounded Amount: {final_amount_to_charge}")
         
-        # Initiate STK Push via NCBA (use Till number as account)
+        # Initiate STK Push via NCBA
         response = ncba_service.initiate_stk_push(
             phone_number=phone_number,
             amount=final_amount_to_charge,
-            account_no=ncba_service.till_no
+            account_no=ncba_service.till_no  # Use till number as account
         )
         
         logger.info(f"NCBA STK Push response: {json.dumps(response, indent=2)}")
@@ -148,9 +150,31 @@ class InitiatePaymentView(generics.CreateAPIView):
                 logger.info(f"Found order: {order.id}, status: {order.status}")
                 
                 # Check if the order belongs to the current user
-                if order.client != request.user and not request.user.is_staff:
+                if order.user != request.user and not request.user.is_staff:
                     return Response({'error': 'You do not have permission to initiate payment for this order'}, 
                                    status=status.HTTP_403_FORBIDDEN)
+                
+                # RECALCULATE PRICE FROM ORDER COORDINATES (ignore app's cached price)
+                from core.utils import calculate_distance, calculate_parcel_price, calculate_cargo_price
+                distance_km = calculate_distance(
+                    float(order.pickup_lat), float(order.pickup_lng),
+                    float(order.delivery_lat), float(order.delivery_lng)
+                )
+                
+                order_type_code = order.order_type.code if order.order_type else 'parcel'
+                if order_type_code == 'cargo':
+                    pricing = calculate_cargo_price(distance_km)
+                else:
+                    pricing = calculate_parcel_price(distance_km)
+                
+                # Update order with fresh price
+                order.distance_km = distance_km
+                order.base_price = pricing.get('base_price', 200)
+                order.total_price = pricing.get('total_price', 200)
+                order.save(update_fields=['distance_km', 'base_price', 'total_price'])
+                
+                logger.info(f"Recalculated order {order.id} price: {order.total_price}")
+                
             except Order.DoesNotExist:
                 return Response({'error': f'Order with ID {order_id} not found'}, 
                                status=status.HTTP_404_NOT_FOUND)
@@ -257,7 +281,7 @@ class PaymentStatusView(generics.RetrieveAPIView):
             payment = Payment.objects.get(id=payment_id)
             
             # Then check if it belongs to the current user
-            if payment.order.client != self.request.user:
+            if payment.order.user != self.request.user:
                 self.permission_denied(
                     self.request,
                     message="You do not have permission to view this payment."
@@ -285,7 +309,7 @@ class NCBAPaymentView(APIView):
             logger.info(f"Found payment: ID={payment.id}, Status={payment.status}, Method={payment.payment_method}")
             
             # Check if the payment belongs to the current user
-            if payment.order.client != request.user:
+            if payment.order.user != request.user:
                 return Response({
                     'status': 'error',
                     'message': 'You do not have permission to process this payment.'
@@ -494,11 +518,11 @@ class OrderPaymentStatusView(APIView):
             
             order = get_object_or_404(Order, id=order_id)
             
-            if order.client != request.user:
+            if order.user != request.user:
                 return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
             
             # Check regular payments first
-            payment = Payment.objects.filter(order=order).order_by('-payment_date').first()
+            payment = Payment.objects.filter(order=order).order_by('-created_at').first()
             if payment:
                 # Polling logic for NCBA
                 if payment.status == 'Processing' and payment.mpesa_checkout_request_id:
@@ -555,6 +579,11 @@ class OrderPaymentStatusView(APIView):
             })
             
         except Exception as e:
+            import traceback
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Payment status error for order {order_id}: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -570,7 +599,7 @@ class PaymentCancellationView(APIView):
             payment = get_object_or_404(Payment, id=payment_id)
             
             # Check if the payment belongs to the current user's order
-            if payment.order.client != request.user:
+            if payment.order.user != request.user:
                 return Response({
                     'error': 'You do not have permission to cancel this payment.'
                 }, status=status.HTTP_403_FORBIDDEN)

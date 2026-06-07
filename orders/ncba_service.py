@@ -1,5 +1,9 @@
 """
+⚠️⚠️⚠️ CRITICAL NCBA SERVICE - DO NOT MODIFY ⚠️⚠️⚠️
 NCBA Till STK Push & Dynamic QR Code API Integration Service
+Working configuration verified: June 5, 2026
+Account format: Till 852054 under Paybill 880100
+See: /orders/PAYMENT_SYSTEM_WARNING.py for details
 """
 import requests
 import base64
@@ -95,8 +99,11 @@ class NCBAService:
             tx_type = transaction_type or self.default_transaction_type
             pb_no = paybill_no or self.paybill_no
             
-            # Use till number as account for NCBA
-            acc_no = self.till_no
+            if tx_type == "CustomerBuyGoodsOnline" and not paybill_no:
+                pb_no = self.till_no
+            
+            # Use the provided account_no directly (should be till number)
+            acc_no = account_no
                 
             payload = {
                 "TelephoneNo": phone_number,
