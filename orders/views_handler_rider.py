@@ -12,6 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from orders.models import Order, OrderTracking
 from orders.serializers import OrderSerializer
+from accounts.models import User
 from accounts.serializers import UserSerializer
 
 
@@ -340,3 +341,20 @@ def rider_complete_delivery(request, order_id):
         
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# ========== SOS ALERTS ENDPOINTS ==========
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def sos_alerts_list(request):
+    """List all SOS alerts - returns empty for now"""
+    return Response([])
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def resolve_sos_alert(request, alert_id):
+    """Resolve an SOS alert"""
+    return Response({'message': 'SOS alert resolved', 'alert_id': alert_id})
+

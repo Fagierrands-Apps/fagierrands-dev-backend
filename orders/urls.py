@@ -5,7 +5,8 @@ from .views_handler import list_orders, assign_order, order_stats
 from .views_handler_rider import (
     handler_all_orders, handler_pending_orders, handler_assign_order,
     rider_available_orders, rider_my_orders, rider_order_history,
-    rider_accept_order, rider_update_status, rider_start_delivery, rider_complete_delivery
+    rider_accept_order, rider_update_status, rider_start_delivery, rider_complete_delivery,
+    sos_alerts_list, resolve_sos_alert
 )
 from .views_payment_ncba import (
     InitiatePaymentView, PaymentStatusView, NCBAPaymentView,
