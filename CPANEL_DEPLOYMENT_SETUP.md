@@ -37,13 +37,21 @@ Add these secrets:
 
 ### 3. Deployment Directory
 
-**Current Setting:**
+**Current Setting (TEST FOLDER):**
 ```yaml
-server-dir: /fagierrandsbackendapi/
+server-dir: /xxxdx/
 ```
 
 **Full Path on Server:**
-`/home3/distinc3/fagierrandsbackendapi/`
+`/home3/distinc3/xxxdx/`
+
+⚠️ **This is a TEST deployment folder. Production folder is `/fagierrandsbackendapi/`**
+
+**Once verified working:**
+1. Test all files deployed correctly to `/xxxdx/`
+2. Verify workflow runs without errors
+3. Change `server-dir: /xxxdx/` to `server-dir: /fagierrandsbackendapi/`
+4. Push to deploy to actual production
 
 ### 4. Protected Files (Won't be overwritten)
 
