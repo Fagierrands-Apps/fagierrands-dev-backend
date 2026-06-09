@@ -10,7 +10,10 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from app.views import home_view
+from django.http import JsonResponse
+
+def home_view(request):
+    return JsonResponse({'message': 'Fagierrands API', 'version': 'v1'})
 
 # API Documentation
 schema_view = get_schema_view(
@@ -39,7 +42,6 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
     # API Endpoints
-    path('api/app/', include('app.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/orders/', include('orders.urls')),
     path('api/locations/', include('locations.urls')),

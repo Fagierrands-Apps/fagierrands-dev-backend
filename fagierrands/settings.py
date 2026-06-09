@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'channels',
     
     # Local apps
-    'app',
     'accounts',
     'orders',
     'locations',
@@ -57,7 +56,6 @@ AUTH_USER_MODEL = 'accounts.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'middleware_request_logger.RequestBodyLoggerMiddleware',  # LOG ALL REQUESTS
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
