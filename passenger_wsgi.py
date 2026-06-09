@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 # Set the Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrandsbackendapi.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrands.settings')
 
 # Import Django's WSGI application
 from django.core.wsgi import get_wsgi_application
