@@ -655,10 +655,17 @@ def user_list(request):
     if request.user.user_type not in ['admin', 'handler']:
         return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
     
-    users = User.objects.all()
+    users = User.objects.all().order_by('-date_joined')
     user_type = request.query_params.get('user_type')
     if user_type:
         users = users.filter(user_type=user_type)
+    
+    # Pagination
+    page = int(request.query_params.get('page', 1))
+    page_size = int(request.query_params.get('page_size', 20))
+    start = (page - 1) * page_size
+    end = start + page_size
+    total = users.count()
     
     data = [{
         'id': u.id,
@@ -669,9 +676,15 @@ def user_list(request):
         'user_type': u.user_type,
         'is_verified': u.is_verified,
         'is_active': u.is_active,
-    } for u in users]
+    } for u in users[start:end]]
     
-    return Response(data)
+    return Response({
+        'results': data,
+        'count': total,
+        'page': page,
+        'page_size': page_size,
+        'total_pages': (total + page_size - 1) // page_size
+    })
 
 # Admin-only endpoint to change user types
 @swagger_auto_schema(
