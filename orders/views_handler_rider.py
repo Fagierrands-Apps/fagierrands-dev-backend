@@ -82,9 +82,8 @@ def handler_pending_orders(request):
         return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     if request.user.user_type == 'handler':
-        # Handler sees only their clients' orders
-        client_ids = User.objects.filter(account_manager=request.user).values_list('id', flat=True)
-        orders = Order.objects.filter(user_id__in=client_ids, status='Pending')
+        # Handler sees all pending orders
+        orders = Order.objects.filter(status='Pending')
     else:
         # Admin sees all
         orders = Order.objects.filter(status='Pending')
