@@ -27,6 +27,7 @@ class Order(models.Model):
         ('Draft', 'Draft'),
         ('Pending', 'Pending'),
         ('Assigned', 'Assigned'),
+        ('Queued', 'Queued'),
         ('InTransit', 'In Transit'),
         ('PaymentPending', 'Payment Pending'),
         ('Completed', 'Completed'),
@@ -81,6 +82,7 @@ class Order(models.Model):
     
     # Status
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
+    queue_position = models.IntegerField(null=True, blank=True)  # 0=active, 1-2=queued
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

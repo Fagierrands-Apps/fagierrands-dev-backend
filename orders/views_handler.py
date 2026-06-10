@@ -52,27 +52,53 @@ def list_orders(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def assign_order(request, order_id):
-    """Assign order to a rider"""
+    """Assign order to a rider with queue management (max 3: 1 active + 2 queued)"""
     try:
         order = Order.objects.get(id=order_id)
-        rider_id = request.data.get('rider_id')
+        rider_id = request.data.get('rider_id') or request.data.get('assistant_id')
         
         if not rider_id:
-            return Response({'error': 'rider_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'rider_id or assistant_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         rider = User.objects.get(id=rider_id, user_type='handler')
         
+        # Count rider's active orders (not Completed/Cancelled)
+        active_orders = Order.objects.filter(
+            assistant=rider
+        ).exclude(
+            status__in=['Completed', 'Cancelled']
+        ).order_by('queue_position')
+        
+        active_count = active_orders.count()
+        
+        # Check max limit (3 orders: 1 active + 2 queued)
+        if active_count >= 3:
+            return Response({
+                'error': 'Rider has reached maximum capacity (3 orders)',
+                'active_orders': active_count
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Assign order
         order.assistant = rider
-        order.status = 'assigned'
         order.assigned_at = timezone.now()
+        
+        # Determine status and queue position
+        if active_count == 0:
+            order.status = 'Assigned'
+            order.queue_position = 0
+        else:
+            order.status = 'Queued'
+            order.queue_position = active_count
+        
         order.save()
         
-        # Send notification to rider (optional)
+        # Send notification to rider
         from core.sms_service import send_sms
         try:
             phone = rider.phone_number.replace('+', '')
             short_order_id = str(order.id)[-6:].zfill(6)
-            message = f"New order #{short_order_id} assigned to you! From: {order.pickup_address}. To: {order.delivery_address}. Amount: KES {order.total_price}"
+            position_text = f"Position {order.queue_position + 1}" if order.queue_position > 0 else "Active now"
+            message = f"New order #{short_order_id} assigned! {position_text}. From: {order.pickup_address}. KES {order.total_price}"
             send_sms(phone, message)
         except:
             pass
@@ -81,7 +107,9 @@ def assign_order(request, order_id):
             'message': 'Order assigned successfully',
             'order_id': order.id,
             'rider_name': rider.get_full_name(),
-            'status': order.status
+            'status': order.status,
+            'queue_position': order.queue_position,
+            'rider_orders_count': active_count + 1
         })
         
     except Order.DoesNotExist:
