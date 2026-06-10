@@ -60,7 +60,7 @@ def assign_order(request, order_id):
         if not rider_id:
             return Response({'error': 'rider_id or assistant_id is required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        rider = User.objects.get(id=rider_id, user_type='handler')
+        rider = User.objects.get(id=rider_id, user_type='assistant')
         
         # Count rider's active orders (not Completed/Cancelled)
         active_orders = Order.objects.filter(
