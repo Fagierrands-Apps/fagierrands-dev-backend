@@ -14,6 +14,12 @@ class CustomUserAdmin(UserAdmin):
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'phone_number', 'email', 'password1', 'password2', 'user_type'),
+        }),
+    )
     list_display = ('username', 'email', 'first_name', 'last_name', 'user_type', 'is_verified', 'is_staff')
     list_filter = ('user_type', 'is_verified', 'is_staff', 'is_superuser', 'is_active')
     search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number')
