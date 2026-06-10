@@ -50,7 +50,6 @@ urlpatterns = [
     # User order endpoints
     path('create/', views.create_order, name='create-order'),
     path('my-orders/', views.my_orders, name='my-orders'),
-    path('<int:order_id>/', views.order_detail, name='order-detail'),
     path('<int:order_id>/cancel/', views.cancel_order, name='cancel-order'),
     path('<int:order_id>/tracking/', views.order_tracking, name='order-tracking'),
     path('<int:order_id>/rate/', views.rate_order, name='rate-order'),
