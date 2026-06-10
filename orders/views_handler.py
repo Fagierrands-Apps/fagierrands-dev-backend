@@ -159,19 +159,13 @@ def create_order_for_client(request):
         if not client_phone:
             return Response({'error': 'client_phone is required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Find or create client
+        # Find existing client only - don't create new ones
         try:
             client = User.objects.get(phone_number=client_phone)
             if client.user_type != 'client':
-                return Response({'error': 'Phone number belongs to non-client user'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'User is not a client'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
-            # Create new client
-            client = User.objects.create_user(
-                phone_number=client_phone,
-                first_name=request.data.get('client_name', 'Client'),
-                user_type='client',
-                is_phone_verified=True
-            )
+            return Response({'error': 'Client not found. Client must register first.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create order
         order = Order.objects.create(
