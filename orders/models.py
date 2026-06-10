@@ -82,7 +82,7 @@ class Order(models.Model):
     
     # Status
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
-    queue_position = models.IntegerField(null=True, blank=True)  # 0=active, 1-2=queued
+    # queue_position = models.IntegerField(null=True, blank=True)  # 0=active, 1-2=queued  # TODO: Run migration first
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
