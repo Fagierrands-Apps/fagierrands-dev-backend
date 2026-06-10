@@ -16,6 +16,7 @@ from .views_payment_ncba import (
 urlpatterns = [
     # Handler Dashboard Endpoints (NEW)
     path('', list_orders, name='list-orders'),  # GET /api/orders/
+    path('<int:order_id>/', views.order_detail, name='order-detail'),  # GET /api/orders/{id}/
     path('<int:order_id>/assign/', assign_order, name='assign-order'),  # POST /api/orders/{id}/assign/
     path('stats/', order_stats, name='order-stats'),  # GET /api/orders/stats/
     
