@@ -43,9 +43,8 @@ def handler_all_orders(request):
     client_id = request.query_params.get('client_id')
     
     if request.user.user_type == 'handler':
-        # Handler sees only their clients' orders
-        client_ids = User.objects.filter(account_manager=request.user).values_list('id', flat=True)
-        orders = Order.objects.filter(user_id__in=client_ids)
+        # Handler sees all orders (no account_manager field exists)
+        orders = Order.objects.all()
     else:
         # Admin sees all orders
         orders = Order.objects.all()
