@@ -43,15 +43,27 @@ except User.DoesNotExist:
     )
 
 # Get or create locations
-pickup, _ = Location.objects.get_or_create(
-    name='Westlands Mall',
-    defaults={'address': 'Westlands, Nairobi', 'latitude': -1.2676, 'longitude': 36.8078}
-)
+try:
+    pickup = Location.objects.get(name='Westlands Mall', user=customer)
+except Location.DoesNotExist:
+    pickup = Location.objects.create(
+        user=customer,
+        name='Westlands Mall',
+        address='Westlands, Nairobi',
+        latitude=-1.2676,
+        longitude=36.8078
+    )
 
-dropoff, _ = Location.objects.get_or_create(
-    name='Karen Shopping Center',
-    defaults={'address': 'Karen, Nairobi', 'latitude': -1.3197, 'longitude': 36.7070}
-)
+try:
+    dropoff = Location.objects.get(name='Karen Shopping Center', user=customer)
+except Location.DoesNotExist:
+    dropoff = Location.objects.create(
+        user=customer,
+        name='Karen Shopping Center',
+        address='Karen, Nairobi',
+        latitude=-1.3197,
+        longitude=36.7070
+    )
 
 errands = [
     {'status': 'cancelled', 'description': 'Deliver documents - Cancelled'},
