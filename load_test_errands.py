@@ -18,25 +18,29 @@ from locations.models import Location
 User = get_user_model()
 
 # Get or create test users
-customer, _ = User.objects.get_or_create(
-    username='test_customer',
-    defaults={
-        'email': 'customer@test.com',
-        'phone_number': '254700000001',
-        'user_type': 'customer',
-        'is_verified': True
-    }
-)
+try:
+    customer = User.objects.get(phone_number='254700000001')
+except User.DoesNotExist:
+    customer = User.objects.create_user(
+        username='test_customer',
+        email='customer@test.com',
+        phone_number='254700000001',
+        password='Test@123',
+        user_type='customer',
+        is_verified=True
+    )
 
-handler, _ = User.objects.get_or_create(
-    username='test_handler',
-    defaults={
-        'email': 'handler@test.com',
-        'phone_number': '254700000002',
-        'user_type': 'handler',
-        'is_verified': True
-    }
-)
+try:
+    handler = User.objects.get(phone_number='254700000002')
+except User.DoesNotExist:
+    handler = User.objects.create_user(
+        username='test_handler',
+        email='handler@test.com',
+        phone_number='254700000002',
+        password='Test@123',
+        user_type='handler',
+        is_verified=True
+    )
 
 # Get or create locations
 pickup, _ = Location.objects.get_or_create(
