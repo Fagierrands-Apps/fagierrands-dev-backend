@@ -47,6 +47,10 @@ urlpatterns = [
     path('assistant/<int:order_id>/start/', rider_start_delivery, name='rider-start'),
     path('assistant/<int:order_id>/complete/', rider_complete_delivery, name='rider-complete'),
     
+    # SOS Alerts
+    path('sos-alerts/', sos_alerts_list, name='sos-alerts-list'),
+    path('sos-alerts/<int:alert_id>/resolve/', resolve_sos_alert, name='resolve-sos-alert'),
+    
     # User order endpoints
     path('create/', views.create_order, name='create-order'),
     path('my-orders/', views.my_orders, name='my-orders'),

@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from orders.models import Order
-from orders.serializers import OrderSerializer
+from orders.models import Order, SOSAlert
+from orders.serializers import OrderSerializer, SOSAlertSerializer
 from accounts.models import User
 
 
@@ -141,4 +141,3 @@ def order_stats(request):
         'total_revenue': Order.objects.filter(status='completed').aggregate(Sum('total_price'))['total_price__sum'] or 0,
     }
     
-    return Response(stats)

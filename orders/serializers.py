@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderTracking, OrderRating, Payment
+from .models import Order, OrderTracking, OrderRating, Payment, SOSAlert
 from accounts.serializers import UserSerializer
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -92,3 +92,16 @@ class InitiatePaymentSerializer(serializers.ModelSerializer):
         validated_data['final_amount'] = max(0, validated_data['amount'] - discount)
         
         return super().create(validated_data)
+
+
+
+class SOSAlertSerializer(serializers.ModelSerializer):
+    rider_name = serializers.SerializerMethodField()
+    rider_id = serializers.IntegerField(source='rider.id', read_only=True)
+    
+    class Meta:
+        model = SOSAlert
+        fields = ['id', 'rider_id', 'rider_name', 'order', 'alert_type', 'latitude', 'longitude', 'status', 'created_at']
+    
+    def get_rider_name(self, obj):
+        return obj.rider.get_full_name() if obj.rider else 'Unknown'

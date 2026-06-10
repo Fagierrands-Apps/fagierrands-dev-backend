@@ -358,13 +358,28 @@ def rider_complete_delivery(request, order_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def sos_alerts_list(request):
-    """List all SOS alerts - returns empty for now"""
-    return Response([])
+    """List all pending SOS alerts"""
+    from .models import SOSAlert
+    from .serializers import SOSAlertSerializer
+    
+    alerts = SOSAlert.objects.filter(status='pending').select_related('rider', 'order')
+    serializer = SOSAlertSerializer(alerts, many=True)
+    return Response(serializer.data)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def resolve_sos_alert(request, alert_id):
     """Resolve an SOS alert"""
-    return Response({'message': 'SOS alert resolved', 'alert_id': alert_id})
+    from .models import SOSAlert
+    from django.utils import timezone
+    
+    try:
+        alert = SOSAlert.objects.get(id=alert_id)
+        alert.status = 'resolved'
+        alert.resolved_at = timezone.now()
+        alert.save()
+        return Response({'message': 'SOS alert resolved successfully'})
+    except SOSAlert.DoesNotExist:
+        return Response({'error': 'SOS alert not found'}, status=404)
 

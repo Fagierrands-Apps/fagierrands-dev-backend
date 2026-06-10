@@ -82,7 +82,7 @@ class Order(models.Model):
     
     # Status
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
-    # queue_position = models.IntegerField(null=True, blank=True)  # 0=active, 1-2=queued  # TODO: Run migration first
+    queue_position = models.IntegerField(null=True, blank=True)  # 0=active, 1-2=queued
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -443,3 +443,26 @@ class TrackingLocationHistory(models.Model):
 
     def __str__(self):
         return f"Location at {self.timestamp}"
+
+
+class SOSAlert(models.Model):
+    """SOS Alert from riders"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('resolved', 'Resolved'),
+    ]
+    
+    rider = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sos_alerts')
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True, related_name='sos_alerts')
+    alert_type = models.CharField(max_length=50, default='emergency')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"SOS from {self.rider.get_full_name()} - {self.status}"
