@@ -718,7 +718,9 @@ def admin_change_user_type(request, user_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_assistants(request):
-    """List all verified assistants/riders"""
+    """List all verified assistants/riders with availability status"""
+    from orders.models import Order
+    
     assistants = User.objects.filter(
         user_type='assistant',
         assistant_verification__status='approved'
@@ -726,6 +728,20 @@ def list_assistants(request):
     
     data = []
     for assistant in assistants:
+        # Check if rider has active orders
+        active_orders = Order.objects.filter(
+            assistant=assistant,
+            status__in=['Pending', 'Assigned', 'InTransit']
+        ).count()
+        
+        # Check current order
+        current_order = Order.objects.filter(
+            assistant=assistant,
+            status='InTransit'
+        ).first()
+        
+        is_available = active_orders == 0
+        
         data.append({
             'id': assistant.id,
             'username': assistant.username,
@@ -736,6 +752,10 @@ def list_assistants(request):
             'is_verified': assistant.is_verified,
             'vehicle_type': assistant.assistant_verification.vehicle_type if hasattr(assistant, 'assistant_verification') else None,
             'vehicle_registration': assistant.assistant_verification.vehicle_registration if hasattr(assistant, 'assistant_verification') else None,
+            'is_available': is_available,
+            'active_orders_count': active_orders,
+            'current_order_number': current_order.order_number if current_order else None,
+            'status': 'Available' if is_available else 'On Delivery',
         })
     
     return Response(data)
