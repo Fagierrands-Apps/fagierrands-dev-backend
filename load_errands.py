@@ -40,32 +40,45 @@ dropoff = Location.objects.create(
 )
 
 errands = [
-    {'status': 'cancelled', 'desc': 'Cancelled delivery', 'handler': handler},
-    {'status': 'completed', 'desc': 'Groceries delivered', 'handler': handler},
-    {'status': 'completed', 'desc': 'Parcel delivered', 'handler': handler},
-    {'status': 'completed', 'desc': 'Documents delivered', 'handler': handler},
-    {'status': 'completed', 'desc': 'Prescription delivered', 'handler': handler},
-    {'status': 'completed', 'desc': 'Shopping delivered', 'handler': handler},
-    {'status': 'completed', 'desc': 'Package delivered', 'handler': handler},
-    {'status': 'in_transit', 'desc': 'Urgent delivery', 'handler': handler},
-    {'status': 'in_transit', 'desc': 'Food delivery', 'handler': handler},
-    {'status': 'pending', 'desc': 'Awaiting pickup', 'handler': None},
+    {'status': 'cancelled', 'desc': 'Cancelled grocery delivery'},
+    {'status': 'cancelled', 'desc': 'Cancelled document pickup'},
+    {'status': 'completed', 'desc': 'Groceries delivered'},
+    {'status': 'completed', 'desc': 'Parcel delivered'},
+    {'status': 'completed', 'desc': 'Documents delivered'},
+    {'status': 'completed', 'desc': 'Prescription delivered'},
+    {'status': 'completed', 'desc': 'Shopping delivered'},
+    {'status': 'completed', 'desc': 'Package delivered'},
+    {'status': 'completed', 'desc': 'Food delivery completed'},
+    {'status': 'completed', 'desc': 'Gift delivery completed'},
+    {'status': 'completed', 'desc': 'Books delivered'},
+    {'status': 'completed', 'desc': 'Electronics delivered'},
+    {'status': 'in_transit', 'desc': 'Urgent delivery in progress'},
+    {'status': 'in_transit', 'desc': 'Food delivery ongoing'},
+    {'status': 'in_transit', 'desc': 'Package on the way'},
+    {'status': 'in_transit', 'desc': 'Documents being delivered'},
+    {'status': 'pending', 'desc': 'Awaiting pickup - Groceries'},
+    {'status': 'pending', 'desc': 'Awaiting pickup - Documents'},
+    {'status': 'pending', 'desc': 'Awaiting pickup - Package'},
+    {'status': 'pending', 'desc': 'Awaiting pickup - Parcel'},
 ]
 
 for i, e in enumerate(errands, 1):
+    # Assign handler for non-pending errands
+    assigned_handler = handler if e['status'] != 'pending' else None
+    
     Order.objects.create(
         customer=customers[i % len(customers)],
-        handler=e['handler'],
+        handler=assigned_handler,
         pickup_location=pickup,
         dropoff_location=dropoff,
         description=e['desc'],
         status=e['status'],
         amount=Decimal(500 + i * 50),
-        created_at=datetime.now() - timedelta(days=10-i)
+        created_at=datetime.now() - timedelta(days=20-i)
     )
 
-print("✅ Loaded 10 errands:")
-print("  • 1 cancelled")
-print("  • 6 completed")
-print("  • 2 in_transit")
-print("  • 2 pending")
+print("✅ Loaded 20 errands:")
+print("  • 2 cancelled")
+print("  • 10 completed")
+print("  • 4 in_transit")
+print("  • 4 pending")
