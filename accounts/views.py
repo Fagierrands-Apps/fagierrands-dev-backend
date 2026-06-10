@@ -713,3 +713,29 @@ def admin_change_user_type(request, user_id):
         'message': f'User type changed to {new_type}',
         'user': UserSerializer(user).data
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_assistants(request):
+    """List all verified assistants/riders"""
+    assistants = User.objects.filter(
+        user_type='assistant',
+        assistant_verification__status='approved'
+    ).select_related('assistant_verification')
+    
+    data = []
+    for assistant in assistants:
+        data.append({
+            'id': assistant.id,
+            'username': assistant.username,
+            'first_name': assistant.first_name,
+            'last_name': assistant.last_name,
+            'phone_number': assistant.phone_number,
+            'email': assistant.email,
+            'is_verified': assistant.is_verified,
+            'vehicle_type': assistant.assistant_verification.vehicle_type if hasattr(assistant, 'assistant_verification') else None,
+            'vehicle_registration': assistant.assistant_verification.vehicle_registration if hasattr(assistant, 'assistant_verification') else None,
+        })
+    
+    return Response(data)

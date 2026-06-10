@@ -42,6 +42,7 @@ urlpatterns = [
     path('user/list/', views.user_list, name='user-list'),
     
     # Rider/Assistant Endpoints
+    path('assistants/', views.list_assistants, name='list-assistants'),
     path('assistant/verify/', views.submit_verification, name='submit-verification'),
     path('assistant/verification-status/', views.assistant_verification_status, name='verification-status'),
     path('assistant/dashboard-stats/', views.assistant_dashboard_stats, name='assistant-stats'),
