@@ -11,9 +11,23 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.http import JsonResponse
+import os
 
 def home_view(request):
-    return JsonResponse({'message': 'Fagierrands API', 'version': 'v1'})
+    """Clean API home page with environment indicator"""
+    is_dev = os.getenv('DEBUG', 'False') == 'True'
+    
+    return JsonResponse({
+        'service': 'FagiErrands API',
+        'version': 'v1.0',
+        'environment': 'DEVELOPMENT' if is_dev else 'PRODUCTION',
+        'status': 'operational',
+        'endpoints': {
+            'documentation': '/swagger/',
+            'api': '/api/',
+        },
+        'warning': '⚠️ This is a DEVELOPMENT server - Data may be unstable' if is_dev else None
+    })
 
 # API Documentation
 schema_view = get_schema_view(
