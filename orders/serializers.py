@@ -5,11 +5,18 @@ from accounts.serializers import UserSerializer
 class OrderSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     assistant = UserSerializer(read_only=True)
+    client_status = serializers.SerializerMethodField()
     
     class Meta:
         model = Order
         fields = '__all__'
         read_only_fields = ['order_number', 'user', 'created_at', 'updated_at']
+    
+    def get_client_status(self, obj):
+        """Return client-friendly status - Queued orders appear as Assigned"""
+        if obj.status == 'Queued':
+            return 'Assigned'
+        return obj.status
 
 class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
