@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .views_errand import create_draft, upload_image, add_receiver_info, confirm_order
-from .views_handler import list_orders, assign_order, order_stats
+from .views_handler import list_orders, assign_order, order_stats, create_order_for_client
 from .views_handler_rider import (
     handler_all_orders, handler_pending_orders, handler_assign_order,
     rider_available_orders, rider_my_orders, rider_order_history,
@@ -17,6 +17,7 @@ urlpatterns = [
     # Handler Dashboard Endpoints (NEW)
     path('', list_orders, name='list-orders'),  # GET /api/orders/
     path('stats/', order_stats, name='order-stats'),  # GET /api/orders/stats/
+    path('create-for-client/', create_order_for_client, name='create-for-client'),  # POST /api/orders/create-for-client/
     path('<int:order_id>/', views.order_detail_handler, name='order-detail-handler'),  # GET /api/orders/{id}/ for handler
     path('<int:order_id>/assign/', assign_order, name='assign-order'),  # POST /api/orders/{id}/assign/
     

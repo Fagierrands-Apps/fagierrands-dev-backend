@@ -142,4 +142,68 @@ def order_stats(request):
     }
     
     return Response(stats)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_order_for_client(request):
+    """Handler creates order on behalf of client"""
+    try:
+        # Get client by phone number
+        client_phone = request.data.get('client_phone')
+        if not client_phone:
+            return Response({'error': 'client_phone is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Find or create client
+        try:
+            client = User.objects.get(phone_number=client_phone)
+            if client.user_type != 'client':
+                return Response({'error': 'Phone number belongs to non-client user'}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            # Create new client
+            client = User.objects.create_user(
+                phone_number=client_phone,
+                first_name=request.data.get('client_name', 'Client'),
+                user_type='client',
+                is_phone_verified=True
+            )
+        
+        # Create order
+        order = Order.objects.create(
+            user=client,
+            title=request.data.get('title', 'Errand'),
+            pickup_address=request.data.get('pickup_address'),
+            pickup_lat=request.data.get('pickup_lat', 0),
+            pickup_lng=request.data.get('pickup_lng', 0),
+            delivery_address=request.data.get('delivery_address'),
+            delivery_lat=request.data.get('delivery_lat', 0),
+            delivery_lng=request.data.get('delivery_lng', 0),
+            receiver_name=request.data.get('receiver_name', ''),
+            receiver_phone=request.data.get('receiver_phone', ''),
+            distance_km=request.data.get('distance_km', 0),
+            total_price=request.data.get('total_price', 200),
+            status='Pending',
+            payment_method=request.data.get('payment_method', 'cash'),
+            payment_status='pending',
+            item_description=request.data.get('item_description', '')
+        )
+        
+        # Send SMS to client
+        from core.sms_service import send_sms
+        try:
+            message = f"Your errand #{order.order_number} has been created. From: {order.pickup_address}. To: {order.delivery_address}. Amount: KES {order.total_price}"
+            send_sms(client.phone_number, message)
+        except:
+            pass
+        
+        return Response({
+            'message': 'Order created successfully',
+            'order_id': order.id,
+            'order_number': order.order_number,
+            'client_name': client.get_full_name(),
+            'total_price': order.total_price
+        }, status=status.HTTP_201_CREATED)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
