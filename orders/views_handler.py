@@ -133,12 +133,12 @@ def order_stats(request):
     
     stats = {
         'total_orders': Order.objects.count(),
-        'pending_orders': Order.objects.filter(status='pending').count(),
-        'assigned_orders': Order.objects.filter(status='assigned').count(),
-        'in_progress_orders': Order.objects.filter(status='in_progress').count(),
-        'completed_orders': Order.objects.filter(status='completed').count(),
-        'cancelled_orders': Order.objects.filter(status='cancelled').count(),
-        'total_revenue': Order.objects.filter(status='completed').aggregate(Sum('total_price'))['total_price__sum'] or 0,
+        'pending_orders': Order.objects.filter(status='Pending').count(),
+        'assigned_orders': Order.objects.filter(status='Assigned').count(),
+        'in_progress_orders': Order.objects.filter(status='InTransit').count(),
+        'completed_orders': Order.objects.filter(status='Completed').count(),
+        'cancelled_orders': Order.objects.filter(status='Cancelled').count(),
+        'total_revenue': Order.objects.filter(status='Completed').aggregate(Sum('total_price'))['total_price__sum'] or 0,
     }
     
     return Response(stats)
@@ -181,6 +181,7 @@ def create_order_for_client(request):
             receiver_name=request.data.get('receiver_name', ''),
             receiver_phone=request.data.get('receiver_phone', ''),
             distance_km=request.data.get('distance_km', 0),
+            base_price=request.data.get('base_price', 200),
             total_price=request.data.get('total_price', 200),
             status='Pending',
             payment_method=request.data.get('payment_method', 'cash'),
@@ -201,9 +202,8 @@ def create_order_for_client(request):
             'order_id': order.id,
             'order_number': order.order_number,
             'client_name': client.get_full_name(),
-            'total_price': order.total_price
+            'total_price': str(order.total_price)
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
