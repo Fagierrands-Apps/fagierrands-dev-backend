@@ -141,3 +141,5 @@ def order_stats(request):
         'total_revenue': Order.objects.filter(status='completed').aggregate(Sum('total_price'))['total_price__sum'] or 0,
     }
     
+    return Response(stats)
+    
