@@ -44,10 +44,13 @@ errands = [
     {'status': 'Pending', 'desc': 'Awaiting pickup - Parcel'},
 ]
 
+import random
+
 for i, e in enumerate(errands, 1):
     assigned = handler if e['status'] != 'Pending' else None
     
     Order.objects.create(
+        order_number=f"ORD-{random.randint(100000, 999999)}",
         user=users[i % len(users)],
         assistant=assigned,
         title=e['desc'],
