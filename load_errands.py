@@ -45,12 +45,16 @@ errands = [
 ]
 
 import random
+import time
 
 for i, e in enumerate(errands, 1):
     assigned = handler if e['status'] != 'Pending' else None
     
+    # Generate timestamp-based order number like production
+    timestamp = int(time.time() * 10000) + i
+    
     Order.objects.create(
-        order_number=f"ORD-{random.randint(100000, 999999)}",
+        order_number=f"ORD-{timestamp}",
         user=users[i % len(users)],
         assistant=assigned,
         title=e['desc'],
