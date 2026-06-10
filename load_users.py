@@ -16,11 +16,11 @@ users = [
     {'username': 'customer3', 'phone': '254733333333', 'type': 'customer', 'name': 'Bob Wilson'},
     {'username': 'customer4', 'phone': '254744444444', 'type': 'customer', 'name': 'Alice Brown'},
     {'username': 'customer5', 'phone': '254755555555', 'type': 'customer', 'name': 'Charlie Davis'},
-    {'username': 'handler1', 'phone': '254766666666', 'type': 'handler', 'name': 'Mike Handler'},
-    {'username': 'handler2', 'phone': '254777777777', 'type': 'handler', 'name': 'Sarah Handler'},
-    {'username': 'handler3', 'phone': '254788888888', 'type': 'handler', 'name': 'Tom Handler'},
-    {'username': 'handler4', 'phone': '254799999999', 'type': 'handler', 'name': 'Lisa Handler'},
-    {'username': 'handler5', 'phone': '254710000000', 'type': 'handler', 'name': 'David Handler'},
+    {'username': 'customer6', 'phone': '254766666666', 'type': 'customer', 'name': 'Mike Johnson'},
+    {'username': 'customer7', 'phone': '254777777777', 'type': 'customer', 'name': 'Sarah Lee'},
+    {'username': 'customer8', 'phone': '254788888888', 'type': 'customer', 'name': 'Tom Chen'},
+    {'username': 'customer9', 'phone': '254799999999', 'type': 'customer', 'name': 'Lisa White'},
+    {'username': 'customer10', 'phone': '254710000000', 'type': 'customer', 'name': 'David Green'},
 ]
 
 created = 0
