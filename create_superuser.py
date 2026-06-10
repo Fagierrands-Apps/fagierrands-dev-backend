@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 """
 Create Django superuser for dev server
-Run via cPanel Python App: manage.py shell < create_superuser.py
+Run via cPanel Python App: python create_superuser.py
 """
+
+import os
+import django
+
+# Setup Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrands.settings')
+django.setup()
 
 from django.contrib.auth import get_user_model
 
