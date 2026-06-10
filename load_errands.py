@@ -55,7 +55,11 @@ import random
 import time
 
 for i, e in enumerate(errands, 1):
-    assigned = assistant if e['status'] != 'Pending' and assistant else None
+    # Rotate through verified assistants for non-pending orders
+    if e['status'] != 'Pending' and assistants:
+        assigned = assistants[i % len(assistants)]
+    else:
+        assigned = None
     
     # Generate timestamp-based order number like production
     timestamp = int(time.time() * 10000) + i
