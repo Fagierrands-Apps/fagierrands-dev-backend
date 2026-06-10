@@ -15,11 +15,18 @@ User = get_user_model()
 
 # Get users
 users = list(User.objects.filter(user_type='user')[:10])
-handler = User.objects.filter(user_type='handler').first()
+assistants = list(User.objects.filter(user_type='assistant', assistant_verification__status='approved'))
 
-if not users or not handler:
-    print("❌ Need users and at least 1 handler!")
+if not users:
+    print("❌ Need users! Run load_users.py first")
     exit(1)
+
+if not assistants:
+    print("⚠️  No verified assistants found - orders will be unassigned")
+    print("Run verify_assistants.py to verify riders")
+
+# Use first assistant if available
+assistant = assistants[0] if assistants else None
 
 errands = [
     {'status': 'Cancelled', 'desc': 'Cancelled grocery delivery'},
@@ -48,7 +55,7 @@ import random
 import time
 
 for i, e in enumerate(errands, 1):
-    assigned = handler if e['status'] != 'Pending' else None
+    assigned = assistant if e['status'] != 'Pending' and assistant else None
     
     # Generate timestamp-based order number like production
     timestamp = int(time.time() * 10000) + i
