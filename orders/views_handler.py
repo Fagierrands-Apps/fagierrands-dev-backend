@@ -148,7 +148,12 @@ def order_stats(request):
 @permission_classes([IsAuthenticated])
 def create_order_for_client(request):
     """Handler creates order on behalf of client"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        logger.info(f"Create order request data: {request.data}")
+        
         # Get client by phone number
         client_phone = request.data.get('client_phone')
         if not client_phone:
@@ -189,13 +194,15 @@ def create_order_for_client(request):
             item_description=request.data.get('item_description', '')
         )
         
+        logger.info(f"Order created: {order.order_number}")
+        
         # Send SMS to client
         from core.sms_service import send_sms
         try:
             message = f"Your errand #{order.order_number} has been created. From: {order.pickup_address}. To: {order.delivery_address}. Amount: KES {order.total_price}"
             send_sms(client.phone_number, message)
-        except:
-            pass
+        except Exception as sms_error:
+            logger.warning(f"SMS send failed: {sms_error}")
         
         return Response({
             'message': 'Order created successfully',
@@ -206,4 +213,5 @@ def create_order_for_client(request):
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
+        logger.error(f"Create order error: {str(e)}", exc_info=True)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
