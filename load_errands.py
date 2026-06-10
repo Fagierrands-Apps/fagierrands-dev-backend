@@ -15,11 +15,11 @@ from locations.models import Location
 User = get_user_model()
 
 # Get users
-customers = list(User.objects.filter(user_type='customer')[:10])
+customers = list(User.objects.filter(user_type='user')[:10])
 handler = User.objects.filter(user_type='handler').first()
 
 if not customers or not handler:
-    print("❌ Need customers and at least 1 handler!")
+    print("❌ Need users and at least 1 handler!")
     exit(1)
 
 # Create locations for first customer

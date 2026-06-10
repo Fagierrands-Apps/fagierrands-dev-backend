@@ -11,16 +11,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 users = [
-    {'username': 'customer1', 'phone': '254711111111', 'type': 'customer', 'name': 'John Doe'},
-    {'username': 'customer2', 'phone': '254722222222', 'type': 'customer', 'name': 'Jane Smith'},
-    {'username': 'customer3', 'phone': '254733333333', 'type': 'customer', 'name': 'Bob Wilson'},
-    {'username': 'customer4', 'phone': '254744444444', 'type': 'customer', 'name': 'Alice Brown'},
-    {'username': 'customer5', 'phone': '254755555555', 'type': 'customer', 'name': 'Charlie Davis'},
-    {'username': 'customer6', 'phone': '254766666666', 'type': 'customer', 'name': 'Mike Johnson'},
-    {'username': 'customer7', 'phone': '254777777777', 'type': 'customer', 'name': 'Sarah Lee'},
-    {'username': 'customer8', 'phone': '254788888888', 'type': 'customer', 'name': 'Tom Chen'},
-    {'username': 'customer9', 'phone': '254799999999', 'type': 'customer', 'name': 'Lisa White'},
-    {'username': 'customer10', 'phone': '254710000000', 'type': 'customer', 'name': 'David Green'},
+    {'username': 'customer1', 'phone': '254711111111', 'type': 'user', 'name': 'John Doe'},
+    {'username': 'customer2', 'phone': '254722222222', 'type': 'user', 'name': 'Jane Smith'},
+    {'username': 'customer3', 'phone': '254733333333', 'type': 'user', 'name': 'Bob Wilson'},
+    {'username': 'customer4', 'phone': '254744444444', 'type': 'user', 'name': 'Alice Brown'},
+    {'username': 'customer5', 'phone': '254755555555', 'type': 'user', 'name': 'Charlie Davis'},
+    {'username': 'customer6', 'phone': '254766666666', 'type': 'user', 'name': 'Mike Johnson'},
+    {'username': 'customer7', 'phone': '254777777777', 'type': 'user', 'name': 'Sarah Lee'},
+    {'username': 'customer8', 'phone': '254788888888', 'type': 'user', 'name': 'Tom Chen'},
+    {'username': 'customer9', 'phone': '254799999999', 'type': 'user', 'name': 'Lisa White'},
+    {'username': 'customer10', 'phone': '254710000000', 'type': 'user', 'name': 'David Green'},
 ]
 
 created = 0
