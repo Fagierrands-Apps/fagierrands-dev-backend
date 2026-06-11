@@ -19,7 +19,7 @@ def update_order_status(request, order_id):
             return Response({'error': 'status is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Validate status
-        valid_statuses = ['Draft', 'Pending', 'Assigned', 'Queued', 'InTransit', 'Completed', 'Cancelled']
+        valid_statuses = ['Draft', 'Pending', 'PaymentPending', 'Assigned', 'Queued', 'InTransit', 'Completed', 'Cancelled']
         if new_status not in valid_statuses:
             return Response({'error': f'Invalid status. Must be one of: {valid_statuses}'}, status=status.HTTP_400_BAD_REQUEST)
         
