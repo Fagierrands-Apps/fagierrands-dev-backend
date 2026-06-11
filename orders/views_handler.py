@@ -167,8 +167,9 @@ def create_order_for_client(request):
         # Find existing client only - don't create new ones
         try:
             client = User.objects.get(phone_number=client_phone)
-            if client.user_type != 'client':
-                return Response({'error': 'User is not a client'}, status=status.HTTP_400_BAD_REQUEST)
+            # Accept both 'client' and 'user' types
+            if client.user_type not in ['client', 'user']:
+                return Response({'error': f'User is type "{client.user_type}". Only clients can place orders.'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({'error': f'Client not found with phone {client_phone}. Client must register first.'}, status=status.HTTP_400_BAD_REQUEST)
         
