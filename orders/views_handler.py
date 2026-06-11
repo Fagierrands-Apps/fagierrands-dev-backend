@@ -194,7 +194,12 @@ def create_order_for_client(request):
             item_description=request.data.get('item_description', '')
         )
         
-        logger.info(f"Order created: {order.order_number}")
+        # Refresh from DB to check what was actually saved
+        order.refresh_from_db()
+        logger.info(f"Order created: {order.order_number}, Status in DB: '{order.status}'")
+        
+        if not order.status or order.status == '':
+            logger.error(f"ORDER STATUS IS EMPTY! Expected 'Pending', got: '{order.status}'")
         
         # Send SMS to client
         from core.sms_service import send_sms
