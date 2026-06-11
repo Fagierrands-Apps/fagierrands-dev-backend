@@ -152,6 +152,8 @@ def create_order_for_client(request):
     logger = logging.getLogger(__name__)
     
     try:
+        from core.utils import normalize_phone_number
+        
         logger.info(f"Create order request data: {request.data}")
         
         # Get client by phone number
@@ -159,13 +161,16 @@ def create_order_for_client(request):
         if not client_phone:
             return Response({'error': 'client_phone is required'}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Normalize phone number
+        client_phone = normalize_phone_number(client_phone)
+        
         # Find existing client only - don't create new ones
         try:
             client = User.objects.get(phone_number=client_phone)
             if client.user_type != 'client':
                 return Response({'error': 'User is not a client'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
-            return Response({'error': 'Client not found. Client must register first.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'Client not found with phone {client_phone}. Client must register first.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create order
         order = Order.objects.create(
