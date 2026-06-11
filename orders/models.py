@@ -81,8 +81,8 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     
     # Status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
-    queue_position = models.IntegerField(null=True, blank=True)  # 0=active, 1-2=queued
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    queue_position = models.IntegerField(null=True, blank=True)  # Deprecated - no longer used
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
