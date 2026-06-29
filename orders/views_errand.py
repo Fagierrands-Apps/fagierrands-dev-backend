@@ -69,7 +69,7 @@ def get_order_serialized(order):
         ],
         'review': None,
         'cargo_details': None,
-        'price_finalized': order.status != 'draft'
+        'price_finalized': order.status != 'Draft'
     }
 
 
@@ -181,7 +181,7 @@ def create_draft(request):
             distance_km=distance_km,
             base_price=pricing['base_fee'],
             total_price=pricing['total'],
-            status='draft'
+            status='Draft'
         )
         
         logger.info(f"Draft order created: {order.id}")
@@ -220,7 +220,7 @@ def create_draft(request):
 def upload_image(request, order_id):
     """Step 2: Upload order images (can be called multiple times)"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user, status='draft')
+        order = Order.objects.get(id=order_id, user=request.user, status='Draft')
         image_url = request.data.get('image')
         
         order_image = OrderImage.objects.create(
@@ -266,7 +266,7 @@ def upload_image(request, order_id):
 def add_receiver_info(request, order_id):
     """Step 3: Add receiver contact information"""
     try:
-        order = Order.objects.get(id=order_id, user=request.user, status='draft')
+        order = Order.objects.get(id=order_id, user=request.user, status='Draft')
         
         order.receiver_name = request.data.get('recipient_name')
         order.receiver_phone = request.data.get('contact_number')
@@ -297,7 +297,7 @@ def confirm_order(request, order_id):
     logger = logging.getLogger(__name__)
     
     try:
-        order = Order.objects.get(id=order_id, user=request.user, status='draft')
+        order = Order.objects.get(id=order_id, user=request.user, status='Draft')
         logger.info(f"Order {order_id} found with status: {order.status}")
         
         # Update order number if it's still NEW
@@ -305,7 +305,7 @@ def confirm_order(request, order_id):
             order.order_number = f"ORD-{order.id}"
         
         # Change status to pending
-        order.status = 'pending'
+        order.status = 'Pending'
         order.confirmed_at = timezone.now()
         order.save()
         

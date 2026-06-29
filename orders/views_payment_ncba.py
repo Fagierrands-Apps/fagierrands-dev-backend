@@ -416,7 +416,7 @@ class NCBAWebhookHandler:
                         
                         # Update order
                         order = payment.order
-                        if order.status == 'PaymentPending':
+                        if order.status in ['Pending', 'PaymentPending']:
                             order.status = 'Completed'
                             order.completed_at = timezone.now()
                             order.save()
@@ -531,7 +531,7 @@ class OrderPaymentStatusView(APIView):
                         if query_resp.get('status') == 'SUCCESS':
                             payment.status = 'Completed'
                             payment.save()
-                            if order.status == 'PaymentPending':
+                            if order.status in ['Pending', 'PaymentPending']:
                                 order.status = 'Completed'
                                 order.completed_at = timezone.now()
                                 order.save()
@@ -580,8 +580,6 @@ class OrderPaymentStatusView(APIView):
             
         except Exception as e:
             import traceback
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Payment status error for order {order_id}: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

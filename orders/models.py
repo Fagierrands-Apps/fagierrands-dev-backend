@@ -27,7 +27,6 @@ class Order(models.Model):
         ('Draft', 'Draft'),
         ('Pending', 'Pending'),
         ('Assigned', 'Assigned'),
-        ('Queued', 'Queued'),
         ('InTransit', 'In Transit'),
         ('PaymentPending', 'Payment Pending'),
         ('Completed', 'Completed'),
