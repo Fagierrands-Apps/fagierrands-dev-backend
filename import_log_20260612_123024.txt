@@ -1,0 +1,30 @@
+[12:30:24] Starting import...
+[12:30:24] File: old data.sql
+[12:30:24] ✗ Error: +1234567890 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(1234567890) already exists.
+
+[12:30:24] ✓ User: 0716560241
+[12:30:24] ✓ User: 0757821196
+[12:30:24] ✓ User: 0758292353
+[12:30:24] ✓ User: 0750526431
+[12:30:24] ✓ User: 0754684568
+[12:30:24] ✓ User: 0700071134
+[12:30:24] ⊗ User 254758292353 exists
+[12:30:24] ✓ User: 0717599430
+[12:30:24] ✓ User: 0751532535
+[12:30:24] ✓ User: 721376128
+[12:30:24] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:30:24] ✓ User: 0114587860
+[12:30:24] 
+Importing profiles...
+[12:30:24] 
+============================================================
+[12:30:24] SUMMARY
+[12:30:24] ============================================================
+[12:30:24] Users:    10
+[12:30:24] Profiles: 0
+[12:30:24] Skipped:  497
+[12:30:24] Errors:   2
+[12:30:24] ============================================================

@@ -1,0 +1,1385 @@
+[12:25:30] Starting import...
+[12:25:30] File: old data.sql
+[12:25:30] ✓ User: +1234567890
+[12:25:30] ✗ Error: 0716560241 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0757821196 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0750526431 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0754684568 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0700071134 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717599430 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0751532535 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 721376128 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0114587860 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 757005231 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0734829733 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758602340 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0111773691 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0795870158 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0743448818 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0710560669 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0757821196 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ⊗ User 254700000000 exists
+[12:25:30] ✗ Error: +254725053062 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0719677990 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0708109055 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717734734 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0790381882 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0713336492 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0720931939 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793923726 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0708109055 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793486433 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721671947 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796543621 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0759160915 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0104232300 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0759842728 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721956930 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0702668011 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0719644992 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254706654778 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0702237133 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0720762996 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0719224951 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0705965360 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0741314256 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796349382 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 8005725952 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717912859 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0707706486 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0702471401 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0740644838 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0728010591 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725081170 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758298023 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0100304300 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0100304399 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0720096027 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717089245 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0742334074 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723164628 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793869208 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712755633 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0703837026 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0714303831 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0740632614 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793869208 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758280143 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] Processed 4900 lines...
+[12:25:30] ✗ Error: 0722659041 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0743298722 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793923726 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254725537150 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723829954 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725694190 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0706713151 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793869208 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712220666 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0732087046 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0714274018 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0713913111 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0759182366 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0740067338 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0703837026 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0726607916 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0703659221 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0734829733 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0710739659 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0100000000 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0759182366 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0705184669 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0799605961 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0722862531 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0711632721 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0795609591 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254712668720 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0748423603 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0110000431 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0714599277 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0700003942 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0746601271 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723317950 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793330134 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254722310756 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0716927661 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793330134 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0706635654 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725783710 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0746848714 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0713918803 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0795154105 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725694190 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0703965575 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254114327888 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0729959040 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0797398004 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0727170031 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0798750046 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0746405604 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0732381126 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0878976985 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0704331555 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0743590527 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0740692473 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0720399370 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793923726 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0116856485 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0798836077 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0794554416 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721511968 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0746294377 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793869208 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725622320 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721393571 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721544256 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723155075 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0795943049 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712730035 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0768068110 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725552332 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0715666227 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0789368985 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0705699778 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254702057071 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0724344798 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0710901246 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0700521346 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712927680 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0718259154 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0742102524 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0799440510 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0707138430 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0703908016 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254725961228 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0769357113 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723091788 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0740527858 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0101098466 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] Processed 5000 lines...
+[12:25:30] ✗ Error: +254712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254720359051 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0706491766 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0701768052 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0724569467 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0740153511 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712905020 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0113330977 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254789484816 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0729100254 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0792190231 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0113330977 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796189432 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254725961228 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0732087046 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0722988937 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0748624904 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0768051947 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0768051947 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0739224825 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0702960799 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717304182 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0742023624 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725832236 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793869208 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254790063707 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 03099109661 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725203598 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0714457094 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0769184775 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796633402 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254792189915 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0794588731 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725501850 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0790063707 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0716145665 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0748230403 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0115356309 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725167954 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0724979752 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254714973827 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0718788083 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0793923726 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0799605961 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254700264557 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0720661485 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254759396635 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717882022 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0757626496 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725907699 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0117597242 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254720917094 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0722388853 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0115637996 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0707793471 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721796052 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0768548366 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721546951 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0791644005 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385241 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721420893 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0798884542 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725795537 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0792550979 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0700797110 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0748399605 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254701543203 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0768709300 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0797848754 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254797935440 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254795818540 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0728814515 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0727944897 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0727405963 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0732381126 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723056430 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725363417 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254716417884 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254796605409 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254710891302 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0728087648 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796130519 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723814817 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0726348839 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254797297976 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0727944897 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0727090316 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0111472278 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0716022046 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0718346997 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0792218137 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0720855047 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0745087787 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0706042205 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0733273632 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] Processed 5100 lines...
+[12:25:30] ✗ Error: 0700426110 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0742286231 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0116434961 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0746994661 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721111468 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721408470 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0704833566 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0701403837 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254701206871 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0792680480 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717537592 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0723147336 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0706728950 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796101802 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0792680480 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796605409 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0718111444 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0718298465 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0734264464 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0785296341 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725795537 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0745087787 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0710101014 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385274 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385274 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796087362 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0727382387 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0724564219 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385214 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0722354563 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0741872376 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0113186667 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0706313721 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0729006425 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0742758411 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712668720 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0710617679 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717679016 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721898243 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776946885 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0743259171 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0797737249 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0711963524 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796736969 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0704112224 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717793185 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0708830753 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0729001532 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725268667 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0794591147 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725268667 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0707973316 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0786852248 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0728077353 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0795737750 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0729001562 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0786787229 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0700876022 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0113690556 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0746199107 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0784512365 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0725939090 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0743047165 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0754136319 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0743142580 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0113186667 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0726318177 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0784512613 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0710988201 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0753360438 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0797848754 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254757853395 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717734734 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0701797081 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0713904580 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721457500 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0759100432 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0721324188 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ⊗ User 1234567890 exists
+[12:25:30] ✗ Error: 0758570118 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717135850 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0791418630 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0759423500 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0729100254 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0718840856 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254784512934 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0795765440 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0785296341 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776946886 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776946965 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776948904 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776949258 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776950390 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 254776962365 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0785241526 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254717194845 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] Processed 5200 lines...
+[12:25:30] ✗ Error: 0796385296 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0794613134 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385969 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0717194845 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0704664119 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0703504630 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: +254742068518 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0748342756 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385296 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0715866845 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796374123 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796431256 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0794669469 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0728497670 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0728497670 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0794613664 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385296 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796385632 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0757093088 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0769777641 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0722995300 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0796605408 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:30] ✗ Error: 0784512963 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0785285296 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0111333124 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0793484738 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0796605409 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0759243699 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0703293273 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0700373246 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0722339156 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0757788446 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0707414270 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0746222300 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0726202091 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0785274163 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0720629900 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0721429708 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776946716 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0704729196 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776947000 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0752525252 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776947346 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776948905 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0724906221 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776949631 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0722273392 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0718454949 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776950389 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776950391 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0796431659 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0796431259 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0798764532 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0712445305 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776946717 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0762592953 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776946964 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776947526 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776949257 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0784512544 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 254776962364 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: +254797506825 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: +254796605407 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: +254796605408 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0725795537 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: +254796605409 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0757848640 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: tester - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0707414270 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: +254798653221 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: +254712345678 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0741383268 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0784512963 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0751680525 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0748747848 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0794447655 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0706134011 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0777665366 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: string - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 07974583532 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0745677654 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0716572000 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0705810455 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0797990411 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0738007651 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0768887510 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] ✗ Error: 0114526633 - duplicate key value violates unique constraint "accounts_user_username_key"
+DETAIL:  Key (username)=() already exists.
+
+[12:25:31] 
+Importing profiles...
+[12:25:31] 
+============================================================
+[12:25:31] SUMMARY
+[12:25:31] ============================================================
+[12:25:31] Users:    1
+[12:25:31] Profiles: 0
+[12:25:31] Skipped:  524
+[12:25:31] Errors:   455
+[12:25:31] ============================================================

@@ -1,0 +1,145 @@
+[12:39:17] Starting import...
+[12:39:17] File: old data.sql
+[12:39:17] ✗ Error: +1234567890 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(1234567890) already exists.
+
+[12:39:17] ✗ Error: 0716560241 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254716560241) already exists.
+
+[12:39:17] ✗ Error: 0757821196 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254757821196) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0750526431 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254750526431) already exists.
+
+[12:39:17] ✗ Error: 0754684568 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254754684568) already exists.
+
+[12:39:17] ✗ Error: 0700071134 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254700071134) already exists.
+
+[12:39:17] ⊗ User 254758292353 exists
+[12:39:17] ✗ Error: 0717599430 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254717599430) already exists.
+
+[12:39:17] ✗ Error: 0751532535 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254751532535) already exists.
+
+[12:39:17] ✗ Error: 721376128 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254721376128) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0114587860 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254114587860) already exists.
+
+[12:39:17] ✗ Error: 757005231 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254757005231) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0734829733 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254734829733) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0758602340 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758602340) already exists.
+
+[12:39:17] ✗ Error: 0111773691 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254111773691) already exists.
+
+[12:39:17] ✗ Error: 0795870158 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254795870158) already exists.
+
+[12:39:17] ✗ Error: 0743448818 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254743448818) already exists.
+
+[12:39:17] ✗ Error: 0710560669 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254710560669) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0757821196 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254757821196) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ⊗ User 254700000000 exists
+[12:39:17] ✗ Error: +254725053062 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254725053062) already exists.
+
+[12:39:17] ✗ Error: 0719677990 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254719677990) already exists.
+
+[12:39:17] ✗ Error: 0708109055 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254708109055) already exists.
+
+[12:39:17] ✗ Error: 0717734734 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254717734734) already exists.
+
+[12:39:17] ✗ Error: 0790381882 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254790381882) already exists.
+
+[12:39:17] ✗ Error: 0713336492 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254713336492) already exists.
+
+[12:39:17] ✗ Error: 0720931939 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254720931939) already exists.
+
+[12:39:17] ✗ Error: 0793923726 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254793923726) already exists.
+
+[12:39:17] ✗ Error: 0708109055 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254708109055) already exists.
+
+[12:39:17] ✗ Error: 0793486433 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254793486433) already exists.
+
+[12:39:17] ✗ Error: 0758292353 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254758292353) already exists.
+
+[12:39:17] ✗ Error: 0721671947 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254721671947) already exists.
+
+[12:39:17] ✗ Error: 0796543621 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254796543621) already exists.
+
+[12:39:17] ✗ Error: 0759160915 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254759160915) already exists.
+
+[12:39:17] ✗ Error: 0104232300 - duplicate key value violates unique constraint "accounts_user_phone_number_key"
+DETAIL:  Key (phone_number)=(254104232300) already exists.
+
+[12:39:17] ✓ User: 0759842728
+[12:39:17] ✓ User: 0721956930
+[12:39:17] ✓ User: 0702668011
+[12:39:17] ✓ User: 0719644992
+[12:39:17] ✓ User: +254706654778
+[12:39:17] ✓ User: 0702237133
+[12:39:17] ✓ User: 0720762996
+[12:39:17] ✓ User: 0719224951
+[12:39:17] ✓ User: 0705965360
+[12:39:17] ✓ User: 0741314256
+[12:39:17] 
+Importing profiles...
+[12:39:17] 
+============================================================
+[12:39:17] SUMMARY
+[12:39:17] ============================================================
+[12:39:17] Users:    10
+[12:39:17] Profiles: 0
+[12:39:17] Skipped:  513
+[12:39:17] Errors:   40
+[12:39:17] ============================================================

@@ -1,0 +1,72 @@
+[13:01:57] Starting import...
+[13:01:57] File: old data.sql
+[13:01:57] ⊗ User +1234567890 exists - will import their orders
+[13:01:57] ⊗ User 0716560241 exists - will import their orders
+[13:01:57] ⊗ User 0757821196 exists - will import their orders
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ⊗ User 0750526431 exists - will import their orders
+[13:01:57] ⊗ User 0754684568 exists - will import their orders
+[13:01:57] ⊗ User 0700071134 exists - will import their orders
+[13:01:57] ⊗ User 254758292353 exists - will import their orders
+[13:01:57] ⊗ User 0717599430 exists - will import their orders
+[13:01:57] ⊗ User 0751532535 exists - will import their orders
+[13:01:57] ⊗ User 721376128 exists - will import their orders
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ✓ User: 0114587860
+[13:01:57] ✓ User: 757005231
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ✓ User: 0734829733
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ✓ User: 0758602340
+[13:01:57] ✓ User: 0111773691
+[13:01:57] ✓ User: 0795870158
+[13:01:57] ✓ User: 0743448818
+[13:01:57] ✓ User: 0710560669
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ⊗ User 0757821196 exists - will import their orders
+[13:01:57] ⊗ User 0758292353 exists - will import their orders
+[13:01:57] ✓ User: 254700000000
+[13:01:57] ✓ User: +254725053062
+[13:01:57] 
+Importing profiles...
+[13:01:57] ✓ Profile for 254750526431
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254716560241
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 1234567890
+[13:01:57] ✓ Profile for 254751532535
+[13:01:57] ✓ Profile for 254757005231
+[13:01:57] ✓ Profile for 254114587860
+[13:01:57] ✓ Profile for 254734829733
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254743448818
+[13:01:57] ✓ Profile for 254710560669
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254700000000
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254757821196
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254758292353
+[13:01:57] ✓ Profile for 254721376128
+[13:01:57] ✓ Profile for 254757821196
+[13:01:57] ✓ Profile for 254111773691
+[13:01:57] ✓ Profile for 254754684568
+[13:01:57] ✓ Profile for 254700071134
+[13:01:57] ✓ Profile for 254717599430
+[13:01:57] ✓ Profile for 254758602340
+[13:01:57] ✓ Profile for 254725053062
+[13:01:57] ✓ Profile for 254795870158
+[13:01:57] 
+Importing orders...
+[13:01:58] 
+============================================================
+[13:01:58] SUMMARY
+[13:01:58] ============================================================
+[13:01:58] Users:    10
+[13:01:58] Profiles: 28
+[13:01:58] Orders:   0
+[13:01:58] Skipped:  492
+[13:01:58] Errors:   0
+[13:01:58] ============================================================
