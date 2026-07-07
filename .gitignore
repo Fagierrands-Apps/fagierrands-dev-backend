@@ -17,3 +17,5 @@ dist/
 build/
 HANDLER_DASHBOARD_GAP_ANALYSIS.md
 pay.md
+diagnose.py
+install.py
