@@ -1,17 +1,36 @@
+#!/usr/bin/env python
+"""
+Create Django superuser for dev server
+Run via cPanel Python App: python create_superuser.py
+"""
+
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrandsbackup.settings')
+# Setup Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fagierrands.settings')
 django.setup()
 
-from accounts.models import User
+from django.contrib.auth import get_user_model
 
-username = input("Username: ")
-email = input("Email: ")
-password = input("Password: ")
+User = get_user_model()
 
-if User.objects.filter(username=username).exists():
-    print(f"User {username} already exists!")
+# Check if superuser already exists
+if User.objects.filter(username='admin').exists():
+    print('✅ Superuser "admin" already exists')
 else:
-    User.objects.create_superuser(username=username, email=email, password=password)
-    print(f"Superuser {username} created successfully!")
+    # Create superuser
+    User.objects.create_superuser(
+        username='admin',
+        email='admin@fagierrands.com',
+        password='Admin@2026',
+        phone_number='254739344825',
+        first_name='Admin',
+        last_name='User',
+        user_type='admin',
+        is_verified=True
+    )
+    print('✅ Superuser created successfully!')
+    print('Username: admin')
+    print('Password: Admin@2026')
+    print('Login at: /admin/')
