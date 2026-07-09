@@ -19,3 +19,6 @@ HANDLER_DASHBOARD_GAP_ANALYSIS.md
 pay.md
 diagnose.py
 install.py
+health_checker/.env.healthcheck
+health_checker/used_passwords.log
+health_checker/run.log
