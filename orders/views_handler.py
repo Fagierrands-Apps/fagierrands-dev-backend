@@ -25,13 +25,18 @@ from accounts.models import User
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_orders(request):
-    """List all orders with optional status filter"""
+    """List all orders with optional status and client_phone filter"""
     status_filter = request.query_params.get('status')
-    
+    client_phone = request.query_params.get('client_phone')
+
     orders = Order.objects.all().select_related('user', 'assistant', 'order_type').order_by('-created_at')
-    
+
     if status_filter:
         orders = orders.filter(status=status_filter)
+
+    if client_phone:
+        normalized = client_phone.lstrip('0')
+        orders = orders.filter(user__phone_number__endswith=normalized)
     
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
