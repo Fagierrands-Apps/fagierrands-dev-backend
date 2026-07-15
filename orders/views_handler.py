@@ -188,7 +188,16 @@ def create_order_for_client(request):
         # Send SMS to client
         from core.sms_service import send_sms
         try:
-            message = f"Your errand #{order.order_number} has been created. From: {order.pickup_address}. To: {order.delivery_address}. Amount: KES {order.total_price}"
+            short_order_id = str(order.id)[-6:].zfill(6)
+            client_name = client.first_name or "Customer"
+            message = (
+                f"Hi {client_name}! Order #{short_order_id} confirmed.\n"
+                f"From: {order.pickup_address}\n"
+                f"To: {order.delivery_address}\n"
+                f"Distance: {order.distance_km:.1f} km\n"
+                f"Cost: KES {order.total_price}\n"
+                f"Your rider is on the way to pick up!"
+            )
             send_sms(client.phone_number, message)
         except Exception as sms_error:
             logger.warning(f"SMS send failed: {sms_error}")
