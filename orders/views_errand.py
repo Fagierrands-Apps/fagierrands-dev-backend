@@ -302,7 +302,7 @@ def confirm_order(request, order_id):
         
         # Update order number if it's still NEW
         if 'NEW' in order.order_number:
-            order.order_number = f"ORD-{order.id}"
+            order.order_number = generate_order_number()
         
         # Change status to pending
         order.status = 'Pending'
