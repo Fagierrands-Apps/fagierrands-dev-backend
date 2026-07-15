@@ -8,7 +8,8 @@ from .views_handler import (
     handler_get_clients, handler_assign_client, handler_create_order_for_client,
     handler_confirm_order_for_client, handler_get_client_orders,
     handler_cancel_order, handler_dashboard_stats,
-    list_handlers, handler_detail, verify_handler, available_handlers, handler_stats
+    list_handlers, handler_detail, verify_handler, available_handlers, handler_stats,
+    handler_get_all_clients
 )
 
 urlpatterns = [
@@ -56,6 +57,7 @@ urlpatterns = [
     
     # Handler Endpoints - Client Management
     path('handler/clients/', handler_get_clients, name='handler-clients'),
+    path('handler/clients/all/', handler_get_all_clients, name='handler-all-clients'),
     path('handler/dashboard-stats/', handler_dashboard_stats, name='handler-dashboard-stats'),
     path('user/<int:user_id>/assign-account-manager/', handler_assign_client, name='assign-account-manager'),
     
