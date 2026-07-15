@@ -96,9 +96,10 @@ class Order(models.Model):
         ordering = ['-created_at']
     
     def save(self, *args, **kwargs):
-        # Auto-generate simple order_number if not provided
+        # Auto-generate unique order_number if not provided
         if not self.order_number:
-            self.order_number = f"ORD-{self.id if self.id else 'NEW'}"
+            from core.utils import generate_order_number
+            self.order_number = generate_order_number()
         super().save(*args, **kwargs)
     
     def __str__(self):
