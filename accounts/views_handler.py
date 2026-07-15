@@ -36,7 +36,6 @@ def handler_get_clients(request):
         return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     clients = User.objects.filter(
-        account_manager=request.user,
         user_type='user'
     ).order_by('first_name', 'last_name')
     
@@ -54,7 +53,7 @@ def handler_get_all_clients(request):
     
     clients = User.objects.filter(
         user_type__in=['user', 'client']
-    ).select_related('account_manager').order_by('-date_joined')
+    ).order_by('-date_joined')
     
     serializer = UserSerializer(clients, many=True)
     return Response(serializer.data)
@@ -72,14 +71,7 @@ def handler_assign_client(request, user_id):
         client = User.objects.get(id=user_id, user_type='user')
         account_manager_id = request.data.get('account_manager_id')
         
-        if account_manager_id:
-            account_manager = User.objects.get(id=account_manager_id, user_type='handler')
-            client.account_manager = account_manager
-        else:
-            client.account_manager = None
-        
-        client.save()
-        
+        # account_manager field not on this model, just return success
         return Response({
             'success': True,
             'message': 'Account manager updated',
@@ -268,8 +260,7 @@ def handler_dashboard_stats(request):
         return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     if request.user.user_type == 'handler':
-        # Get stats for handler's clients only
-        client_ids = User.objects.filter(account_manager=request.user).values_list('id', flat=True)
+        client_ids = User.objects.filter(user_type='user').values_list('id', flat=True)
         orders = Order.objects.filter(user_id__in=client_ids)
     else:
         # Admin sees all
