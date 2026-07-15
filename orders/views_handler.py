@@ -168,6 +168,9 @@ def create_order_for_client(request):
         
         # Explicitly set status to Pending (overrides model default)
         order.status = 'Pending'
+        # Fix order_number now that we have the DB id
+        if 'NEW' in order.order_number:
+            order.order_number = f"ORD-{order.id}"
         order.save()
         
         # Refresh from DB to check what was actually saved
