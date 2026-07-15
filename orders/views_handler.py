@@ -166,6 +166,7 @@ def create_order_for_client(request):
             distance_km=request.data.get('distance_km', 0),
             base_price=request.data.get('base_price', 200),
             total_price=request.data.get('total_price', 200),
+            estimated_value=request.data.get('estimated_value'),
             payment_method=request.data.get('payment_method', 'cash'),
             payment_status='pending',
             item_description=request.data.get('item_description', '')
