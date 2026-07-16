@@ -179,6 +179,7 @@ CORS_ALLOWED_ORIGINS = [
     'https://fagierrands-handler-dashboard.vercel.app',
     'https://fagiserver.fagitone.com',
     'https://api.errandserver.fagierrands.com',  # API domain itself
+    'https://handler.fagierrands.com',           # Handler web app (production)
 ]
 CORS_ALLOW_CREDENTIALS = True
 
