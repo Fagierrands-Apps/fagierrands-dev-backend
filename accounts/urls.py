@@ -9,7 +9,7 @@ from .views_handler import (
     handler_confirm_order_for_client, handler_get_client_orders,
     handler_cancel_order, handler_dashboard_stats,
     list_handlers, handler_detail, verify_handler, available_handlers, handler_stats,
-    handler_get_all_clients
+    handler_get_clients as handler_get_all_clients
 )
 
 urlpatterns = [
