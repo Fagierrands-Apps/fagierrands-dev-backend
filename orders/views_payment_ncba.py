@@ -269,6 +269,7 @@ class PaymentStatusView(generics.RetrieveAPIView):
     """
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Payment.objects.all()
     
     def get_object(self):
         """
