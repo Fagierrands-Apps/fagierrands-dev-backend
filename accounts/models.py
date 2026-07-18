@@ -23,6 +23,7 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     referral_code = models.CharField(max_length=10, blank=True, null=True)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrals')
+    account_manager = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_clients')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -99,10 +100,12 @@ class AssistantVerification(models.Model):
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='assistant_verification')
+    id_number = models.CharField(max_length=50)
+    id_photo = models.URLField(blank=True, null=True)
     vehicle_type = models.CharField(max_length=20, choices=VEHICLE_TYPES)
     vehicle_registration = models.CharField(max_length=50)
+    vehicle_photo = models.URLField(blank=True, null=True)
     drivers_license = models.CharField(max_length=50, blank=True)
-    id_number = models.CharField(max_length=50)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     rejection_reason = models.TextField(blank=True)
     verified_at = models.DateTimeField(null=True, blank=True)

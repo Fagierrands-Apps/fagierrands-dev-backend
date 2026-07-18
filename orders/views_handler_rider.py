@@ -333,16 +333,19 @@ def rider_complete_delivery(request, order_id):
         send_sms(order.user.phone_number, message)
         
         # Auto-promote queued orders
-        queued_orders = Order.objects.filter(
-            assistant=request.user,
-            status='Queued'
-        ).order_by('queue_position')
-        
-        for queued_order in queued_orders:
-            queued_order.queue_position -= 1
-            if queued_order.queue_position == 0:
-                queued_order.status = 'Assigned'
-            queued_order.save()
+        try:
+            queued_orders = Order.objects.filter(
+                assistant=request.user,
+                status='Queued'
+            ).order_by('queue_position')
+            
+            for queued_order in queued_orders:
+                queued_order.queue_position -= 1
+                if queued_order.queue_position == 0:
+                    queued_order.status = 'Assigned'
+                queued_order.save()
+        except Exception:
+            pass
         
         return Response({
             'message': 'Delivery completed successfully',
@@ -361,10 +364,12 @@ def sos_alerts_list(request):
     """List all pending SOS alerts"""
     from .models import SOSAlert
     from .serializers import SOSAlertSerializer
-    
-    alerts = SOSAlert.objects.filter(status='pending').select_related('rider', 'order')
-    serializer = SOSAlertSerializer(alerts, many=True)
-    return Response(serializer.data)
+    try:
+        alerts = SOSAlert.objects.filter(status='pending').select_related('rider', 'order')
+        serializer = SOSAlertSerializer(alerts, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'error': 'SOS alerts unavailable', 'detail': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 @api_view(['POST'])

@@ -35,25 +35,11 @@ def handler_get_clients(request):
     if request.user.user_type not in ['handler', 'admin']:
         return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
+    # Get clients assigned to this handler
     clients = User.objects.filter(
+        account_manager=request.user,
         user_type='user'
     ).order_by('first_name', 'last_name')
-    
-    serializer = UserSerializer(clients, many=True)
-    return Response(serializer.data)
-
-
-@swagger_auto_schema(method='get', tags=['Handler'])
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def handler_get_all_clients(request):
-    """Handler gets ALL clients in the system"""
-    if request.user.user_type not in ['handler', 'admin']:
-        return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
-    
-    clients = User.objects.filter(
-        user_type__in=['user', 'client']
-    ).order_by('-date_joined')
     
     serializer = UserSerializer(clients, many=True)
     return Response(serializer.data)
@@ -71,7 +57,14 @@ def handler_assign_client(request, user_id):
         client = User.objects.get(id=user_id, user_type='user')
         account_manager_id = request.data.get('account_manager_id')
         
-        # account_manager field not on this model, just return success
+        if account_manager_id:
+            account_manager = User.objects.get(id=account_manager_id, user_type='handler')
+            client.account_manager = account_manager
+        else:
+            client.account_manager = None
+        
+        client.save()
+        
         return Response({
             'success': True,
             'message': 'Account manager updated',
@@ -99,6 +92,10 @@ def handler_create_order_for_client(request):
             return Response({'error': 'client_id required'}, status=status.HTTP_400_BAD_REQUEST)
         
         client = User.objects.get(id=client_id, user_type='user')
+        
+        # Verify handler has permission (client is assigned to them)
+        if request.user.user_type == 'handler' and client.account_manager != request.user:
+            return Response({'error': 'Not your assigned client'}, status=status.HTTP_403_FORBIDDEN)
         
         # Get order type
         order_type_id = request.data.get('order_type_id')
@@ -170,6 +167,10 @@ def handler_confirm_order_for_client(request, order_id):
     try:
         order = Order.objects.get(id=order_id, status='Draft')
         
+        # Verify handler has permission
+        if request.user.user_type == 'handler' and order.user.account_manager != request.user:
+            return Response({'error': 'Not your client\'s order'}, status=status.HTTP_403_FORBIDDEN)
+        
         # Confirm order
         order.status = 'Pending'
         order.confirmed_at = timezone.now()
@@ -206,6 +207,10 @@ def handler_get_client_orders(request, client_id):
     try:
         client = User.objects.get(id=client_id, user_type='user')
         
+        # Verify handler has permission
+        if request.user.user_type == 'handler' and client.account_manager != request.user:
+            return Response({'error': 'Not your assigned client'}, status=status.HTTP_403_FORBIDDEN)
+        
         orders = Order.objects.filter(user=client).select_related(
             'user', 'assistant', 'order_type'
         ).prefetch_related('images').order_by('-created_at')
@@ -231,6 +236,10 @@ def handler_cancel_order(request, order_id):
         # Cannot cancel completed orders
         if order.status == 'Completed':
             return Response({'error': 'Cannot cancel completed order'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verify handler has permission
+        if request.user.user_type == 'handler' and order.user.account_manager != request.user:
+            return Response({'error': 'Not your client\'s order'}, status=status.HTTP_403_FORBIDDEN)
         
         order.status = 'Cancelled'
         order.cancelled_at = timezone.now()
@@ -260,7 +269,8 @@ def handler_dashboard_stats(request):
         return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     if request.user.user_type == 'handler':
-        client_ids = User.objects.filter(user_type='user').values_list('id', flat=True)
+        # Get stats for handler's clients only
+        client_ids = User.objects.filter(account_manager=request.user).values_list('id', flat=True)
         orders = Order.objects.filter(user_id__in=client_ids)
     else:
         # Admin sees all
@@ -353,7 +363,6 @@ def verify_handler(request, handler_id):
         is_verified = request.data.get('is_verified')
         if is_verified is not None:
             handler.is_verified = is_verified
-            handler.verified_at = timezone.now() if is_verified else None
             handler.save()
         
         try:

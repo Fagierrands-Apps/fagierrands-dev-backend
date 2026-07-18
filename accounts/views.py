@@ -402,12 +402,12 @@ def submit_verification(request):
         return Response({'error': 'Only riders can submit verification'}, status=status.HTTP_403_FORBIDDEN)
     
     # Check if already verified or pending
-    existing = AssistantVerification.objects.filter(assistant=request.user).first()
+    existing = AssistantVerification.objects.filter(user=request.user).first()
     if existing and existing.status in ['approved', 'pending']:
         return Response({'error': f'Verification already {existing.status}'}, status=status.HTTP_400_BAD_REQUEST)
     
     verification = AssistantVerification.objects.create(
-        assistant=request.user,
+        user=request.user,
         id_number=request.data.get('id_number'),
         id_photo=request.data.get('id_photo'),
         vehicle_type=request.data.get('vehicle_type'),
