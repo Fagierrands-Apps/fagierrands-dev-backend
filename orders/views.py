@@ -137,12 +137,12 @@ def initiate_payment(request):
                 order=order,
                 amount=amount,
                 phone_number=phone_number,
-                checkout_request_id=result.get('checkout_request_id'),
-                merchant_request_id=result.get('merchant_request_id'),
-                status='initiated'
+                mpesa_checkout_request_id=result.get('checkout_request_id'),
+                mpesa_merchant_request_id=result.get('merchant_request_id'),
+                status='Pending'
             )
             
-            order.payment_status = 'initiated'
+            order.payment_status = 'pending'
             order.save()
             
             return Response({
@@ -234,12 +234,12 @@ def create_order(request):
             distance_km=distance,
             base_price=base_price,
             total_price=base_price,
-            status='pending'
+            status='Pending'
         )
         
         OrderTracking.objects.create(
             order=order,
-            status='pending',
+            status='Pending',
             message='Order created successfully'
         )
         

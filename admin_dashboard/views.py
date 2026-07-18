@@ -27,10 +27,10 @@ def dashboard_stats(request):
         'total_users': User.objects.filter(user_type='user').count(),
         'total_riders': User.objects.filter(user_type='assistant').count(),
         'total_orders': Order.objects.count(),
-        'pending_orders': Order.objects.filter(status='pending').count(),
-        'active_orders': Order.objects.filter(status__in=['confirmed', 'assigned', 'picked', 'in_transit']).count(),
-        'completed_today': Order.objects.filter(status='delivered', delivered_at__date=today).count(),
-        'revenue_today': Order.objects.filter(status='delivered', delivered_at__date=today).aggregate(
+        'pending_orders': Order.objects.filter(status='Pending').count(),
+        'active_orders': Order.objects.filter(status__in=['Assigned', 'InTransit']).count(),
+        'completed_today': Order.objects.filter(status='Completed', delivered_at__date=today).count(),
+        'revenue_today': Order.objects.filter(status='Completed', delivered_at__date=today).aggregate(
             total=Sum('total_price'))['total'] or 0,
         'pending_verifications': AssistantVerification.objects.filter(status='pending').count(),
     }
@@ -116,7 +116,7 @@ def approve_rider(request, verification_id):
         AdminAction.objects.create(
             admin=request.user,
             action_type='rider_approved',
-            description=f"Approved rider {verification.assistant.username}",
+            description=f"Approved rider {verification.user.username}",
             target_model='AssistantVerification',
             target_id=verification_id
         )
@@ -143,7 +143,7 @@ def reject_rider(request, verification_id):
         AdminAction.objects.create(
             admin=request.user,
             action_type='rider_rejected',
-            description=f"Rejected rider {verification.assistant.username}",
+            description=f"Rejected rider {verification.user.username}",
             target_model='AssistantVerification',
             target_id=verification_id
         )
@@ -260,8 +260,8 @@ def calculate_metrics(request):
         date=today,
         defaults={
             'total_orders': Order.objects.filter(created_at__date=today).count(),
-            'completed_orders': Order.objects.filter(created_at__date=today, status='delivered').count(),
-            'new_users': User.objects.filter(created_at__date=today).count(),
+            'completed_orders': Order.objects.filter(created_at__date=today, status='Completed').count(),
+            'new_users': User.objects.filter(date_joined__date=today).count(),
         }
     )
     

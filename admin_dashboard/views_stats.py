@@ -33,11 +33,11 @@ def dashboard_stats(request):
         # Order Statistics
         'orders': {
             'total': Order.objects.count(),
-            'pending': Order.objects.filter(status='pending').count(),
-            'assigned': Order.objects.filter(status='assigned').count(),
-            'in_progress': Order.objects.filter(status='in_progress').count(),
-            'completed': Order.objects.filter(status='completed').count(),
-            'cancelled': Order.objects.filter(status='cancelled').count(),
+            'pending': Order.objects.filter(status='Pending').count(),
+            'assigned': Order.objects.filter(status='Assigned').count(),
+            'in_progress': Order.objects.filter(status='InTransit').count(),
+            'completed': Order.objects.filter(status='Completed').count(),
+            'cancelled': Order.objects.filter(status='Cancelled').count(),
             'today': Order.objects.filter(created_at__date=today).count(),
             'this_week': Order.objects.filter(created_at__date__gte=week_ago).count(),
             'this_month': Order.objects.filter(created_at__date__gte=month_ago).count(),
@@ -45,11 +45,11 @@ def dashboard_stats(request):
         
         # Revenue Statistics
         'revenue': {
-            'total': Order.objects.filter(status='completed').aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            'today': Order.objects.filter(status='completed', completed_at__date=today).aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            'this_week': Order.objects.filter(status='completed', completed_at__date__gte=week_ago).aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            'this_month': Order.objects.filter(status='completed', completed_at__date__gte=month_ago).aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            'average_order': Order.objects.filter(status='completed').aggregate(Avg('total_price'))['total_price__avg'] or 0,
+            'total': Order.objects.filter(status='Completed').aggregate(Sum('total_price'))['total_price__sum'] or 0,
+            'today': Order.objects.filter(status='Completed', completed_at__date=today).aggregate(Sum('total_price'))['total_price__sum'] or 0,
+            'this_week': Order.objects.filter(status='Completed', completed_at__date__gte=week_ago).aggregate(Sum('total_price'))['total_price__sum'] or 0,
+            'this_month': Order.objects.filter(status='Completed', completed_at__date__gte=month_ago).aggregate(Sum('total_price'))['total_price__sum'] or 0,
+            'average_order': Order.objects.filter(status='Completed').aggregate(Avg('total_price'))['total_price__avg'] or 0,
         },
         
         # Handler Statistics
@@ -73,8 +73,8 @@ def dashboard_stats(request):
         'system': {
             'total_users': User.objects.count(),
             'active_users': User.objects.filter(is_active=True).count(),
-            'total_transactions': Order.objects.filter(status='completed').count(),
-            'success_rate': round((Order.objects.filter(status='completed').count() / max(Order.objects.exclude(status='draft').count(), 1)) * 100, 2),
+            'total_transactions': Order.objects.filter(status='Completed').count(),
+            'success_rate': round((Order.objects.filter(status='Completed').count() / max(Order.objects.exclude(status='Draft').count(), 1)) * 100, 2),
         }
     }
     

@@ -436,9 +436,9 @@ def assistant_dashboard_stats(request):
     
     stats = {
         'total_deliveries': Order.objects.filter(assistant=request.user).count(),
-        'completed': Order.objects.filter(assistant=request.user, status='delivered').count(),
-        'active': Order.objects.filter(assistant=request.user, status__in=['assigned', 'picked', 'in_transit']).count(),
-        'total_earnings': Order.objects.filter(assistant=request.user, status='delivered').aggregate(
+        'completed': Order.objects.filter(assistant=request.user, status='Completed').count(),
+        'active': Order.objects.filter(assistant=request.user, status__in=['Assigned', 'InTransit']).count(),
+        'total_earnings': Order.objects.filter(assistant=request.user, status='Completed').aggregate(
             total=Sum('total_price'))['total'] or 0,
         'rating': float(request.user.profile.rating),
         'total_ratings': request.user.profile.total_ratings,
@@ -532,13 +532,13 @@ def admin_verifications_list(request):
         return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
     
     from accounts.models import AssistantVerification
-    verifications = AssistantVerification.objects.all().select_related('assistant')
+    verifications = AssistantVerification.objects.all().select_related('user')
     
     data = [{
         'id': v.id,
-        'assistant_id': v.assistant.id,
-        'assistant_name': f"{v.assistant.first_name} {v.assistant.last_name}",
-        'assistant_phone': v.assistant.phone_number,
+        'assistant_id': v.user.id,
+        'assistant_name': f"{v.user.first_name} {v.user.last_name}",
+        'assistant_phone': v.user.phone_number,
         'status': v.status,
         'vehicle_type': v.vehicle_type,
         'submitted_at': v.created_at,
@@ -561,17 +561,17 @@ def admin_verification_detail(request, id):
     
     from accounts.models import AssistantVerification
     try:
-        v = AssistantVerification.objects.select_related('assistant').get(id=id)
+        v = AssistantVerification.objects.select_related('user').get(id=id)
     except AssistantVerification.DoesNotExist:
         return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
     
     return Response({
         'id': v.id,
         'assistant': {
-            'id': v.assistant.id,
-            'name': f"{v.assistant.first_name} {v.assistant.last_name}",
-            'phone': v.assistant.phone_number,
-            'email': v.assistant.email,
+            'id': v.user.id,
+            'name': f"{v.user.first_name} {v.user.last_name}",
+            'phone': v.user.phone_number,
+            'email': v.user.email,
         },
         'id_number': v.id_number,
         'id_photo': v.id_photo,

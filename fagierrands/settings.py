@@ -213,14 +213,14 @@ TEXTPIE_SHORTCODE = 'FagiErrands'
 GOOGLE_MAPS_API_KEY = 'AIzaSyDT22XW8FHw6Pd1lNkh1UxDXSN6HrBUtsQ'
 
 # Payment Configuration - HARDCODED (NCBA)
-NCBA_USERNAME = 'Errand@123'
-NCBA_PASSWORD = '9Y7a24B5TNxxKimfnGz9MTbdn960JY57ASC/r6KOCQNnR220v52od6a2ajgEaipL'
-NCBA_TILL_NO = '852054'
-NCBA_PAYBILL_NO = '880100'
-NCBA_TRANSACTION_TYPE = 'CustomerPayBillOnline'
-NCBA_USE_TILL_AS_ACCOUNT = False
-NCBA_CALLBACK_URL = 'http://localhost:8000/api/orders/payments/ncba/callback/'
-BASE_URL = 'http://localhost:8000'
+NCBA_USERNAME = os.getenv('NCBA_USERNAME', 'Errand@123')
+NCBA_PASSWORD = os.getenv('NCBA_PASSWORD', '9Y7a24B5TNxxKimfnGz9MTbdn960JY57ASC/r6KOCQNnR220v52od6a2ajgEaipL')
+NCBA_TILL_NO = os.getenv('NCBA_TILL_NO', '852054')
+NCBA_PAYBILL_NO = os.getenv('NCBA_PAYBILL_NO', '880100')
+NCBA_TRANSACTION_TYPE = os.getenv('NCBA_TRANSACTION_TYPE', 'CustomerPayBillOnline')
+NCBA_USE_TILL_AS_ACCOUNT = os.getenv('NCBA_USE_TILL_AS_ACCOUNT', 'False') == 'True'
+NCBA_CALLBACK_URL = os.getenv('NCBA_CALLBACK_URL', 'http://localhost:8000/api/orders/payments/ncba/callback/')
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000')
 
 # Pricing Configuration - HARDCODED
 BASE_PRICE_PER_KM = 50

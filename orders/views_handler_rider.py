@@ -332,20 +332,7 @@ def rider_complete_delivery(request, order_id):
         message = f"Your order {order.order_number} has been delivered successfully! Thank you for using Fagierrands."
         send_sms(order.user.phone_number, message)
         
-        # Auto-promote queued orders
-        try:
-            queued_orders = Order.objects.filter(
-                assistant=request.user,
-                status='Queued'
-            ).order_by('queue_position')
-            
-            for queued_order in queued_orders:
-                queued_order.queue_position -= 1
-                if queued_order.queue_position == 0:
-                    queued_order.status = 'Assigned'
-                queued_order.save()
-        except Exception:
-            pass
+        # Auto-promote queued orders (deprecated - queue_position no longer used)
         
         return Response({
             'message': 'Delivery completed successfully',
