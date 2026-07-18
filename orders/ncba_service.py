@@ -81,6 +81,12 @@ class NCBAService:
         except requests.exceptions.Timeout:
             logger.error("NCBA token request timed out")
             raise Exception("NCBA authentication timed out")
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"NCBA token HTTP error: {e.response.status_code} - {e.response.text[:200]}")
+            raise Exception(f"NCBA API unavailable (HTTP {e.response.status_code})")
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"NCBA token connection error: {str(e)}")
+            raise Exception("NCBA API unreachable")
         except Exception as e:
             logger.error(f"NCBA authentication failed: {str(e)}")
             raise
@@ -121,7 +127,8 @@ class NCBAService:
             
             response = requests.post(url, json=payload, headers=headers, timeout=self.timeout)
             logger.info(f"NCBA STK response: {response.status_code}")
-            response.raise_for_status()
+            if not response.ok:
+                raise Exception(f"NCBA STK API error: HTTP {response.status_code}")
             result = response.json()
             
             status_code = str(result.get('StatusCode', ''))
@@ -149,7 +156,8 @@ class NCBAService:
             payload = {"TransactionID": transaction_id}
             
             response = requests.post(url, json=payload, headers=headers, timeout=self.timeout)
-            response.raise_for_status()
+            if not response.ok:
+                raise Exception(f"NCBA query API error: HTTP {response.status_code}")
             return response.json()
             
         except Exception as e:
@@ -174,7 +182,8 @@ class NCBAService:
                 payload["amount"] = float(amount)
                 
             response = requests.post(url, json=payload, headers=headers, timeout=self.timeout)
-            response.raise_for_status()
+            if not response.ok:
+                raise Exception(f"NCBA QR API error: HTTP {response.status_code}")
             return response.json()
             
         except Exception as e:
