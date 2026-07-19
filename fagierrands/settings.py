@@ -16,9 +16,17 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security - Read from .env
-SECRET_KEY = os.getenv('SECRET_KEY', '9r1%hz2tdkhu39#6f^^_z(&0u&1g8=^cy_$(907_fs#tni-1r7')
+SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+
+# HTTPS Security (enabled in production via .env)
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 0))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False') == 'True'
+SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', 'False') == 'True'
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
 
 # Fix trailing slash issue for mobile app
 APPEND_SLASH = False
@@ -189,34 +197,34 @@ CSRF_TRUSTED_ORIGINS = [
     'https://fagiserver.fagitone.com',
 ]
 
-# Supabase Configuration - HARDCODED
-SUPABASE_URL = 'https://lmwloxheulmybtrnfobz.supabase.co'
-SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtd2xveGhldWxteWJ0cm5mb2J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NzcxMjMsImV4cCI6MjA5NDU1MzEyM30.O8ScKmH9pIrejFClsOWDvyhFvBXIsPeHE95dSQ4VlN0'
-SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtd2xveGhldWxteWJ0cm5mb2J6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODk3NzEyMywiZXhwIjoyMDk0NTUzMTIzfQ.OTHbQrAj1mwRNsEjT3Mgj41rqFaJDp56lsEKoUAqcp0'
-SUPABASE_STORAGE_URL = 'https://lmwloxheulmybtrnfobz.supabase.co/storage/v1'
-SUPABASE_BUCKET_NAME = 'user-uploads'
+# Supabase Configuration
+SUPABASE_URL = os.getenv('SUPABASE_URL', '')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
+SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '')
+SUPABASE_STORAGE_URL = f"{os.getenv('SUPABASE_URL', '')}/storage/v1"
+SUPABASE_BUCKET_NAME = os.getenv('SUPABASE_BUCKET_NAME', 'user-uploads')
 
-# Cloudinary Configuration - HARDCODED (if you have values)
-CLOUDINARY_CLOUD_NAME = ''
-CLOUDINARY_API_KEY = ''
-CLOUDINARY_API_SECRET = ''
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '')
+CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '')
+CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', '')
 
-# SMS Configuration - HARDCODED (TextPie)
-SMS_API_KEY = 'M176esJGFImYzBlqk9dgKfjuRXE2U3nyHZQvL4hiAWp08rTxwSNDVabtPO5oCc'
-SMS_USERNAME = 'FagiErrands'
-SMS_SENDER_ID = 'FagiErrands'
-TEXTPIE_API_KEY = 'M176esJGFImYzBlqk9dgKfjuRXE2U3nyHZQvL4hiAWp08rTxwSNDVabtPO5oCc'
-TEXTPIE_SERVICE_ID = '77'
-TEXTPIE_SHORTCODE = 'FagiErrands'
+# SMS Configuration (TextPie)
+SMS_API_KEY = os.getenv('TEXTPIE_API_KEY', '')
+SMS_USERNAME = os.getenv('SMS_USERNAME', 'FagiErrands')
+SMS_SENDER_ID = os.getenv('SMS_SENDER_ID', 'FagiErrands')
+TEXTPIE_API_KEY = os.getenv('TEXTPIE_API_KEY', '')
+TEXTPIE_SERVICE_ID = os.getenv('TEXTPIE_SERVICE_ID', '77')
+TEXTPIE_SHORTCODE = os.getenv('TEXTPIE_SHORTCODE', 'FagiErrands')
 
-# Google Maps API - HARDCODED
-GOOGLE_MAPS_API_KEY = 'AIzaSyDT22XW8FHw6Pd1lNkh1UxDXSN6HrBUtsQ'
+# Google Maps API
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
 
-# Payment Configuration - HARDCODED (NCBA)
-NCBA_USERNAME = os.getenv('NCBA_USERNAME', 'Errand@123')
-NCBA_PASSWORD = os.getenv('NCBA_PASSWORD', '9Y7a24B5TNxxKimfnGz9MTbdn960JY57ASC/r6KOCQNnR220v52od6a2ajgEaipL')
-NCBA_TILL_NO = os.getenv('NCBA_TILL_NO', '852054')
-NCBA_PAYBILL_NO = os.getenv('NCBA_PAYBILL_NO', '880100')
+# Payment Configuration (NCBA)
+NCBA_USERNAME = os.getenv('NCBA_USERNAME', '')
+NCBA_PASSWORD = os.getenv('NCBA_PASSWORD', '')
+NCBA_TILL_NO = os.getenv('NCBA_TILL_NO', '')
+NCBA_PAYBILL_NO = os.getenv('NCBA_PAYBILL_NO', '')
 NCBA_TRANSACTION_TYPE = os.getenv('NCBA_TRANSACTION_TYPE', 'CustomerPayBillOnline')
 NCBA_USE_TILL_AS_ACCOUNT = os.getenv('NCBA_USE_TILL_AS_ACCOUNT', 'False') == 'True'
 NCBA_CALLBACK_URL = os.getenv('NCBA_CALLBACK_URL', 'http://localhost:8000/api/orders/payments/ncba/callback/')
@@ -226,24 +234,24 @@ BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000')
 BASE_PRICE_PER_KM = 50
 MINIMUM_ORDER_AMOUNT = 100
 
-# Email Configuration - HARDCODED
-EMAIL_HOST = 'smtp-relay.brevo.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'no-reply@fagitone.com'
-EMAIL_HOST_PASSWORD = ''  # Add if you have it
-DEFAULT_FROM_EMAIL = 'no-reply@fagitone.com'
+# Email Configuration
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '')
 
-# Push Notifications - HARDCODED
-FCM_SERVER_KEY = ''  # Add FCM key if available
-VAPID_PUBLIC_KEY = ''
-VAPID_PRIVATE_KEY = ''
-VAPID_ADMIN_EMAIL = ''
+# Push Notifications
+FCM_SERVER_KEY = os.getenv('FCM_SERVER_KEY', '')
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY', '')
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY', '')
+VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 
-# Groq AI - HARDCODED
-GROQ_API_KEY = ''
+# Groq AI
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
 
-# Redis & Celery - HARDCODED
-REDIS_URL = 'redis://localhost:6379/0'
+# Redis & Celery
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
@@ -260,9 +268,6 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-# Google Maps
-GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
 # App Settings
 DEFAULT_CURRENCY = os.getenv('DEFAULT_CURRENCY', 'KES')
