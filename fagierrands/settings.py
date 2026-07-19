@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'django_filters',
-    'channels',
     
     # Local apps
     'accounts',
@@ -92,11 +91,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'fagierrands.wsgi.application'
-ASGI_APPLICATION = 'fagierrands.asgi.application'
 
 # Database
-# Use SQLite for testing, PostgreSQL for production
 USE_SQLITE = os.getenv('USE_SQLITE', 'False') == 'True'
+DATABASE_URL = os.getenv('DATABASE_URL', '')
 
 if USE_SQLITE:
     DATABASES = {
@@ -105,13 +103,25 @@ if USE_SQLITE:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
+elif DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             env='DATABASE_URL',
             conn_max_age=600,
             ssl_require=False,
         )
+    }
+else:
+    # cPanel individual DB credentials
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', ''),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
 
 # Password validation
@@ -132,7 +142,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
 MEDIA_URL = 'media/'
@@ -251,7 +261,7 @@ VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
 
 # Redis & Celery
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_URL = os.getenv('REDIS_URL', '')
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
@@ -259,15 +269,20 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
-# Channels
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [REDIS_URL],
+# Channels — use Redis if available, otherwise in-memory (cPanel safe)
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {'hosts': [REDIS_URL]},
         },
-    },
-}
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 # App Settings
 DEFAULT_CURRENCY = os.getenv('DEFAULT_CURRENCY', 'KES')
@@ -302,3 +317,4 @@ LOGGING = {
 
 # Create logs directory if it doesn't exist
 (BASE_DIR / 'logs').mkdir(exist_ok=True)
+(BASE_DIR / 'staticfiles').mkdir(exist_ok=True)

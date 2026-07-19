@@ -152,6 +152,7 @@ REPORT="$REPORT\n  ✅ PASS  Login + password rotated (old password dead)"
 # ── Step 4: Run Tests ───────────────────────────────────────────
 
 # Public / Server Health
+check "Health endpoint"                 GET  "/health/"                                     ""  ""
 check "Homepage"                        GET  "/"                                            ""  ""
 check "Swagger Docs"                    GET  "/swagger/"                                    ""  ""
 

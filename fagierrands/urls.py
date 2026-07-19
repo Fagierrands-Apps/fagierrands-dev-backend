@@ -10,8 +10,26 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import os
+
+def health_view(request):
+    """Public health check endpoint for uptime monitors"""
+    from django.db import connection
+    try:
+        connection.ensure_connection()
+        db_status = "ok"
+    except Exception:
+        db_status = "error"
+
+    status = "ok" if db_status == "ok" else "degraded"
+    code = 200 if status == "ok" else 503
+    return JsonResponse({
+        "status": status,
+        "db": db_status,
+        "env": "production" if not os.getenv('DEBUG', 'False') == 'True' else "development",
+    }, status=code)
+
 
 def home_view(request):
     """Clean API landing page with environment indicator"""
@@ -133,10 +151,6 @@ def home_view(request):
                     <a href="/swagger/" class="endpoint-link">/swagger/</a>
                 </div>
                 <div class="endpoint">
-                    <span class="endpoint-label">API Endpoints</span>
-                    <a href="/api/" class="endpoint-link">/api/</a>
-                </div>
-                <div class="endpoint">
                     <span class="endpoint-label">Admin Panel</span>
                     <a href="/admin/" class="endpoint-link">/admin/</a>
                 </div>
@@ -171,6 +185,9 @@ schema_view = get_schema_view(
 urlpatterns = [
     # Homepage
     path('', home_view, name='home'),
+    
+    # Health check (public, no auth)
+    path('health/', health_view, name='health'),
     
     # Admin
     path('admin/', admin.site.urls),

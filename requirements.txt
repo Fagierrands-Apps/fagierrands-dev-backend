@@ -15,9 +15,6 @@ geopy==2.4.1
 dj-database-url==2.1.0
 gunicorn==21.2.0
 whitenoise==6.6.0
-celery==5.3.4
-redis==5.0.1
 channels==4.0.0
-channels-redis==4.1.0
 openpyxl==3.1.2
 groq==0.4.1
