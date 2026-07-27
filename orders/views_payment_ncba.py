@@ -498,6 +498,13 @@ class NCBACallbackView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        # Verify callback secret to prevent spoofed payment confirmations
+        expected_secret = settings.NCBA_CALLBACK_SECRET if hasattr(settings, 'NCBA_CALLBACK_SECRET') else None
+        if expected_secret:
+            provided = request.headers.get('X-Callback-Secret') or request.GET.get('secret')
+            if provided != expected_secret:
+                logger.warning(f"NCBA callback rejected: invalid secret from {request.META.get('REMOTE_ADDR')}")
+                return Response({'status': 'error'}, status=status.HTTP_403_FORBIDDEN)
         response = NCBAWebhookHandler.handle_callback(request.data)
         return Response(response)
 

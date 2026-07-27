@@ -21,6 +21,7 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)  # Rider online/offline toggle
     referral_code = models.CharField(max_length=10, blank=True, null=True)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrals')
     account_manager = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_clients')

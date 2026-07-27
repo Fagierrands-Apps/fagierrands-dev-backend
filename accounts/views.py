@@ -45,6 +45,8 @@ def register(request):
         user = serializer.save()
         otp = generate_otp()
         expires = timezone.now() + timedelta(minutes=10)
+        # Clean up expired OTPs to prevent DB bloat
+        OTPVerification.objects.filter(expires_at__lt=timezone.now()).delete()
         OTPVerification.objects.create(
             phone_number=user.phone_number,
             otp=otp,
@@ -264,7 +266,8 @@ def password_reset_request(request):
     phone = normalize_phone_number(request.data.get('phone_number'))
     user = User.objects.filter(phone_number=phone).first()
     if not user:
-        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        # Don't reveal if phone exists or not
+        return Response({'message': 'If this number is registered, an OTP will be sent.'})
     
     otp = generate_otp()
     expires = timezone.now() + timedelta(minutes=10)
@@ -471,14 +474,14 @@ def assistant_availability(request):
     
     if request.method == 'GET':
         return Response({
-            'is_available': request.user.is_active,
+            'is_available': request.user.is_available,
             'user_id': request.user.id
         })
     
     elif request.method == 'PATCH':
         is_available = request.data.get('is_available')
-        request.user.is_active = is_available
-        request.user.save()
+        request.user.is_available = is_available
+        request.user.save(update_fields=['is_available'])
         return Response({
             'message': 'Availability updated',
             'is_available': is_available
@@ -636,7 +639,7 @@ def assistants_stats(request):
         'total_assistants': User.objects.filter(user_type='assistant').count(),
         'verified_assistants': AssistantVerification.objects.filter(status='approved').count(),
         'pending_verifications': AssistantVerification.objects.filter(status='pending').count(),
-        'available_assistants': User.objects.filter(user_type='assistant', is_active=True).count(),
+        'available_assistants': User.objects.filter(user_type='assistant', is_available=True).count(),
     }
     return Response(stats)
 

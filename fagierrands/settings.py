@@ -238,6 +238,7 @@ NCBA_PAYBILL_NO = os.getenv('NCBA_PAYBILL_NO', '')
 NCBA_TRANSACTION_TYPE = os.getenv('NCBA_TRANSACTION_TYPE', 'CustomerPayBillOnline')
 NCBA_USE_TILL_AS_ACCOUNT = os.getenv('NCBA_USE_TILL_AS_ACCOUNT', 'False') == 'True'
 NCBA_CALLBACK_URL = os.getenv('NCBA_CALLBACK_URL', 'http://localhost:8000/api/orders/payments/ncba/callback/')
+NCBA_CALLBACK_SECRET = os.getenv('NCBA_CALLBACK_SECRET', '')
 BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000')
 
 # Email Configuration
