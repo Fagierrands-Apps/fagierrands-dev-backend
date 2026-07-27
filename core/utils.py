@@ -43,6 +43,8 @@ def format_phone_number(phone):
     return normalize_phone_number(phone)
 
 
+
+
 def generate_otp(length=4):
     """Generate 4-digit numeric OTP"""
     return ''.join(random.choices(string.digits, k=length))
@@ -135,15 +137,4 @@ def calculate_cargo_price(distance_km):
     }
 
 
-def format_phone_number(phone):
-    """Format phone number to standard format"""
-    # Remove spaces, dashes, and plus
-    phone = phone.replace(' ', '').replace('-', '').replace('+', '')
-    
-    # Handle Kenyan numbers
-    if phone.startswith('0'):
-        phone = '254' + phone[1:]
-    elif phone.startswith('7') or phone.startswith('1'):
-        phone = '254' + phone
-    
-    return phone
+

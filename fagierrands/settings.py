@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security - Read from .env
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # HTTPS Security (enabled in production via .env)
 SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 0))
@@ -239,10 +239,6 @@ NCBA_TRANSACTION_TYPE = os.getenv('NCBA_TRANSACTION_TYPE', 'CustomerPayBillOnlin
 NCBA_USE_TILL_AS_ACCOUNT = os.getenv('NCBA_USE_TILL_AS_ACCOUNT', 'False') == 'True'
 NCBA_CALLBACK_URL = os.getenv('NCBA_CALLBACK_URL', 'http://localhost:8000/api/orders/payments/ncba/callback/')
 BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000')
-
-# Pricing Configuration - HARDCODED
-BASE_PRICE_PER_KM = 50
-MINIMUM_ORDER_AMOUNT = 100
 
 # Email Configuration
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')

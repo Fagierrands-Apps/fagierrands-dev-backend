@@ -40,7 +40,7 @@ def send_sms(phone_number, message):
         
         print(f"TextPie API Request:")
         print(f"URL: {url}")
-        print(f"Payload: {payload}\n")
+        print(f"To: {phone}, Service: {settings.TEXTPIE_SERVICE_ID}\n")
         
         response = requests.post(url, json=payload, timeout=10)
         

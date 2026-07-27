@@ -169,8 +169,8 @@ class InitiatePaymentView(generics.CreateAPIView):
                 
                 # Update order with fresh price
                 order.distance_km = distance_km
-                order.base_price = pricing.get('base_price', 200)
-                order.total_price = pricing.get('total_price', 200)
+                order.base_price = pricing.get('base_fee', 200)
+                order.total_price = pricing.get('total', 200)
                 order.save(update_fields=['distance_km', 'base_price', 'total_price'])
                 
                 logger.info(f"Recalculated order {order.id} price: {order.total_price}")
