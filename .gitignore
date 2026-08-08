@@ -22,3 +22,4 @@ install.py
 health_checker/.env.healthcheck
 health_checker/used_passwords.log
 health_checker/run.log
+SECURITY_SCAN_BRIEF.md
