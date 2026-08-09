@@ -154,26 +154,24 @@ class InitiatePaymentView(generics.CreateAPIView):
                     return Response({'error': 'You do not have permission to initiate payment for this order'}, 
                                    status=status.HTTP_403_FORBIDDEN)
                 
-                # RECALCULATE PRICE FROM ORDER COORDINATES (ignore app's cached price)
-                from core.utils import calculate_distance, calculate_parcel_price, calculate_cargo_price
-                distance_km = calculate_distance(
-                    float(order.pickup_lat), float(order.pickup_lng),
-                    float(order.delivery_lat), float(order.delivery_lng)
-                )
-                
-                order_type_code = order.order_type.code if order.order_type else 'parcel'
-                if order_type_code == 'cargo':
-                    pricing = calculate_cargo_price(distance_km)
+                # Only recalculate price if valid coordinates exist
+                pickup_lat = float(order.pickup_lat or 0)
+                pickup_lng = float(order.pickup_lng or 0)
+                delivery_lat = float(order.delivery_lat or 0)
+                delivery_lng = float(order.delivery_lng or 0)
+
+                if pickup_lat != 0 and pickup_lng != 0 and delivery_lat != 0 and delivery_lng != 0:
+                    from core.utils import calculate_distance, calculate_parcel_price, calculate_cargo_price
+                    distance_km = calculate_distance(pickup_lat, pickup_lng, delivery_lat, delivery_lng)
+                    order_type_code = order.order_type.code if order.order_type else 'parcel'
+                    pricing = calculate_cargo_price(distance_km) if order_type_code == 'cargo' else calculate_parcel_price(distance_km)
+                    order.distance_km = distance_km
+                    order.base_price = pricing.get('base_fee', 200)
+                    order.total_price = pricing.get('total', 200)
+                    order.save(update_fields=['distance_km', 'base_price', 'total_price'])
+                    logger.info(f"Recalculated order {order.id} price: {order.total_price}")
                 else:
-                    pricing = calculate_parcel_price(distance_km)
-                
-                # Update order with fresh price
-                order.distance_km = distance_km
-                order.base_price = pricing.get('base_fee', 200)
-                order.total_price = pricing.get('total', 200)
-                order.save(update_fields=['distance_km', 'base_price', 'total_price'])
-                
-                logger.info(f"Recalculated order {order.id} price: {order.total_price}")
+                    logger.info(f"Order {order.id} has missing coordinates, keeping existing price: {order.total_price}")
                 
             except Order.DoesNotExist:
                 return Response({'error': f'Order with ID {order_id} not found'}, 
