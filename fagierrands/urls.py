@@ -267,7 +267,6 @@ def home_view(request):
     color: var(--muted);
   }}
 
-  {''.join([f"""
   .dev-warning {{
     margin-bottom: 20px;
     padding: 12px 16px;
@@ -278,7 +277,6 @@ def home_view(request):
     color: #fbbf24;
     line-height: 1.5;
   }}
-  """ if is_dev else ''])}
 </style>
 </head>
 <body>
