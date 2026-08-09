@@ -32,139 +32,311 @@ def health_view(request):
 
 
 def home_view(request):
-    """Clean API landing page with environment indicator"""
     is_dev = os.getenv('DEBUG', 'False') == 'True'
-    env_color = '#f59e0b' if is_dev else '#10b981'
     env_label = 'DEVELOPMENT' if is_dev else 'PRODUCTION'
-    warning = '⚠️ This is a development server. Data may be unstable and reset periodically.' if is_dev else ''
-    
-    html = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>FagiErrands API - {env_label}</title>
-        <style>
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{ 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }}
-            .container {{
-                background: white;
-                border-radius: 20px;
-                padding: 50px;
-                max-width: 600px;
-                width: 100%;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            }}
-            h1 {{
-                font-size: 2.5rem;
-                color: #1f2937;
-                margin-bottom: 10px;
-            }}
-            .version {{
-                color: #6b7280;
-                font-size: 0.9rem;
-                margin-bottom: 30px;
-            }}
-            .badge {{
-                display: inline-block;
-                padding: 8px 16px;
-                background: {env_color};
-                color: white;
-                border-radius: 20px;
-                font-size: 0.85rem;
-                font-weight: 600;
-                margin-bottom: 30px;
-            }}
-            .status {{
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-bottom: 30px;
-                padding: 15px;
-                background: #f3f4f6;
-                border-radius: 10px;
-            }}
-            .status-dot {{
-                width: 12px;
-                height: 12px;
-                background: #10b981;
-                border-radius: 50%;
-                animation: pulse 2s infinite;
-            }}
-            @keyframes pulse {{
-                0%, 100% {{ opacity: 1; }}
-                50% {{ opacity: 0.5; }}
-            }}
-            .endpoints {{
-                margin-top: 30px;
-            }}
-            .endpoint {{
-                display: flex;
-                justify-content: space-between;
-                padding: 12px 0;
-                border-bottom: 1px solid #e5e7eb;
-            }}
-            .endpoint:last-child {{ border-bottom: none; }}
-            .endpoint-label {{ color: #6b7280; font-weight: 500; }}
-            .endpoint-link {{ color: #667eea; text-decoration: none; }}
-            .endpoint-link:hover {{ text-decoration: underline; }}
-            .warning {{
-                margin-top: 30px;
-                padding: 15px;
-                background: #fef3c7;
-                border-left: 4px solid #f59e0b;
-                border-radius: 5px;
-                color: #92400e;
-                font-size: 0.9rem;
-            }}
-            .footer {{
-                margin-top: 40px;
-                text-align: center;
-                color: #9ca3af;
-                font-size: 0.85rem;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>FagiErrands API</h1>
-            <div class="version">Version 1.0</div>
-            <div class="badge">{env_label}</div>
-            
-            <div class="status">
-                <div class="status-dot"></div>
-                <span>All systems operational</span>
-            </div>
-            
-            <div class="endpoints">
-                <div class="endpoint">
-                    <span class="endpoint-label">API Documentation</span>
-                    <a href="/swagger/" class="endpoint-link">/swagger/</a>
-                </div>
-                <div class="endpoint">
-                    <span class="endpoint-label">Admin Panel</span>
-                    <a href="/admin/" class="endpoint-link">/admin/</a>
-                </div>
-            </div>
-            
-            {f'<div class="warning">{warning}</div>' if is_dev else ''}
-            
-            <div class="footer">
-                © 2026 FagiErrands. All rights reserved.
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    env_color = '#f59e0b' if is_dev else '#22c55e'
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FagiErrands API</title>
+<style>
+  *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
+  :root {{
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: rgba(255,255,255,0.07);
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.25);
+    --green: #22c55e;
+    --env: {env_color};
+  }}
+
+  body {{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+  }}
+
+  /* subtle grid background */
+  body::before {{
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }}
+
+  .card {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    overflow: hidden;
+  }}
+
+  /* top accent line */
+  .card::before {{
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }}
+
+  /* glow blob */
+  .card::after {{
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 220px; height: 220px;
+    background: var(--accent-glow);
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+  }}
+
+  .logo-row {{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }}
+
+  .logo-icon {{
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), #818cf8);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }}
+
+  .logo-text {{
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }}
+
+  .logo-text span {{ color: var(--accent); }}
+
+  .env-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: color-mix(in srgb, var(--env) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--env) 30%, transparent);
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--env);
+    letter-spacing: 0.08em;
+    margin-left: auto;
+  }}
+
+  .env-badge::before {{
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--env);
+    border-radius: 50%;
+  }}
+
+  .headline {{
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }}
+
+  .headline span {{
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }}
+
+  .sub {{
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }}
+
+  .status-row {{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.15);
+    border-radius: 10px;
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+    color: var(--green);
+    font-weight: 500;
+  }}
+
+  .pulse {{
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.4);
+    animation: ping 1.8s ease-in-out infinite;
+  }}
+
+  @keyframes ping {{
+    0%, 100% {{ box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }}
+    50% {{ box-shadow: 0 0 0 6px rgba(34,197,94,0); }}
+  }}
+
+  .links {{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }}
+
+  .link-item {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: border-color 0.2s, background 0.2s;
+  }}
+
+  .link-item:hover {{
+    border-color: rgba(99,102,241,0.4);
+    background: rgba(99,102,241,0.05);
+  }}
+
+  .link-left {{ display: flex; align-items: center; gap: 10px; }}
+
+  .link-icon {{
+    width: 30px; height: 30px;
+    background: rgba(99,102,241,0.1);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+  }}
+
+  .link-arrow {{
+    color: var(--muted);
+    font-size: 0.75rem;
+    transition: color 0.2s, transform 0.2s;
+  }}
+
+  .link-item:hover .link-arrow {{
+    color: var(--accent);
+    transform: translateX(2px);
+  }}
+
+  .footer {{
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }}
+
+  {''.join([f"""
+  .dev-warning {{
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: #fbbf24;
+    line-height: 1.5;
+  }}
+  """ if is_dev else ''])}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-row">
+    <div class="logo-icon">🚀</div>
+    <div class="logo-text">Fagi<span>Errands</span></div>
+    <div class="env-badge">{env_label}</div>
+  </div>
+
+  <div class="headline">Errand Delivery<br><span>API Server</span></div>
+  <p class="sub">Backend infrastructure powering the FagiErrands platform — orders, payments, locations, and notifications.</p>
+
+  {'<div class="dev-warning">⚠️ Development server — data may be reset periodically.</div>' if is_dev else ''}
+
+  <div class="status-row">
+    <div class="pulse"></div>
+    All systems operational
+  </div>
+
+  <div class="links">
+    <a href="/swagger/" class="link-item">
+      <div class="link-left">
+        <div class="link-icon">📄</div>
+        API Documentation
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+    <a href="/redoc/" class="link-item">
+      <div class="link-left">
+        <div class="link-icon">📚</div>
+        ReDoc Reference
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+    <a href="/health/" class="link-item">
+      <div class="link-left">
+        <div class="link-icon">💓</div>
+        Health Check
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+    <a href="/admin/" class="link-item">
+      <div class="link-left">
+        <div class="link-icon">🔐</div>
+        Admin Panel
+      </div>
+      <span class="link-arrow">→</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    <span>© 2026 FagiErrands</span>
+    <span>v1.0</span>
+  </div>
+</div>
+</body>
+</html>"""
     return HttpResponse(html)
 
 # API Documentation
