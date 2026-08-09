@@ -18,7 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security - Read from .env
 SECRET_KEY = os.getenv('SECRET_KEY')
 if not SECRET_KEY:
-    raise ValueError("SECRET_KEY environment variable is not set.")
+    import warnings
+    warnings.warn("SECRET_KEY is not set — using insecure default. Set it in production!")
+    SECRET_KEY = 'insecure-default-key-change-me-in-production'
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
