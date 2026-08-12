@@ -10,7 +10,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # 1. Add new fields to OTPVerification
+        # 1. Make otp field nullable for backward compatibility
+        migrations.AlterField(
+            model_name='otpverification',
+            name='otp',
+            field=models.CharField(max_length=6, null=True, blank=True),
+        ),
+        # 2. Add new fields to OTPVerification
         migrations.AddField(
             model_name='otpverification',
             name='otp_hash',
