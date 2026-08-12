@@ -144,7 +144,11 @@ def test_resend_otp():
     try:
         response = requests.post(url, json=data)
         print(f"Status: {response.status_code}")
-        print(f"Response: {json.dumps(response.json(), indent=2)}")
+        print(f"Raw Response: {response.text[:500]}")
+        try:
+            print(f"Response: {json.dumps(response.json(), indent=2)}")
+        except:
+            pass
         
         # Should return 200 with generic message (don't reveal if phone exists)
         if response.status_code == 200:
