@@ -36,6 +36,23 @@ SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
 SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
 CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False') == 'True'
 
+# Session Timeout Configuration
+# Session expires after 30 minutes of inactivity (1800 seconds)
+SESSION_COOKIE_AGE = int(os.getenv('SESSION_COOKIE_AGE', 1800))
+# JWT tokens have their own expiry in SIMPLE_JWT settings below
+# Shorter session timeout improves security
+SESSION_SAVE_EVERY_REQUEST = True  # Update session timeout on every request
+SESSION_COOKIE_HTTPONLY = True  # Prevent JS access to session cookie
+
+# Concurrent Session Limits (stored in cache)
+# Maximum number of concurrent sessions per user
+MAX_CONCURRENT_SESSIONS = int(os.getenv('MAX_CONCURRENT_SESSIONS', 3))
+
+# Login Security Settings
+LOGIN_FAILURE_THRESHOLD = int(os.getenv('LOGIN_FAILURE_THRESHOLD', 5))  # Failed attempts before lockout
+LOGIN_FAILURE_LOCKOUT_DURATION = int(os.getenv('LOGIN_FAILURE_LOCKOUT_DURATION', 900))  # 15 minutes
+SUSPICIOUS_LOGIN_THRESHOLD = int(os.getenv('SUSPICIOUS_LOGIN_THRESHOLD', 3))  # Logins from diff locations/IPs
+
 # Fix trailing slash issue for mobile app
 APPEND_SLASH = False
 
@@ -175,6 +192,14 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'fagierrands.throttles.AnonRateThrottle',
+        'fagierrands.throttles.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+    }
 }
 
 # Swagger Settings

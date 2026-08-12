@@ -1,12 +1,13 @@
 
 from rest_framework import status, generics
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.core.cache import cache
 from django.db.models import Sum, Count
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
@@ -14,8 +15,14 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import User, OTPVerification, Profile, AssistantVerification
 from .serializers import RegisterSerializer, UserSerializer, ProfileSerializer
-from core.utils import generate_otp
+from .login_security import LoginSecurityManager, get_client_ip
+from uuid import uuid4
+from core.utils import generate_otp, normalize_phone_number
 from core.sms_service import send_otp, send_password_reset_otp
+from fagierrands.throttles import (
+    RegisterThrottle, OTPVerificationThrottle, ResendOTPThrottle,
+    PasswordResetThrottle, LoginThrottle, TokenRefreshThrottle
+)
 
 @swagger_auto_schema(
     method='post',
@@ -36,6 +43,7 @@ from core.sms_service import send_otp, send_password_reset_otp
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([RegisterThrottle])
 def register(request):
     import logging
     logger = logging.getLogger(__name__)
@@ -43,17 +51,19 @@ def register(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        otp = generate_otp()
+        otp_plain, otp_hash = generate_otp(length=4)  # ← 4-digit OTP for app compatibility
         expires = timezone.now() + timedelta(minutes=10)
+        
         # Clean up expired OTPs to prevent DB bloat
         OTPVerification.objects.filter(expires_at__lt=timezone.now()).delete()
+        
         OTPVerification.objects.create(
             phone_number=user.phone_number,
-            otp=otp,
+            otp_hash=otp_hash,  # Store hash, not plaintext
             purpose='registration',
             expires_at=expires
         )
-        send_otp(user.phone_number, otp)
+        send_otp(user.phone_number, otp_plain)  # Send plaintext to user
         return Response({
             'message': 'Registration successful. OTP sent to your phone number.',
             'phone_number': user.phone_number,
@@ -88,26 +98,58 @@ def register(request):
 )
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([OTPVerificationThrottle])
 def verify_phone(request):
-    from core.utils import normalize_phone_number
-    
     phone = normalize_phone_number(request.data.get('phone_number'))
-    otp = request.data.get('otp')
+    otp = request.data.get('otp', '').strip()
     
+    # Check if account is locked out
+    lockout_key = f"otp_lockout_{phone}"
+    if cache.get(lockout_key):
+        return Response({
+            'error': 'Too many failed attempts. Please try again after 15 minutes.'
+        }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+    
+    # NEW: Use verify_otp method with timing attack protection
     otp_obj = OTPVerification.objects.filter(
-        phone_number=phone, otp=otp, is_used=False,
-        expires_at__gt=timezone.now()
-    ).first()
+        phone_number=phone, 
+        is_used=False,
+        purpose='registration'
+    ).latest('created_at')
     
-    if not otp_obj:
-        return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
+    if not otp_obj or not otp_obj.verify_otp(otp):
+        # Track failed attempt
+        failure_key = f"otp_failures_{phone}"
+        failures = cache.get(failure_key, 0) + 1
+        cache.set(failure_key, failures, 3600)  # 1 hour window
+        
+        # Update attempt count in DB
+        if otp_obj:
+            otp_obj.attempt_count += 1
+            otp_obj.last_attempt_at = timezone.now()
+            otp_obj.save(update_fields=['attempt_count', 'last_attempt_at'])
+        
+        # Generic error message (no enumeration)
+        if failures >= 5:
+            # Lockout for 15 minutes
+            cache.set(lockout_key, True, 900)
+            return Response({
+                'error': 'Too many failed attempts. Please try again after 15 minutes.'
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        
+        return Response({
+            'error': 'Invalid verification code. Please try again.'
+        }, status=status.HTTP_400_BAD_REQUEST)
     
     user = User.objects.filter(phone_number=phone).first()
     if user:
         user.is_verified = True
         user.save()
         otp_obj.is_used = True
-        otp_obj.save()
+        otp_obj.save(update_fields=['is_used'])
+        
+        # Clear failure tracking on success
+        cache.delete(f"otp_failures_{phone}")
         
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -117,7 +159,10 @@ def verify_phone(request):
             'user': UserSerializer(user).data
         })
     
-    return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    # Don't reveal if user exists - return generic error
+    return Response({
+        'error': 'Invalid verification code. Please try again.'
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
     method='post',
@@ -133,21 +178,21 @@ def verify_phone(request):
 )
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([ResendOTPThrottle])
 def resend_otp(request):
-    from core.utils import normalize_phone_number
-    
     phone = normalize_phone_number(request.data.get('phone_number'))
     
     # SECURITY: Only allow resend for registered but unverified users
     user = User.objects.filter(phone_number=phone, is_verified=False).first()
     
     if not user:
+        # Don't reveal if phone exists or is already verified
         return Response({
-            'error': 'Phone number not found or already verified. Please register first.'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            'message': 'If this number is registered and unverified, OTP will be resent.'
+        }, status=status.HTTP_200_OK)
     
     # Generate new OTP
-    otp = generate_otp()
+    otp_plain, otp_hash = generate_otp(length=4)  # ← 4-digit OTP for app compatibility
     expires = timezone.now() + timedelta(minutes=10)
     
     # Invalidate old OTPs for this phone
@@ -156,13 +201,13 @@ def resend_otp(request):
     # Create new OTP
     OTPVerification.objects.create(
         phone_number=phone, 
-        otp=otp,
+        otp_hash=otp_hash,  # ← NEW: Store hash
         purpose='registration', 
         expires_at=expires
     )
     
     # Send OTP
-    send_otp(phone, otp)
+    send_otp(phone, otp_plain)
     
     return Response({
         'message': 'OTP sent successfully',
@@ -198,18 +243,50 @@ def resend_otp(request):
 )
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([LoginThrottle])
 def login(request):
-    from core.utils import normalize_phone_number
+    """
+    User login with password.
+    Now includes:
+    - Failed attempt tracking and lockout
+    - Suspicious login detection
+    - Concurrent session limiting
+    - Phone verification requirement
+    """
+    import logging
+    logger = logging.getLogger(__name__)
     
     phone = normalize_phone_number(request.data.get('phone_number'))
     password = request.data.get('password')
     
+    # Get client IP for security tracking
+    client_ip = get_client_ip(request)
+    
     user = User.objects.filter(phone_number=phone).first()
+    
+    # Check if login is allowed (not locked out)
+    allowed, reason = LoginSecurityManager.check_login_allowed(user, client_ip)
+    if not allowed:
+        return Response({'error': reason}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+    
+    # Verify password
     if user and user.check_password(password):
+        # Check phone verification
         if not user.is_verified:
-            return Response({'error': 'Phone not verified'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Phone not verified. Please verify your phone number first.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
+        # Record successful login
+        session_id = str(uuid4())
+        LoginSecurityManager.record_successful_login(user, session_id, client_ip)
+        
+        # Generate tokens
         refresh = RefreshToken.for_user(user)
+        
+        logger.info(f"Successful login for user {user.id} ({user.phone_number}) from IP {client_ip}")
+        
         return Response({
             'message': 'Login successful',
             'token': str(refresh.access_token),
@@ -218,10 +295,20 @@ def login(request):
             'email': user.email,
             'user_type': user.user_type,
             'is_verified': user.is_verified,
-            'email_verified': user.email_verified
+            'email_verified': user.email_verified,
+            'session_id': session_id
         })
-    
-    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    else:
+        # Record failed login attempt
+        if user:
+            error_msg = LoginSecurityManager.record_failed_login(user, client_ip, "Invalid password")
+            logger.warning(f"Failed login attempt for user {user.id if user else 'unknown'} from IP {client_ip}")
+        
+        # Return generic error (don't distinguish between invalid user vs password)
+        return Response(
+            {'error': 'Invalid credentials. Please check phone number and password.'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 @swagger_auto_schema(
     method='post',
@@ -238,12 +325,23 @@ def login(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
+    """
+    Logout user and cleanup session/token tracking.
+    """
     try:
         refresh_token = request.data.get('refresh')
+        session_id = request.data.get('session_id')
+        
+        # Blacklist the refresh token
         token = RefreshToken(refresh_token)
         token.blacklist()
+        
+        # Clean up session tracking if session_id provided
+        if session_id:
+            LoginSecurityManager.logout(request.user.id, session_id)
+        
         return Response({'message': 'Successfully logged out.'})
-    except Exception:
+    except Exception as e:
         return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(
@@ -260,22 +358,23 @@ def logout(request):
 )
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetThrottle])
 def password_reset_request(request):
-    from core.utils import normalize_phone_number
-    
     phone = normalize_phone_number(request.data.get('phone_number'))
     user = User.objects.filter(phone_number=phone).first()
     if not user:
         # Don't reveal if phone exists or not
         return Response({'message': 'If this number is registered, an OTP will be sent.'})
     
-    otp = generate_otp()
+    otp_plain, otp_hash = generate_otp(length=4)  # ← 4-digit OTP for app compatibility
     expires = timezone.now() + timedelta(minutes=10)
     OTPVerification.objects.create(
-        phone_number=phone, otp=otp,
-        purpose='password_reset', expires_at=expires
+        phone_number=phone, 
+        otp_hash=otp_hash,  # Store hash
+        purpose='password_reset', 
+        expires_at=expires
     )
-    send_password_reset_otp(phone, otp)
+    send_password_reset_otp(phone, otp_plain)
     return Response({
         'message': 'OTP sent to your phone number',
         'phone_number': phone
@@ -297,19 +396,44 @@ def password_reset_request(request):
 )
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([OTPVerificationThrottle])
 def password_reset(request):
-    from core.utils import normalize_phone_number
-    
     phone = normalize_phone_number(request.data.get('phone_number'))
-    otp = request.data.get('otp')
+    otp = request.data.get('otp', '').strip()
     new_password = request.data.get('new_password')
     
-    otp_obj = OTPVerification.objects.filter(
-        phone_number=phone, otp=otp, is_used=False,
-        purpose='password_reset', expires_at__gt=timezone.now()
-    ).first()
+    # Check lockout
+    lockout_key = f"otp_lockout_{phone}"
+    if cache.get(lockout_key):
+        return Response({
+            'error': 'Too many failed attempts. Please try again after 15 minutes.'
+        }, status=status.HTTP_429_TOO_MANY_REQUESTS)
     
-    if not otp_obj:
+    # NEW: Use verify_otp method with timing attack protection
+    otp_obj = OTPVerification.objects.filter(
+        phone_number=phone, 
+        is_used=False,
+        purpose='password_reset'
+    ).latest('created_at')
+    
+    if not otp_obj or not otp_obj.verify_otp(otp):
+        # Track failure
+        failure_key = f"otp_failures_{phone}"
+        failures = cache.get(failure_key, 0) + 1
+        cache.set(failure_key, failures, 3600)
+        
+        # Update attempt count in DB
+        if otp_obj:
+            otp_obj.attempt_count += 1
+            otp_obj.last_attempt_at = timezone.now()
+            otp_obj.save(update_fields=['attempt_count', 'last_attempt_at'])
+        
+        if failures >= 5:
+            cache.set(lockout_key, True, 900)
+            return Response({
+                'error': 'Too many failed attempts. Please try again after 15 minutes.'
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        
         return Response({'error': 'Invalid or expired OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
     user = User.objects.filter(phone_number=phone).first()
@@ -317,10 +441,14 @@ def password_reset(request):
         user.set_password(new_password)
         user.save()
         otp_obj.is_used = True
-        otp_obj.save()
+        otp_obj.save(update_fields=['is_used'])
+        cache.delete(f"otp_failures_{phone}")
         return Response({'message': 'Password reset successful. Please login with your new password.'})
     
-    return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    # Don't reveal if user exists - return generic success message
+    return Response({
+        'message': 'If this number is registered, password has been reset. Please login with your new password.'
+    }, status=status.HTTP_200_OK)
 
 @swagger_auto_schema(
     method='post',
@@ -351,17 +479,17 @@ def change_password(request):
 
 @swagger_auto_schema(method='get', tags=['accounts'])
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPhoneVerified])
 def user_detail(request):
-    """Get current user details"""
+    """Get current user details - requires phone verification"""
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
 @swagger_auto_schema(method='get', tags=['accounts'])
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPhoneVerified])
 def assistant_verification_status(request):
-    """Check rider verification status"""
+    """Check rider verification status - requires phone verification"""
     if request.user.user_type != 'assistant':
         return Response({'error': 'Not a rider'}, status=status.HTTP_403_FORBIDDEN)
     
@@ -396,9 +524,9 @@ def assistant_verification_status(request):
     responses={201: openapi.Response('Verification submitted')}
 )
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPhoneVerified])
 def submit_verification(request):
-    """Submit rider verification"""
+    """Submit rider verification - requires phone verification"""
     from accounts.models import AssistantVerification
     
     if request.user.user_type != 'assistant':
@@ -428,9 +556,9 @@ def submit_verification(request):
 
 @swagger_auto_schema(method='get', tags=['accounts'])
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPhoneVerified])
 def assistant_dashboard_stats(request):
-    """Get rider dashboard stats"""
+    """Get rider dashboard stats - requires phone verification"""
     if request.user.user_type != 'assistant':
         return Response({'error': 'Not a rider'}, status=status.HTTP_403_FORBIDDEN)
     
@@ -466,9 +594,9 @@ def assistant_dashboard_stats(request):
     responses={200: openapi.Response('Availability updated')}
 )
 @api_view(['GET', 'PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPhoneVerified])
 def assistant_availability(request):
-    """Get/Set rider availability (online/offline)"""
+    """Get/Set rider availability (online/offline) - requires phone verification"""
     if request.user.user_type != 'assistant':
         return Response({'error': 'Not a rider'}, status=status.HTTP_403_FORBIDDEN)
     
@@ -488,22 +616,30 @@ def assistant_availability(request):
         })
 
 class ProfileView(generics.RetrieveUpdateAPIView):
+    """
+    User profile endpoint.
+    Requires phone verification for access.
+    """
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsPhoneVerified]
     
     @swagger_auto_schema(tags=['accounts'])
     def get(self, request, *args, **kwargs):
+        """Get authenticated user's profile - requires phone verification"""
         return super().get(request, *args, **kwargs)
     
     @swagger_auto_schema(tags=['accounts'])
     def put(self, request, *args, **kwargs):
+        """Update authenticated user's profile - requires phone verification"""
         return super().put(request, *args, **kwargs)
     
     @swagger_auto_schema(tags=['accounts'])
     def patch(self, request, *args, **kwargs):
+        """Partially update authenticated user's profile - requires phone verification"""
         return super().patch(request, *args, **kwargs)
     
     def get_object(self):
+        """Get the profile of the authenticated verified user"""
         return self.request.user.profile
 
 
@@ -512,11 +648,15 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    throttle_classes = [LoginThrottle]
+    
     @swagger_auto_schema(tags=['accounts'], operation_id='accounts_token_create')
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
 class CustomTokenRefreshView(TokenRefreshView):
+    throttle_classes = [TokenRefreshThrottle]
+    
     @swagger_auto_schema(tags=['accounts'], operation_id='accounts_token_refresh_create')
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
