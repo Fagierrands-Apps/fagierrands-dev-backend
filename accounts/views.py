@@ -15,6 +15,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import User, OTPVerification, Profile, AssistantVerification
 from .serializers import RegisterSerializer, UserSerializer, ProfileSerializer
+from .permissions import IsPhoneVerified, IsPhoneVerifiedOrReadOnly, IsVerifiedAssistant
 from .login_security import LoginSecurityManager, get_client_ip
 from uuid import uuid4
 from core.utils import generate_otp, normalize_phone_number
