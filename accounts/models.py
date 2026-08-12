@@ -132,7 +132,7 @@ class EmailVerification(models.Model):
 
 
 class OTPVerification(models.Model):
-    """OTP verification for phone numbers"""
+    """OTP verification for phone numbers - HARDENED"""
     PURPOSE_CHOICES = [
         ('registration', 'Registration'),
         ('password_reset', 'Password Reset'),
@@ -140,14 +140,48 @@ class OTPVerification(models.Model):
     ]
     
     phone_number = models.CharField(max_length=17)
-    otp = models.CharField(max_length=6)
+    otp_hash = models.CharField(max_length=255)  # ← CHANGED: Store hash, not plaintext
     purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES, default='registration')
     is_used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
+    attempt_count = models.IntegerField(default=0)  # ← NEW: Track verification attempts
+    last_attempt_at = models.DateTimeField(null=True, blank=True)  # ← NEW: Track timing
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['phone_number', '-created_at']),
+        ]
 
+    def verify_otp(self, otp_plain):
+        """
+        Verify OTP with timing attack protection.
+        
+        Args:
+            otp_plain: The plaintext OTP to verify
+            
+        Returns:
+            True if OTP matches and valid, False otherwise
+        """
+        from django.utils import timezone
+        import hmac
+        import hashlib
+        
+        # Check expiry first
+        if timezone.now() > self.expires_at:
+            return False
+        
+        # Check if already used
+        if self.is_used:
+            return False
+        
+        # Use constant-time comparison to prevent timing attacks
+        expected_hash = self.otp_hash
+        provided_hash = hashlib.sha256(otp_plain.encode()).hexdigest()
+        
+        # Constant-time comparison
+        return hmac.compare_digest(expected_hash, provided_hash)
+    
     def __str__(self):
-        return f"{self.phone_number} - {self.otp}"
+        return f"{self.phone_number} - {self.purpose}"

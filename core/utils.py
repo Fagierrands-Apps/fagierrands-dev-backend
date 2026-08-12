@@ -46,8 +46,28 @@ def format_phone_number(phone):
 
 
 def generate_otp(length=4):
-    """Generate 4-digit numeric OTP"""
-    return ''.join(random.choices(string.digits, k=length))
+    """
+    Generate cryptographically secure OTP.
+    
+    Args:
+        length: OTP length in digits (default: 4 for app compatibility)
+        
+    Returns:
+        tuple: (otp_plain, otp_hash)
+        - otp_plain: Plain OTP to send to user
+        - otp_hash: Hash to store in database
+    """
+    import hashlib
+    import secrets
+    
+    # Generate random 4-digit OTP using cryptographically secure random
+    # (was random.choices, now using secrets for cryptographic security)
+    otp_plain = ''.join(secrets.choice(string.digits) for _ in range(length))
+    
+    # Hash OTP for storage (never store plaintext)
+    otp_hash = hashlib.sha256(otp_plain.encode()).hexdigest()
+    
+    return otp_plain, otp_hash
 
 
 def generate_order_number(prefix='ORD'):
