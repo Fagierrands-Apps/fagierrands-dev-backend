@@ -140,7 +140,8 @@ class OTPVerification(models.Model):
     ]
     
     phone_number = models.CharField(max_length=17)
-    otp_hash = models.CharField(max_length=255)  # ← CHANGED: Store hash, not plaintext
+    otp = models.CharField(max_length=6, null=True, blank=True)  # ← OLD: Kept for backward compatibility, use otp_hash
+    otp_hash = models.CharField(max_length=255)  # ← NEW: Store hash, not plaintext
     purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES, default='registration')
     is_used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
