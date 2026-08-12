@@ -56,13 +56,15 @@ class EmailVerificationAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
 
 
+@admin.register(OTPVerification)
 class OTPVerificationAdmin(admin.ModelAdmin):
-    list_display = ('phone_number', 'otp', 'purpose', 'created_at', 'expires_at', 'is_used')
+    list_display = ('phone_number', 'purpose', 'created_at', 'expires_at', 'is_used', 'attempt_count')
     list_filter = ('is_used', 'purpose', 'created_at')
-    search_fields = ('phone_number', 'otp')
-    readonly_fields = ('created_at',)
+    search_fields = ('phone_number',)
+    readonly_fields = ('created_at', 'otp_hash', 'attempt_count', 'last_attempt_at')
 
 
+@admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'wallet_points', 'rating', 'total_orders')
     search_fields = ('user__username', 'user__email', 'bio')
@@ -78,5 +80,3 @@ class WalletTransactionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Profile, ProfileAdmin)
-admin.site.register(OTPVerification, OTPVerificationAdmin)
