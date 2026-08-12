@@ -23,3 +23,5 @@ health_checker/.env.healthcheck
 health_checker/used_passwords.log
 health_checker/run.log
 SECURITY_SCAN_BRIEF.md
+docs/RIDER_JOURNEY.md
+docs/RIDER_JOURNEY.pdf
