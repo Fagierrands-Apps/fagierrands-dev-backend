@@ -20,7 +20,7 @@ class OTPVerificationThrottle(AnonRateThrottle):
 class ResendOTPThrottle(AnonRateThrottle):
     """Rate limit OTP resend attempts"""
     scope = 'resend_otp'
-    rate = '3/30min'
+    rate = '6/h'
 
 
 class PasswordResetThrottle(AnonRateThrottle):
