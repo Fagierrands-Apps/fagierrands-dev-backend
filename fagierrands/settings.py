@@ -299,6 +299,18 @@ NCBA_REPLAY_PROTECTION_TTL = int(os.getenv('NCBA_REPLAY_PROTECTION_TTL', 86400))
 # Amount tolerance in KES — allows minor rounding differences (default 1 KES).
 NCBA_AMOUNT_TOLERANCE_KES = float(os.getenv('NCBA_AMOUNT_TOLERANCE_KES', 1.0))
 
+# ── Payment Alerting ─────────────────────────────────────────────────────────
+# Comma-separated admin emails to receive payment security alerts.
+# Example: PAYMENT_ALERT_EMAILS=admin@fagierrands.com,security@fagierrands.com
+PAYMENT_ALERT_EMAILS = os.getenv('PAYMENT_ALERT_EMAILS', '')
+
+# Admin phone number for SMS alerts (tampering, critical issues).
+# Example: PAYMENT_ALERT_PHONE=254712345678
+PAYMENT_ALERT_PHONE = os.getenv('PAYMENT_ALERT_PHONE', '')
+
+# Max callbacks from a single IP in a 10-minute window before volume alert fires.
+PAYMENT_ALERT_CALLBACK_VOLUME_THRESHOLD = int(os.getenv('PAYMENT_ALERT_CALLBACK_VOLUME_THRESHOLD', 20))
+
 # Email Configuration
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))

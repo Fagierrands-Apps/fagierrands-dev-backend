@@ -27,6 +27,9 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 
+# Alerts imported lazily inside functions to avoid circular imports at module load
+# from .payment_alerts import alert_amount_tampering, alert_replay_attack, track_callback_volume
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -146,7 +149,7 @@ def validate_ip_whitelist(request) -> tuple[bool, str | None]:
     return True, None
 
 
-def validate_replay_attack(payload: dict) -> tuple[bool, str | None]:
+def validate_replay_attack(payload: dict, ip: str = "unknown") -> tuple[bool, str | None]:
     """
     Prevent replay attacks by tracking processed transaction IDs.
 
@@ -166,6 +169,12 @@ def validate_replay_attack(payload: dict) -> tuple[bool, str | None]:
             "NCBA callback replay attack detected: TransactionID '%s' already processed.",
             transaction_id,
         )
+        # Fire alert
+        try:
+            from .payment_alerts import alert_replay_attack
+            alert_replay_attack(transaction_id=transaction_id, ip=ip)
+        except Exception:
+            pass
         return False, f"Duplicate callback: TransactionID '{transaction_id}' already processed."
 
     # Mark as processed. Use add() so we don't overwrite a value set by a concurrent request.
@@ -241,6 +250,16 @@ def validate_amount(payload: dict) -> tuple[bool, str | None]:
             initiated_amount,
             callback_amount,
         )
+        # Fire alert
+        try:
+            from .payment_alerts import alert_amount_tampering
+            alert_amount_tampering(
+                transaction_id=transaction_id,
+                initiated_amount=initiated_amount,
+                callback_amount=callback_amount,
+            )
+        except Exception:
+            pass
         return False, (
             f"Amount mismatch: expected KES {initiated_amount:.2f}, "
             f"got KES {callback_amount:.2f}."
@@ -281,7 +300,7 @@ class PaymentSecurityValidator:
         checks = [
             ("hmac_signature", lambda: validate_hmac_signature(self.request, payload)),
             ("ip_whitelist", lambda: validate_ip_whitelist(self.request)),
-            ("replay_attack", lambda: validate_replay_attack(payload)),
+            ("replay_attack", lambda: validate_replay_attack(payload, ip=_get_client_ip(self.request))),
             ("amount_verification", lambda: validate_amount(payload)),
         ]
 

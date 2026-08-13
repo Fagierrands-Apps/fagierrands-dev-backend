@@ -544,6 +544,17 @@ class NCBACallbackView(APIView):
     def post(self, request):
         payload = request.data
 
+        # Track callback volume per IP — fires alert if threshold exceeded
+        try:
+            from .payment_alerts import track_callback_volume
+            client_ip = (
+                request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
+                or request.META.get("REMOTE_ADDR", "unknown")
+            )
+            track_callback_volume(client_ip)
+        except Exception:
+            pass
+
         # Run all security checks — any failure returns 403 immediately
         validator = PaymentSecurityValidator(request)
         ok, error_response = validator.validate_all(payload)
