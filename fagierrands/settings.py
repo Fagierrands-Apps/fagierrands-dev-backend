@@ -262,11 +262,11 @@ CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', '')
 
 # SMS Configuration (TextPie)
 SMS_API_KEY = os.getenv('TEXTPIE_API_KEY', '')
-SMS_USERNAME = os.getenv('SMS_USERNAME', 'FagiErrands')
-SMS_SENDER_ID = os.getenv('SMS_SENDER_ID', 'FagiErrands')
+SMS_USERNAME = os.getenv('SMS_USERNAME', '')
+SMS_SENDER_ID = os.getenv('SMS_SENDER_ID', '')
 TEXTPIE_API_KEY = os.getenv('TEXTPIE_API_KEY', '')
-TEXTPIE_SERVICE_ID = os.getenv('TEXTPIE_SERVICE_ID', '77')
-TEXTPIE_SHORTCODE = os.getenv('TEXTPIE_SHORTCODE', 'FagiErrands')
+TEXTPIE_SERVICE_ID = os.getenv('TEXTPIE_SERVICE_ID', '')
+TEXTPIE_SHORTCODE = os.getenv('TEXTPIE_SHORTCODE', '')
 
 # Google Maps API
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
@@ -312,7 +312,7 @@ PAYMENT_ALERT_PHONE = os.getenv('PAYMENT_ALERT_PHONE', '')
 PAYMENT_ALERT_CALLBACK_VOLUME_THRESHOLD = int(os.getenv('PAYMENT_ALERT_CALLBACK_VOLUME_THRESHOLD', 20))
 
 # Email Configuration
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
