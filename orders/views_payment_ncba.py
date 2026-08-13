@@ -15,6 +15,7 @@ from django.db import transaction as db_transaction
 from .models import Order, Payment, OrderPrepayment, ShoppingItem
 from .serializers import PaymentSerializer, InitiatePaymentSerializer
 from .ncba_service import NCBAService
+from .payment_security import PaymentSecurityValidator
 import json
 import uuid
 import logging
@@ -373,21 +374,36 @@ class NCBAWebhookHandler:
     @staticmethod
     def handle_callback(payload):
         """
-        Handle NCBA callback
+        Handle NCBA callback.
+
+        Security note: by the time this method is called, NCBACallbackView has
+        already run the full PaymentSecurityValidator (HMAC, IP whitelist, replay,
+        amount).  The checks below are a defence-in-depth second layer.
         """
         logger.info("=" * 80)
         logger.info("Processing NCBA callback")
         logger.info(f"Payload: {json.dumps(payload, indent=2)}")
 
         try:
-            # NCBA callback format might differ from M-Pesa
-            # For now, let's assume it has TransactionID and Status
             transaction_id = payload.get('TransactionID')
-            status_val = payload.get('Status') # 'SUCCESS' or 'FAILED'
-            
+            status_val = payload.get('Status')  # 'SUCCESS' or 'FAILED'
+
             if not transaction_id:
                 logger.error("No TransactionID in NCBA callback")
                 return {'status': 'error', 'message': 'No TransactionID'}
+
+            # ------------------------------------------------------------------
+            # Defence-in-depth: idempotency guard inside the handler.
+            # The view-level replay check already fired; this catches any path
+            # that calls handle_callback() directly (e.g. tests, admin retries).
+            # ------------------------------------------------------------------
+            idempotency_key = f"ncba_handler_processed_{transaction_id}"
+            if not cache.add(idempotency_key, 1, 86400):  # 24-hour window
+                logger.warning(
+                    "NCBAWebhookHandler: duplicate callback for TransactionID '%s' — skipping.",
+                    transaction_id,
+                )
+                return {'status': 'success', 'message': 'Already processed'}
 
             # Try to find payment by transaction ID (stored in mpesa_checkout_request_id)
             payment = None
@@ -407,6 +423,30 @@ class NCBAWebhookHandler:
             # Process based on status
             if status_val == 'SUCCESS':
                 logger.info("NCBA Payment successful")
+
+                # ------------------------------------------------------------------
+                # Defence-in-depth: amount verification inside the handler.
+                # The view-level check already fired; this is a second layer in case
+                # handle_callback() is called directly.
+                # ------------------------------------------------------------------
+                callback_amount_raw = payload.get('Amount') or payload.get('amount')
+                if callback_amount_raw is not None and payment is not None:
+                    try:
+                        callback_amount = float(callback_amount_raw)
+                        if payment.final_amount and float(payment.final_amount) > 0:
+                            initiated_amount = float(payment.final_amount)
+                        else:
+                            initiated_amount = float(payment.amount)
+                        if abs(callback_amount - initiated_amount) > 1:  # 1 KES tolerance
+                            logger.critical(
+                                "NCBA AMOUNT TAMPERING (handler layer): TX %s — "
+                                "initiated=%.2f callback=%.2f. Rejecting.",
+                                transaction_id, initiated_amount, callback_amount,
+                            )
+                            return {'status': 'error', 'message': 'Amount mismatch — payment rejected.'}
+                    except (TypeError, ValueError):
+                        logger.warning("Could not parse callback amount '%s'; proceeding.", callback_amount_raw)
+
                 with db_transaction.atomic():
                     if payment:
                         payment.status = 'Completed'
@@ -491,19 +531,26 @@ class NCBAWebhookHandler:
 
 class NCBACallbackView(APIView):
     """
-    API endpoint to handle NCBA callbacks
+    API endpoint to handle NCBA payment callbacks.
+
+    Security controls (all mandatory):
+      1. HMAC-SHA256 signature validation  (NCBA_CALLBACK_SECRET must be set)
+      2. IP whitelist enforcement           (NCBA_ALLOWED_IPS — logs warning if unset)
+      3. Replay attack prevention           (idempotency key in cache, 24h window)
+      4. Amount verification                (callback amount vs. initiated payment amount)
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny]  # Auth handled by HMAC below
 
     def post(self, request):
-        # Verify callback secret to prevent spoofed payment confirmations
-        expected_secret = settings.NCBA_CALLBACK_SECRET if hasattr(settings, 'NCBA_CALLBACK_SECRET') else None
-        if expected_secret:
-            provided = request.headers.get('X-Callback-Secret') or request.GET.get('secret')
-            if provided != expected_secret:
-                logger.warning(f"NCBA callback rejected: invalid secret from {request.META.get('REMOTE_ADDR')}")
-                return Response({'status': 'error'}, status=status.HTTP_403_FORBIDDEN)
-        response = NCBAWebhookHandler.handle_callback(request.data)
+        payload = request.data
+
+        # Run all security checks — any failure returns 403 immediately
+        validator = PaymentSecurityValidator(request)
+        ok, error_response = validator.validate_all(payload)
+        if not ok:
+            return error_response
+
+        response = NCBAWebhookHandler.handle_callback(payload)
         return Response(response)
 
 

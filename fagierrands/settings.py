@@ -279,8 +279,25 @@ NCBA_PAYBILL_NO = os.getenv('NCBA_PAYBILL_NO', '')
 NCBA_TRANSACTION_TYPE = os.getenv('NCBA_TRANSACTION_TYPE', 'CustomerPayBillOnline')
 NCBA_USE_TILL_AS_ACCOUNT = os.getenv('NCBA_USE_TILL_AS_ACCOUNT', 'False') == 'True'
 NCBA_CALLBACK_URL = os.getenv('NCBA_CALLBACK_URL', 'http://localhost:8000/api/orders/payments/ncba/callback/')
-NCBA_CALLBACK_SECRET = os.getenv('NCBA_CALLBACK_SECRET', '')
 BASE_URL = os.getenv('BASE_URL', 'http://localhost:8000')
+
+# ── NCBA Payment Callback Security ──────────────────────────────────────────
+# REQUIRED: Shared secret used to sign/verify NCBA callback HMAC-SHA256 signatures.
+# Generate a strong random value: python -c "import secrets; print(secrets.token_hex(32))"
+# Set this in .env AND register the same value with NCBA as your callback secret.
+NCBA_CALLBACK_SECRET = os.getenv('NCBA_CALLBACK_SECRET', '')
+
+# RECOMMENDED: Comma-separated list of NCBA outbound server IPs allowed to POST callbacks.
+# Leave blank to skip IP whitelisting (not recommended for production).
+# Example: NCBA_ALLOWED_IPS=196.201.214.200,196.201.214.206
+NCBA_ALLOWED_IPS = os.getenv('NCBA_ALLOWED_IPS', '')
+
+# Replay attack protection window in seconds (default 24 hours).
+# Duplicate TransactionIDs within this window are rejected.
+NCBA_REPLAY_PROTECTION_TTL = int(os.getenv('NCBA_REPLAY_PROTECTION_TTL', 86400))
+
+# Amount tolerance in KES — allows minor rounding differences (default 1 KES).
+NCBA_AMOUNT_TOLERANCE_KES = float(os.getenv('NCBA_AMOUNT_TOLERANCE_KES', 1.0))
 
 # Email Configuration
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp-relay.brevo.com')
