@@ -1,1 +1,1 @@
-web: gunicorn fagierrandsbackup.wsgi --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile -
+web: gunicorn fagierrands.wsgi --bind 0.0.0.0:$PORT --log-level info --access-logfile - --error-logfile -
