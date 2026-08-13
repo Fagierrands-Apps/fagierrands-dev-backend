@@ -121,6 +121,8 @@ WSGI_APPLICATION = 'fagierrands.wsgi.application'
 # Database
 USE_SQLITE = os.getenv('USE_SQLITE', 'False') == 'True'
 DATABASE_URL = os.getenv('DATABASE_URL', '')
+# Set DB_SSL_REQUIRE=False only if your DB host doesn't support SSL (e.g. localhost on cPanel)
+DB_SSL_REQUIRE = os.getenv('DB_SSL_REQUIRE', 'True') == 'True'
 
 if USE_SQLITE:
     DATABASES = {
@@ -134,11 +136,15 @@ elif DATABASE_URL:
         'default': dj_database_url.config(
             env='DATABASE_URL',
             conn_max_age=600,
-            ssl_require=False,
+            ssl_require=DB_SSL_REQUIRE,
         )
     }
 else:
-    # cPanel individual DB credentials
+    # cPanel individual DB credentials (typically localhost — SSL optional)
+    _db_options = {}
+    if DB_SSL_REQUIRE:
+        _db_options = {'sslmode': 'require'}
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -147,6 +153,7 @@ else:
             'PASSWORD': os.getenv('DB_PASSWORD', ''),
             'HOST': os.getenv('DB_HOST', 'localhost'),
             'PORT': os.getenv('DB_PORT', '5432'),
+            'OPTIONS': _db_options,
         }
     }
 
