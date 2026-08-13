@@ -255,13 +255,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://fagiserver.fagitone.com',
 ]
 
-# Supabase Configuration
-SUPABASE_URL = os.getenv('SUPABASE_URL', '')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
-SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '')
-SUPABASE_STORAGE_URL = f"{os.getenv('SUPABASE_URL', '')}/storage/v1"
-SUPABASE_BUCKET_NAME = os.getenv('SUPABASE_BUCKET_NAME', 'user-uploads')
-
 # Cloudinary Configuration
 CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '')
