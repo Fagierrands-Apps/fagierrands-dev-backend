@@ -2,9 +2,25 @@
 __pycache__/
 *.sqlite3
 db.sqlite3
+
+# ── Environment & Secret files — NEVER commit these ──
 .env
+.env.*
+*.env
 .env.local
 .env.production
+.env.cpanel
+.env.dev
+.env.staging
+.env.test
+
+# Credential and secret docs
+scripts_and_docs/ADMIN_CREDENTIALS.txt
+scripts_and_docs/render_env
+*CREDENTIALS*
+*credentials*
+
+# ─────────────────────────────────────────────────────
 *.log
 media/
 staticfiles/
