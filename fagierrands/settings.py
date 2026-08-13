@@ -193,12 +193,19 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_THROTTLE_CLASSES': [
-        'fagierrands.throttles.AnonRateThrottle',
-        'fagierrands.throttles.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
         'user': '1000/hour',
+        # Per-endpoint scopes (overridable via env)
+        'register': os.getenv('THROTTLE_REGISTER', '10/day'),
+        'otp_verification': os.getenv('THROTTLE_OTP_VERIFICATION', '10/hour'),
+        'resend_otp': os.getenv('THROTTLE_RESEND_OTP', '6/hour'),
+        'password_reset': os.getenv('THROTTLE_PASSWORD_RESET', '3/hour'),
+        'login': os.getenv('THROTTLE_LOGIN', '20/hour'),
+        'token_refresh': os.getenv('THROTTLE_TOKEN_REFRESH', '20/hour'),
     }
 }
 

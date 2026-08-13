@@ -1,5 +1,8 @@
 """
 API Rate Limiting / Throttles for FagiErrands
+
+Rates are configured in settings.py under DEFAULT_THROTTLE_RATES
+and can be overridden via environment variables.
 """
 
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
@@ -8,34 +11,28 @@ from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 class RegisterThrottle(AnonRateThrottle):
     """Rate limit registration attempts"""
     scope = 'register'
-    rate = '10/day'
 
 
 class OTPVerificationThrottle(AnonRateThrottle):
     """Rate limit OTP verification attempts"""
     scope = 'otp_verification'
-    rate = '10/hour'
 
 
 class ResendOTPThrottle(AnonRateThrottle):
     """Rate limit OTP resend attempts"""
     scope = 'resend_otp'
-    rate = '6/h'
 
 
 class PasswordResetThrottle(AnonRateThrottle):
     """Rate limit password reset attempts"""
     scope = 'password_reset'
-    rate = '3/hour'
 
 
 class LoginThrottle(AnonRateThrottle):
     """Rate limit login attempts"""
     scope = 'login'
-    rate = '20/hour'
 
 
 class TokenRefreshThrottle(UserRateThrottle):
     """Rate limit token refresh attempts"""
     scope = 'token_refresh'
-    rate = '20/hour'

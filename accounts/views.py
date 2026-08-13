@@ -112,12 +112,15 @@ def verify_phone(request):
         }, status=status.HTTP_429_TOO_MANY_REQUESTS)
     
     # NEW: Use verify_otp method with timing attack protection
-    otp_obj = OTPVerification.objects.filter(
-        phone_number=phone, 
-        is_used=False,
-        purpose='registration'
-    ).latest('created_at')
-    
+    try:
+        otp_obj = OTPVerification.objects.filter(
+            phone_number=phone,
+            is_used=False,
+            purpose='registration'
+        ).latest('created_at')
+    except OTPVerification.DoesNotExist:
+        otp_obj = None
+
     if not otp_obj or not otp_obj.verify_otp(otp):
         # Track failed attempt
         failure_key = f"otp_failures_{phone}"
@@ -411,12 +414,15 @@ def password_reset(request):
         }, status=status.HTTP_429_TOO_MANY_REQUESTS)
     
     # NEW: Use verify_otp method with timing attack protection
-    otp_obj = OTPVerification.objects.filter(
-        phone_number=phone, 
-        is_used=False,
-        purpose='password_reset'
-    ).latest('created_at')
-    
+    try:
+        otp_obj = OTPVerification.objects.filter(
+            phone_number=phone,
+            is_used=False,
+            purpose='password_reset'
+        ).latest('created_at')
+    except OTPVerification.DoesNotExist:
+        otp_obj = None
+
     if not otp_obj or not otp_obj.verify_otp(otp):
         # Track failure
         failure_key = f"otp_failures_{phone}"
