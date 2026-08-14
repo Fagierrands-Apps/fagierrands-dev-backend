@@ -1,0 +1,53 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block usertools %}
+  {# Swagger / ReDoc links — open in new tab, session carries over #}
+  <a
+    href="/swagger/"
+    target="_blank"
+    rel="noopener noreferrer"
+    title="Open API Documentation"
+    style="
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-right: 12px;
+      padding: 4px 10px;
+      background: #417690;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      border: 1px solid #2b5068;
+    "
+  >
+    📄 Swagger
+  </a>
+  <a
+    href="/redoc/"
+    target="_blank"
+    rel="noopener noreferrer"
+    title="Open ReDoc API Reference"
+    style="
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-right: 16px;
+      padding: 4px 10px;
+      background: #417690;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      border: 1px solid #2b5068;
+    "
+  >
+    📚 ReDoc
+  </a>
+  {{ block.super }}
+{% endblock %}

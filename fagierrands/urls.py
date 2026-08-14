@@ -343,7 +343,13 @@ def home_view(request):
 </html>"""
     return HttpResponse(html)
 
-# API Documentation — restricted to authenticated users only
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+# API Documentation — restricted to authenticated users only.
+# Accepts both Django admin session AND JWT Bearer tokens.
+# To access: log into /admin/ first, then open /swagger/ — session carries over.
+# Logging out of /admin/ immediately revokes access to /swagger/ too.
 schema_view = get_schema_view(
     openapi.Info(
         title="Fagierrands API",
@@ -355,6 +361,7 @@ schema_view = get_schema_view(
     ),
     public=False,
     permission_classes=[permissions.IsAuthenticated],
+    authentication_classes=[SessionAuthentication, JWTAuthentication],
 )
 
 urlpatterns = [
