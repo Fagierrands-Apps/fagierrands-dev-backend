@@ -21,8 +21,27 @@ if not SECRET_KEY:
     import warnings
     warnings.warn("SECRET_KEY is not set — using insecure default. Set it in production!")
     SECRET_KEY = 'insecure-default-key-change-me-in-production'
+
+# DEBUG flag — must be explicit. Defaults to False (safe), but warn if not set
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+if not os.getenv('DEBUG'):
+    import warnings
+    warnings.warn("DEBUG environment variable not set — defaulting to False (safe)")
+
+# ALLOWED_HOSTS — require explicit configuration in production
+_allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
+if not _allowed_hosts_env:
+    if DEBUG:
+        # Dev mode: localhost is fine
+        ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    else:
+        # Production: require explicit hosts to prevent host header injection
+        raise ValueError(
+            "ALLOWED_HOSTS environment variable is required in production. "
+            "Set it to comma-separated domains: 'fagierrands-dev-backend.onrender.com,api.example.com'"
+        )
+else:
+    ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_env.split(',')]
 
 # Always include www variant of any configured hosts to prevent DisallowedHost errors
 _extra_hosts = [f'www.{h}' for h in ALLOWED_HOSTS if not h.startswith('www.') and '.' in h]
