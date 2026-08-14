@@ -103,7 +103,33 @@ def update_current_location(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_rider_location(request, rider_id):
-    """Get rider's current location for tracking"""
+    """Get rider's current location for tracking.
+
+    Allowed:
+    - The rider themselves
+    - Handlers and admins (operational visibility)
+    - A client with an active order assigned to that rider
+    """
+    user = request.user
+
+    # Handlers and admins can see any rider's location
+    if user.user_type not in ['handler', 'admin']:
+        # Rider can always see their own location
+        if user.id != rider_id:
+            # Client: only allowed if they have an active order assigned to this rider
+            from orders.models import Order
+            has_active_order = Order.objects.filter(
+                user=user,
+                assistant_id=rider_id,
+                status__in=['Assigned', 'InTransit', 'PaymentPending']
+            ).exists()
+
+            if not has_active_order:
+                return Response(
+                    {'error': 'You do not have permission to view this location.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
     try:
         location = UserLocation.objects.get(user_id=rider_id)
         return Response(UserLocationSerializer(location).data)
