@@ -87,6 +87,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'fagierrands.middleware.BlockProbesMiddleware',
+    'fagierrands.middleware.SecurityHeadersMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -240,21 +241,22 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# CORS Settings - HARDCODED
+# CORS Settings — Frontend domains only (not the API domain itself)
+# Allowing the API domain as an origin would let any compromised subdomain
+# make requests with credentials. Only list actual frontend/client apps.
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
     'https://fagierrands-handler-dashboard.vercel.app',
     'https://fagiserver.fagitone.com',
-    'https://api.errandserver.fagierrands.com',  # API domain itself
-    'https://handler.fagierrands.com',           # Handler web app (production)
+    'https://handler.fagierrands.com',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
-# CSRF Settings - Trust API domain
+# CSRF Settings — Trust frontend domains
 CSRF_TRUSTED_ORIGINS = [
-    'https://api.errandserver.fagierrands.com',
     'https://fagiserver.fagitone.com',
+    'https://handler.fagierrands.com',
 ]
 
 # Cloudinary Configuration
