@@ -28,8 +28,41 @@
 - ✅ Credentials in environment variables (never in code)
 - ✅ Connection pooling enabled
 
+## Logging & Audit Trail
+
+- ✅ Logs stored in `/logs/django.log` (not publicly accessible, 404)
+- ✅ PII masking filter active on all handlers
+- ✅ Log rotation configured via server (not in Django)
+- ⚠️ Log file not encrypted (OS-level file permissions only)
+
+## Backup & Disaster Recovery
+
+- 📋 **Database backups**: Handled by PostgreSQL provider (Render)
+- 📋 **Backup encryption**: Provider default (check with hosting provider)
+- 📋 **Backup retention**: Document in ops manual
+- 📋 **Recovery testing**: Schedule quarterly
+
+## Data Retention & Deletion
+
+- 📋 **No automated retention policies** currently implemented
+- 📋 **Recommended**: 
+  - OTP records: delete after 24 hours
+  - Login logs: delete after 90 days
+  - Payment logs: keep per compliance (check local regs)
+  - User data: honor deletion requests (GDPR/CCPA)
+
+## Media Files & Supabase Storage
+
+- ✅ **Supabase**: Provider-managed encryption
+- ✅ **Secure URLs**: Signed tokens prevent direct access
+- ⚠️ **Backup**: Supabase handles (verify in provider dashboard)
+- 📋 **Retention policy**: Not yet defined
+
 ## Future Improvements
 - Field-level encryption for phone numbers (if PCI-DSS audit required)
-- Database-level encryption (AWS RDS encryption, etc.)
+- Database-level encryption at rest (AWS RDS encryption, etc.)
+- Log file encryption (OS-level or application-level)
+- Implement automated data retention policies
 - Key rotation policy for encryption keys
-- Data retention/deletion policies (GDPR compliance)
+- Document backup/recovery procedures
+- GDPR right-to-be-forgotten implementation
