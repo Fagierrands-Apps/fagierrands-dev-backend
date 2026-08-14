@@ -10,7 +10,7 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.http import HttpResponseNotFound, HttpResponse
+from django.http import HttpResponseNotFound, HttpResponse, JsonResponse
 
 def robots_txt(request):
     return HttpResponse("User-agent: *\nDisallow: /api/\nDisallow: /admin/\nAllow: /\n", content_type="text/plain")
