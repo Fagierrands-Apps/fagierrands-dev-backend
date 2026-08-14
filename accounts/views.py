@@ -535,6 +535,7 @@ def assistant_verification_status(request):
 def submit_verification(request):
     """Submit rider verification - requires phone verification"""
     from accounts.models import AssistantVerification
+    from core.file_validation import validate_file_url
     
     if request.user.user_type != 'assistant':
         return Response({'error': 'Only riders can submit verification'}, status=status.HTTP_403_FORBIDDEN)
@@ -543,6 +544,18 @@ def submit_verification(request):
     existing = AssistantVerification.objects.filter(user=request.user).first()
     if existing and existing.status in ['approved', 'pending']:
         return Response({'error': f'Verification already {existing.status}'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Validate all image URLs
+    image_fields = ['id_photo', 'vehicle_photo', 'drivers_license']
+    for field in image_fields:
+        image_url = request.data.get(field)
+        if image_url:
+            is_valid, error_msg = validate_file_url(image_url, file_type='image')
+            if not is_valid:
+                return Response(
+                    {'error': f'Invalid {field}: {error_msg}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
     
     verification = AssistantVerification.objects.create(
         user=request.user,

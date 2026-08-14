@@ -219,9 +219,19 @@ def create_draft(request):
 @permission_classes([IsAuthenticated])
 def upload_image(request, order_id):
     """Step 2: Upload order images (can be called multiple times)"""
+    from core.file_validation import validate_file_url
+    
     try:
         order = Order.objects.get(id=order_id, user=request.user, status='Draft')
         image_url = request.data.get('image')
+        
+        if not image_url:
+            return Response({'error': 'image URL is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validate the image URL (Supabase only, file type, size, etc.)
+        is_valid, error_msg = validate_file_url(image_url, file_type='image')
+        if not is_valid:
+            return Response({'error': f'Invalid image: {error_msg}'}, status=status.HTTP_400_BAD_REQUEST)
         
         order_image = OrderImage.objects.create(
             order=order,
