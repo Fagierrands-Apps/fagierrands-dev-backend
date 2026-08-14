@@ -226,7 +226,9 @@ SWAGGER_SETTINGS = {
             'description': 'JWT Authorization header using the Bearer scheme. Example: "Bearer {token}"'
         }
     },
-    'USE_SESSION_AUTH': False,
+    'USE_SESSION_AUTH': True,   # Show login/logout in Swagger UI
+    'LOGIN_URL': '/admin/login/',
+    'LOGOUT_URL': '/admin/logout/',
 }
 
 # JWT Settings
@@ -327,8 +329,28 @@ VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', '')
 # Groq AI
 GROQ_API_KEY = os.getenv('GROQ_API_KEY', '')
 
-# Redis & Celery
+# Cache — use Redis if available, otherwise fall back to database cache.
+# Database cache persists across process restarts (unlike LocMemCache) so
+# DRF throttling and OTP lockouts survive dyno/worker cycling on Render/cPanel.
 REDIS_URL = os.getenv('REDIS_URL', '')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'django_cache',  # table name — create with: python manage.py createcachetable
+        }
+    }
+
+# Redis & Celery
+
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']

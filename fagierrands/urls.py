@@ -343,7 +343,7 @@ def home_view(request):
 </html>"""
     return HttpResponse(html)
 
-# API Documentation
+# API Documentation — restricted to authenticated users only
 schema_view = get_schema_view(
     openapi.Info(
         title="Fagierrands API",
@@ -353,9 +353,8 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email="support@fagierrands.com"),
         license=openapi.License(name="Proprietary"),
     ),
-    public=True,
-    permission_classes=[permissions.AllowAny],
-    authentication_classes=[],
+    public=False,
+    permission_classes=[permissions.IsAuthenticated],
 )
 
 urlpatterns = [

@@ -4,6 +4,7 @@ set -e
 pip install -r requirements.txt
 python manage.py collectstatic --noinput
 python manage.py migrate --noinput
+python manage.py createcachetable  # creates django_cache table if it doesn't exist (safe to re-run)
 
 python manage.py shell -c "
 from django.contrib.auth import get_user_model
