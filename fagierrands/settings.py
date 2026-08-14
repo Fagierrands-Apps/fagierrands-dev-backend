@@ -385,13 +385,20 @@ MINIMUM_ORDER_AMOUNT = float(os.getenv('MINIMUM_ORDER_AMOUNT', 200))
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'pii_masking': {
+            '()': 'core.logging_filters.PIIMaskingFilter',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'filters': ['pii_masking'],
         },
         'file': {
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'logs' / 'django.log',
+            'filters': ['pii_masking'],
         },
     },
     'root': {
