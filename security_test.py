@@ -53,15 +53,17 @@ def post(path, data=None, token=None, headers_extra=None, **kwargs):
 # ─────────────────────────────────────────────────────────────────────────────
 section("STEP 1A — Rate Limiting: /api/accounts/register/")
 # ─────────────────────────────────────────────────────────────────────────────
-print("  Sending 12 rapid registration attempts (limit: 10/day)...")
+# RegisterThrottle scope = 'register' → 10/day per IP.
+# Send 12 attempts with same payload — all hit same IP+scope bucket.
+print("  Sending 12 rapid registration attempts (limit: 10/day per IP)...")
 codes = []
 for i in range(12):
-    r = post("/api/accounts/register/", {"phone_number": f"+2547000000{i:02d}", "password": "Test1234!", "user_type": "client"})
+    r = post("/api/accounts/register/", {"phone_number": "+254711111111", "password": "Test1234!", "user_type": "client"})
     codes.append(r.status_code)
 
 got_throttled = any(c == 429 for c in codes)
-check("register/ throttles after limit (HTTP 429 seen)", got_throttled,
-      f"got codes: {codes[-4:]}")
+check("register/ throttles after 10 attempts (HTTP 429 seen)", got_throttled,
+      f"got codes: {codes}")
 
 # ─────────────────────────────────────────────────────────────────────────────
 section("STEP 1B — Rate Limiting: /api/accounts/verify-phone/")
@@ -82,10 +84,11 @@ check("Lockout fires within first 12 attempts", lockout_fired,
 # ─────────────────────────────────────────────────────────────────────────────
 section("STEP 1C — Rate Limiting: /api/accounts/resend-otp/")
 # ─────────────────────────────────────────────────────────────────────────────
-print("  Sending 8 resend-otp attempts (limit: 6/hour)...")
+# ResendOTPThrottle scope = 'resend_otp' → 6/hour per IP.
+print("  Sending 8 resend-otp attempts (limit: 6/hour per IP)...")
 codes = []
 for i in range(8):
-    r = post("/api/accounts/resend-otp/", {"phone_number": "+254700000099"})
+    r = post("/api/accounts/resend-otp/", {"phone_number": "+254711111111"})
     codes.append(r.status_code)
 
 got_throttled = any(c == 429 for c in codes)
