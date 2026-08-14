@@ -15,6 +15,10 @@ python manage.py collectstatic --noinput
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 
+# Create persistent cache table for DRF throttling (safe to re-run)
+echo "Creating cache table..."
+python manage.py createcachetable
+
 # Verify token_blacklist tables exist
 echo "Verifying token_blacklist tables..."
 python manage.py shell << 'VERIFY_EOF'
