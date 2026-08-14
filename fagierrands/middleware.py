@@ -52,4 +52,18 @@ class SecurityHeadersMiddleware:
             'gyroscope=()'
         )
         
+        # Content-Security-Policy — restrictive by default, allow from trusted origins
+        # API serves JSON, not HTML, so CSP mainly protects against accidental HTML injection
+        response['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' https: data:; "
+            "font-src 'self' data:; "
+            "connect-src 'self' https:; "
+            "frame-ancestors 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self'"
+        )
+        
         return response
