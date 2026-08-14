@@ -3,36 +3,40 @@ API Rate Limiting / Throttles for FagiErrands
 
 Rates are configured in settings.py under DEFAULT_THROTTLE_RATES
 and can be overridden via environment variables.
+
+NOTE: We use ScopedRateThrottle (not AnonRateThrottle) so each endpoint
+gets its own independent counter keyed on scope + IP. AnonRateThrottle
+ignores the scope name and always reads from DEFAULT_THROTTLE_RATES['anon'].
 """
 
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.throttling import ScopedRateThrottle
 
 
-class RegisterThrottle(AnonRateThrottle):
-    """Rate limit registration attempts"""
+class RegisterThrottle(ScopedRateThrottle):
+    """Rate limit registration attempts — scope: 'register'"""
     scope = 'register'
 
 
-class OTPVerificationThrottle(AnonRateThrottle):
-    """Rate limit OTP verification attempts"""
+class OTPVerificationThrottle(ScopedRateThrottle):
+    """Rate limit OTP verification attempts — scope: 'otp_verification'"""
     scope = 'otp_verification'
 
 
-class ResendOTPThrottle(AnonRateThrottle):
-    """Rate limit OTP resend attempts"""
+class ResendOTPThrottle(ScopedRateThrottle):
+    """Rate limit OTP resend attempts — scope: 'resend_otp'"""
     scope = 'resend_otp'
 
 
-class PasswordResetThrottle(AnonRateThrottle):
-    """Rate limit password reset attempts"""
+class PasswordResetThrottle(ScopedRateThrottle):
+    """Rate limit password reset attempts — scope: 'password_reset'"""
     scope = 'password_reset'
 
 
-class LoginThrottle(AnonRateThrottle):
-    """Rate limit login attempts"""
+class LoginThrottle(ScopedRateThrottle):
+    """Rate limit login attempts — scope: 'login'"""
     scope = 'login'
 
 
-class TokenRefreshThrottle(UserRateThrottle):
-    """Rate limit token refresh attempts"""
+class TokenRefreshThrottle(ScopedRateThrottle):
+    """Rate limit token refresh attempts — scope: 'token_refresh'"""
     scope = 'token_refresh'
