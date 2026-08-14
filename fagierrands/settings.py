@@ -342,10 +342,11 @@ if REDIS_URL:
         }
     }
 else:
+    # LocMemCache: per-process, resets on restart.
+    # Good enough for single-worker dev; upgrade to DatabaseCache or Redis for prod.
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'django_cache',  # table name — create with: python manage.py createcachetable
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }
     }
 
