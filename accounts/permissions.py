@@ -174,9 +174,12 @@ class CanManageOrder(BasePermission):
         if request.user.user_type == 'admin':
             return True
         
-        # Handler can manage orders assigned to them
+        # Handler can manage orders belonging to their assigned clients
         if request.user.user_type == 'handler':
-            return obj.handler == request.user or (hasattr(obj, 'assigned_to') and obj.assigned_to == request.user)
+            return (
+                getattr(obj, 'assistant', None) == request.user
+                or (hasattr(obj, 'user') and getattr(obj.user, 'account_manager', None) == request.user)
+            )
         
         # User can only manage their own orders
         return obj.user == request.user

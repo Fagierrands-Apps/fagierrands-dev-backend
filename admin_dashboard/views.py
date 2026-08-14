@@ -11,6 +11,12 @@ from .serializers import AdminUserSerializer, AdminOrderSerializer, RiderVerific
 
 
 def is_admin(user):
+    """Strict admin-only check. Use for destructive or sensitive admin actions."""
+    return user.user_type == 'admin'
+
+
+def is_handler_or_admin(user):
+    """Allows both handlers and admins. Use for shared dashboard/read views."""
     return user.user_type in ['admin', 'handler']
 
 
@@ -18,8 +24,8 @@ def is_admin(user):
 @permission_classes([IsAuthenticated])
 def dashboard_stats(request):
     """Get dashboard statistics"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     today = timezone.now().date()
     
@@ -42,8 +48,8 @@ def dashboard_stats(request):
 @permission_classes([IsAuthenticated])
 def all_users(request):
     """Get all users with filters"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     users = User.objects.filter(user_type='user')
     
@@ -60,8 +66,8 @@ def all_users(request):
 @permission_classes([IsAuthenticated])
 def all_riders(request):
     """Get all riders"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     riders = User.objects.filter(user_type='assistant')
     serializer = AdminUserSerializer(riders, many=True)
@@ -72,8 +78,8 @@ def all_riders(request):
 @permission_classes([IsAuthenticated])
 def all_orders(request):
     """Get all orders with filters"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     orders = Order.objects.all()
     
@@ -90,8 +96,8 @@ def all_orders(request):
 @permission_classes([IsAuthenticated])
 def pending_verifications(request):
     """Get pending rider verifications"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     verifications = AssistantVerification.objects.filter(status='pending')
     serializer = RiderVerificationSerializer(verifications, many=True)
@@ -208,8 +214,8 @@ def activate_user(request, user_id):
 @permission_classes([IsAuthenticated])
 def dashboard_overview(request):
     """Dashboard overview with key metrics"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     from orders.models import Order
     today = timezone.now().date()
@@ -227,8 +233,8 @@ def dashboard_overview(request):
 @permission_classes([IsAuthenticated])
 def live_metrics(request):
     """Real-time metrics"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     from orders.models import Order
     from django.db.models import Count
@@ -248,8 +254,8 @@ def live_metrics(request):
 @permission_classes([IsAuthenticated])
 def calculate_metrics(request):
     """Calculate and update metrics"""
-    if not is_admin(request.user):
-        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+    if not is_handler_or_admin(request.user):
+        return Response({'error': 'Admin or handler access required'}, status=status.HTTP_403_FORBIDDEN)
     
     from orders.models import Order
     today = timezone.now().date()

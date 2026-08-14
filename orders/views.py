@@ -412,12 +412,18 @@ def update_order_status(request, order_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def order_detail_handler(request, order_id):
-    """Order detail for handler - can see any order"""
+    """Order detail for handler - admin sees any order, handler only sees their clients' orders"""
     if request.user.user_type not in ['handler', 'admin']:
-        return Response({'error': 'Handler access required'}, status=status.HTTP_403_FORBIDDEN)
-    
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     try:
         order = Order.objects.select_related('user', 'assistant', 'order_type').get(id=order_id)
+
+        # Handlers may only view orders belonging to their assigned clients
+        if request.user.user_type == 'handler':
+            if order.user.account_manager != request.user:
+                return Response({'error': 'You do not have access to this order'}, status=status.HTTP_403_FORBIDDEN)
+
         return Response(OrderSerializer(order).data)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)

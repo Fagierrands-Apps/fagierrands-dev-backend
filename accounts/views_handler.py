@@ -308,6 +308,9 @@ def handler_dashboard_stats(request):
 @permission_classes([IsAuthenticated])
 def list_handlers(request):
     """List all handlers/riders"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     handlers = User.objects.filter(user_type='handler').order_by('-date_joined')
     
     is_verified = request.query_params.get('is_verified')
@@ -333,6 +336,9 @@ def list_handlers(request):
 @permission_classes([IsAuthenticated])
 def handler_detail(request, handler_id):
     """Get handler details"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     try:
         handler = User.objects.get(id=handler_id, user_type='handler')
         serializer = UserSerializer(handler)
@@ -357,6 +363,9 @@ def handler_detail(request, handler_id):
 @permission_classes([IsAuthenticated])
 def verify_handler(request, handler_id):
     """Verify or reject handler"""
+    if request.user.user_type != 'admin':
+        return Response({'error': 'Admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     try:
         handler = User.objects.get(id=handler_id, user_type='handler')
         
@@ -395,6 +404,9 @@ def verify_handler(request, handler_id):
 @permission_classes([IsAuthenticated])
 def available_handlers(request):
     """Get list of available/active handlers"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     handlers = User.objects.filter(
         user_type='handler',
         is_verified=True,
@@ -414,6 +426,9 @@ def available_handlers(request):
 @permission_classes([IsAuthenticated])
 def handler_stats(request):
     """Get handler statistics"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     from django.db.models import Count
     from orders.models import Order
     

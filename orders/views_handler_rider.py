@@ -363,6 +363,9 @@ def sos_alerts_list(request):
 @permission_classes([IsAuthenticated])
 def resolve_sos_alert(request, alert_id):
     """Resolve an SOS alert"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     from .models import SOSAlert
     from django.utils import timezone
     

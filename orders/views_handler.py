@@ -26,6 +26,9 @@ from accounts.models import User
 @permission_classes([IsAuthenticated])
 def list_orders(request):
     """List all orders with optional status and client_phone filter"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     status_filter = request.query_params.get('status')
     client_phone = request.query_params.get('client_phone')
 
@@ -58,6 +61,9 @@ def list_orders(request):
 @permission_classes([IsAuthenticated])
 def assign_order(request, order_id):
     """Assign order to a rider - allows unlimited concurrent orders"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     try:
         order = Order.objects.get(id=order_id)
         rider_id = request.data.get('rider_id') or request.data.get('assistant_id')
@@ -107,6 +113,9 @@ def assign_order(request, order_id):
 @permission_classes([IsAuthenticated])
 def order_stats(request):
     """Get order statistics for dashboard"""
+    if request.user.user_type not in ['handler', 'admin']:
+        return Response({'error': 'Handler or admin access required'}, status=status.HTTP_403_FORBIDDEN)
+
     from django.db.models import Count, Sum
     
     stats = {
