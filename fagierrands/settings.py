@@ -207,7 +207,7 @@ REST_FRAMEWORK = {
         'anon': '100/hour',
         'user': '1000/hour',
         # Per-endpoint scopes (overridable via env)
-        'register': os.getenv('THROTTLE_REGISTER', '10/day'),
+        'register': os.getenv('THROTTLE_REGISTER', '10/hour'),
         'otp_verification': os.getenv('THROTTLE_OTP_VERIFICATION', '10/hour'),
         'resend_otp': os.getenv('THROTTLE_RESEND_OTP', '6/hour'),
         'password_reset': os.getenv('THROTTLE_PASSWORD_RESET', '3/hour'),

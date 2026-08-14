@@ -55,7 +55,7 @@ section("STEP 1A — Rate Limiting: /api/accounts/register/")
 # ─────────────────────────────────────────────────────────────────────────────
 # RegisterThrottle scope = 'register' → 10/day per IP.
 # Send 12 attempts with same payload — all hit same IP+scope bucket.
-print("  Sending 12 rapid registration attempts (limit: 10/day per IP)...")
+print("  Sending 12 rapid registration attempts (limit: 10/hour per IP)...")
 codes = []
 for i in range(12):
     r = post("/api/accounts/register/", {"phone_number": "+254711111111", "password": "Test1234!", "user_type": "client"})
