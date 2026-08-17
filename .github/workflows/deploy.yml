@@ -24,7 +24,10 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /xxxdx/
+          protocol: ftps
+          port: 21
+          server-dir: /home3/distinc3/fagierrandsbackendapi/
+          timeout: 600000
           exclude: |
             **/.git*
             **/.git*/**

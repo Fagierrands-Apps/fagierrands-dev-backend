@@ -1,4 +1,0 @@
-# test_file.txt
-This is a test file to verify cPanel deployment workflow.
-Created: 2026-06-07 20:37
-Branch: production-clean
