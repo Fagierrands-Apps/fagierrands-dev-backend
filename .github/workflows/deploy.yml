@@ -3,7 +3,7 @@ name: Deploy to cPanel Production
 on:
   push:
     branches: 
-      - production-clean
+      - main
 
 jobs:
   deploy:
@@ -24,7 +24,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /xxxdx/
+          protocol: ftps
+          port: 21
+          server-dir: /home3/distinc3/fagierrandsbackendapi/
           exclude: |
             **/.git*
             **/.git*/**
